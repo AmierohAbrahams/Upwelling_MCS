@@ -1,0 +1,157 @@
+---
+title: "long_ts"
+author: "Amieroh Abrahams"
+date: "31 July 2019"
+output: html_document
+---
+
+# Detectig frequency and intensity of upwelling events - Use MHW algorithm 
+  Long time series of 30years
+  Use OISST 
+  Match this up with MCS occuring in the region
+  Paper 1 (Local paper)
+  Upwelling: 30th percentiles within EBUS
+  
+
+```{r prelim_opts, echo=FALSE}
+knitr::opts_chunk$set(
+  comment = "R>",
+  warning = FALSE,
+  message = FALSE 
+)
+
+library(tidyverse)
+library(plyr)
+library(lubridate)
+library(ggpubr)
+library(zoo)
+library(lubridate)
+library(data.table)
+library(heatwaveR)
+library(viridis)
+library(gridExtra)
+library(circular)
+library(fossil)
+library(plyr) # Never load plyr when also loading the tidyverse. It causes a lot of conflicts.
+library(stringr)
+library(doMC); doMC::registerDoMC(cores = 4)
+library(fasttime)
+library(xtable)
+library(ggpubr)
+library(ggpubr); theme_set(theme_pubr())# library(devtools)
+
+```
+
+# Loading the data and finding a 30year time series
+
+```{r}
+load("~/Documents/Masters_2019/Upwelling_MCS/Data/SACTN_daily_v4.2.RData")
+load("~/Documents/Masters_2019/Upwelling_MCS/Data/site_list_v4.2.RData")
+
+site_list_sub <- site_list %>%
+  filter(coast == "wc") %>%
+  filter(length > 10950) 
+
+SACTN_US <- SACTN_daily_v4.2 %>%
+  left_join(site_list[,c(4,13)], by = "index") %>%
+  filter(index %in% site_list_sub$index) %>%
+  separate(index, into = c("site", "src"), sep = "/", remove = FALSE) 
+```
+
+# Long time series in_situ temperature
+  First creating datasets for each region
+  Now I determine the frequency and intensity of MCS using the MHW algorithm
+  
+```{r}
+SACTN_PN <- SACTN_US %>%
+  filter(site == "Port Nolloth") %>%
+  select(-index, -site, -src, -length) %>% 
+  dplyr::rename(t = date) %>% 
+  drop_na()
+
+SACTN_LB <- SACTN_US %>%
+  filter(site == "Lamberts Bay") %>%
+  select(-index, -site, -src, -length) %>% 
+  dplyr::rename(t = date) %>% 
+  drop_na()
+
+SACTN_SB <- SACTN_US %>%
+  filter(site == "Saldanha Bay") %>%
+  select(-index, -site, -src, -length) %>% 
+  dplyr::rename(t = date) %>% 
+  drop_na()
+
+SACTN_SP <- SACTN_US %>%
+  filter(site == "Sea Point") %>%
+  select(-index, -site, -src, -length) %>% 
+  dplyr::rename(t = date) %>% 
+  drop_na()
+
+SACTN_HB <- SACTN_US %>%
+  filter(site == "Hout Bay") %>%
+  select(-index, -site, -src, -length) %>% 
+  dplyr::rename(t = date) %>% 
+  drop_na()
+```
+
+  The rate of onset of MCS can be determined here
+
+```{r}
+#' # Or if one wants to calculate MCSs
+res_clim <- ts2clm(SACTN_PN, climatologyPeriod = c("1974-01-01", "2015-12-31"),
+                   pctile = 10)
+PN_MCS <- detect_event(res_clim, coldSpells = TRUE)
+
+res_clim <- ts2clm(SACTN_LB, climatologyPeriod = c("1974-01-01", "2015-12-31"),
+                   pctile = 10)
+LB_MCS <- detect_event(res_clim, coldSpells = TRUE)
+
+res_MCS <- ts2clm(SACTN_SB, climatologyPeriod = c("1974-01-01", "2015-12-31"),
+                   pctile = 10)
+SB_MCS <- detect_event(res_clim, coldSpells = TRUE)
+
+res_clim <- ts2clm(SACTN_SP, climatologyPeriod = c("1974-01-01", "2015-12-31"),
+                   pctile = 10)
+SP_MCS <- detect_event(res_clim, coldSpells = TRUE)
+
+res_clim <- ts2clm(SACTN_HB, climatologyPeriod = c("1974-01-01", "2005-10-19"),
+                   pctile = 10)
+HB_MCS <- detect_event(res_clim, coldSpells = TRUE)
+```
+
+## Upwelling events - 30th percentile used as a threshold to detect upwellling events
+
+```{r}
+res_clim <- ts2clm(SACTN_PN, climatologyPeriod = c("1974-01-01", "2015-12-31"),
+                   pctile = 30)
+PN_upwelling <- detect_event(res_clim)
+
+res_clim <- ts2clm(SACTN_LB, climatologyPeriod = c("1974-01-01", "2015-12-31"),
+                   pctile = 30)
+LB_MCS <- detect_event(res_clim)
+
+res_MCS <- ts2clm(SACTN_SB, climatologyPeriod = c("1974-01-01", "2015-12-31"),
+                   pctile = 30)
+SB_MCS <- detect_event(res_clim)
+
+res_clim <- ts2clm(SACTN_SP, climatologyPeriod = c("1974-01-01", "2015-12-31"),
+                   pctile = 30)
+SP_MCS <- detect_event(res_clim)
+
+res_clim <- ts2clm(SACTN_HB, climatologyPeriod = c("1974-01-01", "2005-10-19"),
+                   pctile = 30)
+HB_MCS <- detect_event(res_clim)
+```
+
+# Will have to be repeated for the remotely sensed sites
+
+
+
+
+
+
+
+
+
+
+
