@@ -57,7 +57,9 @@ site_list_sub <- site_list %>%
 SACTN_US <- SACTN_daily_v4.2 %>%
   left_join(site_list[,c(4,13)], by = "index") %>%
   filter(index %in% site_list_sub$index) %>%
-  separate(index, into = c("site", "src"), sep = "/", remove = FALSE) 
+  separate(index, into = c("site", "src"), sep = "/", remove = FALSE)
+
+save(SACTN_US, file = "Data/SACTN_US.RData")
 ```
 
 # Long time series in_situ temperature

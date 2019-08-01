@@ -5,9 +5,6 @@ date: "01 August 2019"
 output: html_document
 ---
 
-
-
-
 Loading the Wind data. The wind dataset was supplied by the SAWS in .text format. Wind data was provided for the sites closes to the requested site as wind data may not be available for the 6 study sites in this research.  The wind direction was collected every 2 hours and by using the circular function we calcuated the daily wind direction and mean speed. There is a numerically large gap between 360 and 2 where as in degrees its not as large. The circular mean function returns the mean direction of a vector of circular data. https://cran.r-project.org/web/packages/circular/circular.pdf (Pg 130). The circular function creates circular objects around the wind direction. 
 
 ```{r}
@@ -125,7 +122,7 @@ library(circular)
 # wind_data <- read_csv("wind_data.csv", col_types = cols(X1 = col_number(), date = col_character(), dir = col_number(), hour = col_number(),  speed = col_number())) # Dataset too large for Github but better data at line 638
 
 # wind_data <- read_csv("Data_P1/wind_data.csv")
-selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay") 
+selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay", "Hout Bay") 
 
 wind_daily <- wind_data %>%
   # ungroup() %>%
@@ -142,3 +139,53 @@ wind_daily <- wind_data %>%
 # Loading the subsetted wind data created from the text files above 
 load("Data/wind_daily.RData") 
 ```
+
+# Matching
+  Matching the wind data with the temperature data using the match function
+  
+```{r}
+match_func <- function(df){
+  match <- SACTN_US  %>%  
+  left_join(df, by = c("site", "date")) %>% 
+  na.trim()
+  return(match)
+}
+
+wind_daily <- wind_daily %>% 
+  dplyr::rename(site = temp_sites)
+
+wind_match <- match_func(df = wind_daily) 
+
+library(openair)
+print(
+with(wind_match,
+     windRose(data_frame(ws=mean_speed, wd=dir_circ, 
+                         date=date, station=factor(site)),
+
+              paddle=FALSE, type="station", width=2))
+)
+# png("Figures/wind.png", width = 8, height = 5, pointsize = 6)
+?windRose
+
+# insitu_wind_2 <- insitu_wind %>% 
+#   filter(site == "Port Nolloth")
+# 
+# insitu_wind_3 <- insitu_wind %>% 
+#   filter(site == "Lamberts Bay")
+# 
+# plotPN <- plot(as.factor(format(insitu_wind_2$date, "%Y-%m")), insitu_wind_2$insitu_temp, col = "lightpink")
+# plotLB <- plot(as.factor(format(insitu_wind_3$date, "%Y-%m")), insitu_wind_3$insitu_temp, col = "lightpink")
+#        
+# ?plot
+```
+
+
+
+
+
+
+
+
+
+
+
