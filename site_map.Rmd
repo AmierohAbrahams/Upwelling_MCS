@@ -1,0 +1,266 @@
+---
+title: "site_map"
+author: "Amieroh Abrahams"
+date: "01 August 2019"
+output: html_document
+---
+
+# Loading Libraries
+
+ 
+```{r prelim_opts, echo=FALSE}
+knitr::opts_chunk$set(
+  comment = "R>",
+  warning = FALSE,
+  message = FALSE 
+)
+
+library(tidyverse)
+library(plyr)
+library(lubridate)
+library(ggpubr)
+library(zoo)
+library(lubridate)
+library(FNN)
+library(forecast)
+library(astrochron)
+library(WaveletComp)
+library(data.table)
+library(heatwaveR)
+library(viridis)
+library(ggrepel)
+library(plyr)
+library(maptools)
+library(sp)
+library(geosphere)
+library(PBSmapping)
+library(scales)
+library(grid)
+library(gridExtra)
+library(circular)
+library(fossil)
+library(mapproj)
+library(ncdf4)
+library(reshape2)
+library(plyr) # Never load plyr when also loading the tidyverse. It causes a lot of conflicts.
+library(stringr)
+library(doMC); doMC::registerDoMC(cores = 4)
+library(fasttime)
+library(xtable)
+library(ggpubr)
+library(ggpubr); theme_set(theme_pubr())# library(devtools)
+# install_github("marchtaylor/sinkr")
+
+## Functions
+source("Functions/earthdist.R")
+source("Functions/wind.rose.R")
+source("Functions/theme.R")
+source("Functions/scale.bar.func.R")
+```
+
+```{r}
+load("Data/site_list_sub.Rdata")
+load("Data/africa_coast.RData")
+xtable(site_list_sub, auto = TRUE)
+west <- site_list_sub
+west$coast <- "west" # Chnages wc to west
+
+load("Data/sa_bathy.RData")
+## Downloading the bathy data from NOAA
+# Download mid-res bathymetry data
+# sa_lat <- c(-38, -24.5); sa_lon <- c(11.5, 35.5)
+# sa_bathy <- as.xyz(getNOAA.bathy(lon1 = sa_lon[1], lon2 = sa_lon[2], lat1 = sa_lat[1], lat2 = sa_lat[2], resolution = 4))
+# colnames(sa_bathy) <- c("lon", "lat", "depth")
+# sa_bathy <- sa_bathy[sa_bathy$depth <= 0,]
+# save(sa_bathy, file = "Data_P1/bathy/sa_bathy.RData")
+
+# Loading in the newly downloaded bathymetry data
+load("Data/sa_bathy.RData")
+load("Data/africa_coast.RData")
+
+# This function takes one site (e.g. one set of lon/lats) and calculates a shore normal transect
+shore.normal.transect <- function(site, width = 2){
+  # Find the site on the coastline and it's nearest neighbour points
+  coords <- data.frame(lon = site$lon, lat = site$lat)
+  coords2 <- knnx.index(africa_coast[,1:2], as.matrix(coords), k = 1)
+  coords3 <- data.frame(site = site$site, africa_coast[c(coords2-width, coords2+width),]) 
+  coords3 <- coords3[2:1,1:3]
+  # Define the shore normal transect bearing
+  heading <- earth.bear(coords3[1,2], coords3[1,3], coords3[2,2], coords3[2,3]) + 90
+  if(heading >= 360){
+    heading <- heading-360
+  } else {
+    heading <- heading
+  }
+  heading2 <- data.frame(site = site$site, lon = site$lon, lat = site$lat, heading)
+  return(heading2)
+}
+
+# Creating the transects
+site_transects <- data.frame()
+for(i in 1:length(west$site)){
+ site <- west[i,]
+ site_transect <- shore.normal.transect(site, 2)
+ site_transects <- rbind(site_transects, site_transect)
+}
+
+# Manually correcting Sea Point and Kommetjie
+site_transects$heading[4] <- 290 
+# save(site_transects, file = "Data/site_transects.RData")
+load("Data/site_transects.RData")
+
+# This function takes one site (e.g. one set of lon/lats) and calculates a shore normal transect
+# It then extracts a lat/ lon point every X kilometres until reaching a specified isobath
+
+transect.pixel <- function(site, distances){
+  # Extract coordinates
+  coords <- data.frame(lon = site$lon, lat = site$lat)
+  # Find lon/ lats every X metres 
+  pixels <- data.frame()
+  # deep <- 999
+  # distance_multiplier <- 1
+  # while(deep > isobath){
+  for(i in 1:length(distances)){
+    coords2 <- as.data.frame(destPoint(p = coords, b = site$heading, d = distances[i]))
+    sitesIdx <- knnx.index(sa_bathy[,1:2], as.matrix(coords2), k = 1)
+    bathy2 <- sa_bathy[sitesIdx,]
+    bathy2 <- bathy2[complete.cases(bathy2$depth),]
+    bathy3 <- data.frame(site = site$site, lon = bathy2$lon, lat = bathy2$lat, 
+                         heading = site$heading, 
+                         distance = distances[i])
+    pixels <- rbind(pixels, bathy3)
+    coords <- coords2
+  }
+  if(nrow(pixels) < 1){
+    pixels <- data.frame(site, depth = NA)
+  }else{
+    pixels <- pixels
+  }
+  return(pixels)
+}
+
+# Pixel points
+site_pixels <- data.frame()
+for(i in 1:length(west$site)){
+  site <- site_transects[i,]
+  site_pixel <- transect.pixel(site, c(10000, 20000, 30000, 40000, 50000)) # RWS: fixed error
+  site_pixels <- rbind(site_pixels, site_pixel)
+}
+
+# save(site_pixels, file = "Data/site_pixels.RData")
+load("Data/site_pixels.RData")
+
+# Bounding box
+  # Only one is made in order to know how large the the geom_point() squares should be made to match
+bbox <- data.frame(xmin = destPoint(p = site_pixels[1,2:3], b = 270, d = 12500)[1],
+                   xmax = destPoint(p = site_pixels[1,2:3], b = 90, d = 12500)[1],
+                   ymin = destPoint(p = site_pixels[1,2:3], b = 180, d = 12500)[2],
+                   ymax = destPoint(p = site_pixels[1,2:3], b = 0, d = 12500)[2])
+
+# Determining the temperature at the various distances from the coast
+```
+
+
+```{r}
+load("Data/south_africa_coast.RData")
+load("Data/africa_coast.RData")
+load("Data/sa_provinces_new.RData")
+load("Data/site_list_sub.Rdata")
+load("Data/site_pixels.RData")
+load("Data/MUR.RData")
+names(south_africa_coast)[1] <- "lon"
+
+# Manually divide up coastline
+wc <- south_africa_coast[291:410,]
+
+# Setting up the theme
+theme_set(theme_bw())
+limits <- c(12,28) # for colour bar
+#breaks <- seq(6, 30, 2) # Create breaks to be used for colour bar
+
+# Define plotting parameters
+sa_lats <- c(-37, -27); sa_lons <- c(14, 25)
+
+site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) + bw_update +
+  geom_raster(data = MUR, aes(x = lon, y = lat, fill = temp)) +
+   geom_polygon(data = south_africa_coast, aes(x = lon, y = lat, group = group),
+                fill = "grey", colour = "grey", size = 0.1, show.legend = FALSE) +
+  geom_point(data = site_list_sub, aes(x = lon, y = lat), alpha = 0.8, size = 3) +
+  geom_point(data = site_pixels, aes(x = lon, y = lat), colour = "white", shape = 0, alpha = 0.8, size = 2.1) +
+  coord_equal(xlim = c(15, 25), ylim = c(-36,-26), expand = 0) +
+  # geom_rect(data = bbox, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+  #           alpha = 0.4, colour = "red", size = 0.1, linetype = 1) +
+  # scale_x_continuous(limits = sa_lons, expand = c(0, 0), breaks = seq(15, 35, 5)) +
+  # scale_y_continuous(limits = sa_lats, expand = c(0, 0), breaks = seq(-35, -30, 5)) +
+  scale_fill_viridis(
+    option = "magma",
+    name = "Temperature (°C)",
+    alpha = 0.8) +
+  xlab("") + ylab("") +
+  # annotate("text", label = "INDIAN\nOCEAN", x = 32.00, y = -35.0,
+  #            size = 4, angle = 0, colour = "black") +
+    annotate("text", label = "ATLANTIC\nOCEAN", x = 17.00, y = -35.0,
+             size =4, angle = 0, colour = "black") +
+    annotate("text", label = "Benguela", x = 16.0, y = -31.7,
+             size = 4, angle = 302, colour = "black") +
+    # annotate("text", label = "Agulhas", x = 31.7, y = -31.7,
+    #          size = 5, angle = 50, colour = "black") +
+  guides(fill = guide_colourbar()) +
+  scale_x_continuous(expand = c(0, 0),
+                       labels = scales::unit_format(unit = "°E", sep = "")) +
+    scale_y_continuous(expand = c(0, 0),
+                       labels = scales::unit_format(unit = "°S", sep = "")) +
+  theme(panel.background = element_rect(fill = "ivory", colour = NA),
+        panel.border = element_rect(colour = "black", size = 0.5),
+        panel.grid.minor = element_line(colour = "NA"),
+        panel.grid.major = element_line(colour = "ivory", size = 0.2, linetype = "dotted"),
+        legend.text = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        axis.ticks = element_line(size = 0.5),
+        axis.text = element_text(size = 6)) +
+    guides(fill = guide_colourbar(barheight = 1.00, barwidth = 10)) +
+  theme(panel.background = element_rect(fill = "ivory", colour = NA),
+        panel.border = element_rect(colour = "black", size = 0.5),
+        panel.grid.minor = element_line(colour = "NA"),
+        panel.grid.major = element_line(colour = "ivory", size = 0.2, linetype = "dotted"),
+        legend.direction = "horizontal",
+        legend.justification = c(1,0),
+        legend.position = c(0.65, 0.80),
+        legend.text = element_text(size = 8),
+        legend.title = element_text(size = 8),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        axis.ticks = element_line(size = 0.5))
+site_map
+
+africa_map <- ggplot(africa_coast, aes(x = lon, y = lat)) + 
+  theme_bw() + 
+  coord_equal() + 
+  geom_polygon(aes(group = group), colour = "black", fill = "grey80") + 
+  geom_polygon(data = sa_provinces_new, (aes(group = group))) +
+  annotate("text", label = "Africa", x = 16.0, y = 15.0, size = 3) + 
+  theme(panel.border = element_rect(colour = "black", size = 0.4), 
+        plot.background = element_blank(), 
+        axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank()) +
+  coord_map(xlim = c(-20, 53), ylim = c(-36, 38), projection = "mercator") 
+africa_map
+
+# More mapping - http://r-nold.blogspot.com/2014/06/creating-inset-map-with-ggplot2.html
+
+pdf("Figures/map_fixed.pdf", width = 10, height = 7, pointsize = 4) # Set PDF dimensions
+vp1 <- viewport(x = 0.70, y = 0.58, w = 0.25, h = 0.25) # Africa
+vp2 <- viewport(x = 1.0, y = 1.0, w = 1.00, h = 1.00, just = c("right", "top"))  # South Africa
+print(site_map, vp = vp2)
+print(africa_map, vp = vp1)
+dev.off()
+
+# Site map
+# The insetting needs to be placed at appropriate location
+```
+
