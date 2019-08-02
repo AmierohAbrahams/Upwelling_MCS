@@ -136,18 +136,18 @@ Chloro_ggplot(daily_chloro_data_tester, aes(x = date, y = chloro)) +
 Chloro_plot_filtered
 
 # # With the chloro pixels filter, it is now faster to create the daily data
-# daily_chloro_data <- daily_chloro_match %>%
-#   dplyr::mutate(date = as.Date(date)) %>%
-#   dplyr::group_by(combi, lon, lat, date) %>%
-#   dplyr::summarise(chloro = mean(chloro, na.rm = TRUE)) %>%
-#   dplyr::group_by(combi, lon, lat) %>%
-#   tidyr::nest() %>%
-#   dplyr::mutate(clims = purrr::map(data, ts2clm, x = date, y = chloro,
-#                      climatologyPeriod = c("2002-07-13", "2018-12-04"), # This doesn't mean anything, but the function needs it to work
-#                      maxPadLength = 8)) %>% # Adjust maxPadLength = X for longer interpolation
-#   dplyr::select(-data) %>%
-#   tidyr::unnest() %>%
-#   select(-doy, -seas, -thresh)
+daily_chloro_data <-  %>%
+  dplyr::mutate(date = as.Date(date)) %>%
+  dplyr::group_by(combi, lon, lat, date) %>%
+  dplyr::summarise(chloro = mean(chloro, na.rm = TRUE)) %>%
+  dplyr::group_by(combi, lon, lat) %>%
+  tidyr::nest() %>%
+  dplyr::mutate(clims = purrr::map(data, ts2clm, x = date, y = chloro,
+                     climatologyPeriod = c("2002-07-13", "2018-12-04"), 
+                     maxPadLength = 8)) %>% 
+  dplyr::select(-data) %>%
+  tidyr::unnest() %>%
+  select(-doy, -seas, -thresh)
 
 
 ## Plotting daily data
