@@ -86,7 +86,7 @@ llply(ncList, ncFun, csv.dir = MODIS_chlor.csv.dir, .parallel = TRUE)
 
 # Loading the data
 load("Data/MODIS_Chloro.RData") # Extracted chlorophyll data
-load("Data/SACTN_US.RData") # Site list of all the sites along the west coast
+load("Data/site_list_sub.RData") # Site list of all the sites along the west coast
 
 chloro_plot <- MODIS_Chloro %>%
   filter(date == min(date)) %>%
@@ -98,12 +98,12 @@ unique_pixel <- MODIS_Chloro %>%
   unique()
 
 match_index <- knnx.index(data = as.matrix(unique_pixel[,1:2]),
-                          query = as.matrix(SACTN_US[,5:6]), k = 1)
+                          query = as.matrix(site_list_sub[,5:6]), k = 1)
 
 # Matching the sites within the chlorophyll data to the sites along the west coast
 pixel_match <- unique_pixel[match_index,] %>%
   unite(col = combi, lon, lat, sep = "/", remove = F) %>%
-  mutate(site = SACTN_US$site)
+  mutate(site = site_list_sub$site)
 
 chloro_match <- MODIS_Chloro %>%
   unite(col = combi, lon, lat, sep = "/", remove = F) %>%
