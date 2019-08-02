@@ -155,6 +155,7 @@ wind_daily <- wind_daily %>%
   dplyr::rename(site = temp_sites)
 
 wind_match <- match_func(df = wind_daily) 
+# save(wind_match, file = "Data/wind_match.RData")
 
 library(openair)
 print(
@@ -166,19 +167,29 @@ with(wind_match,
 )
 # png("Figures/wind.png", width = 8, height = 5, pointsize = 6)
 ?windRose
-
-# insitu_wind_2 <- insitu_wind %>% 
-#   filter(site == "Port Nolloth")
-# 
-# insitu_wind_3 <- insitu_wind %>% 
-#   filter(site == "Lamberts Bay")
-# 
-# plotPN <- plot(as.factor(format(insitu_wind_2$date, "%Y-%m")), insitu_wind_2$insitu_temp, col = "lightpink")
-# plotLB <- plot(as.factor(format(insitu_wind_3$date, "%Y-%m")), insitu_wind_3$insitu_temp, col = "lightpink")
-#        
 # ?plot
 ```
 
+## Wind rose plots
+
+```{r}
+# Loading in the matched wind data
+load("Data/wind_match.RData")
+
+wind_match <- wind_match %>% 
+  drop_na()
+
+wave_daily_renamed <- wind_match %>% 
+  dplyr::rename(spd = mean_speed) %>%
+  dplyr::rename(dir = dir_circ) 
+source("Functions/wind.rose.R")
+p.wr2 <- plot.windrose(data = wave_daily_renamed,
+              spd = "spd",
+              dir = "dir")
+p.wr3 <- p.wr2 + facet_wrap(.~ site, ncol = 2, nrow = "") +
+  theme(strip.text.x = element_text(size = 25))
+p.wr3  # Change colours and remove the NA values
+```
 
 
 
