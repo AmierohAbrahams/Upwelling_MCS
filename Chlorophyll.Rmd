@@ -109,54 +109,54 @@ chloro_match <- MODIS_Chloro %>%
   unite(col = combi, lon, lat, sep = "/", remove = F) %>%
   filter(combi %in% pixel_match$combi)
 
-chloro_match %>%
-  filter(date == max(date)) %>%
-  ggplot(aes(x = lon, y = lat)) +
-  geom_raster(aes(fill = chloro))
+# chloro_match %>%
+#   filter(date == max(date)) %>%
+#   ggplot(aes(x = lon, y = lat)) +
+#   geom_raster(aes(fill = chloro))
+# 
+# chloro_sites <- chloro_match %>%
+#   left_join(pixel_match, by = c("combi", "lon", "lat")) %>% 
+#   dplyr::mutate(date = as.Date(date))
+# # save(chloro_sites, file = "Data_P1/chloro_sites.RData")
+# 
+# # Visualisation
+# load("Data_P1/chloro_sites.RData")
+# Chloro_plot_complete <- ggplot(chloro_sites, aes(x = date, y = chloro)) +
+#   geom_line() +
+#   facet_wrap(~site, ncol = 1)
+# Chloro_plot_complete
+# 
+# # Study period from 2010 - 2014
+# chloro_data <- chloro_sites %>% 
+#   filter(year(date) %in% seq(2010, 2014))
+# # save(chloro_data, file = "Data_P1/chloro_data.RData")
+# 
+# # Plotting only years 2014-2015
+# load("Data_P1/chloro_data.RData")
+# Chloro_plot_filtered <- ggplot(chloro_data, aes(x = date, y = chloro)) +
+#   geom_line() +
+#   facet_wrap(~site, ncol = 1)
+# Chloro_plot_filtered
 
-combined_chloro_sites <- chloro_match %>%
-  left_join(pixel_match, by = c("combi", "lon", "lat")) %>% 
-  dplyr::mutate(date = as.Date(date))
+# Creating daily temperatures
+load("Data_P1/chloro_data.RData") # Loading in the chlorophyll-a data
 
-# Save the complete dataset
-# save(combined_chloro_sites, file = "Data/combined_chloro_sites.RData")
-
-Chloro_plot_complete <- ggplot(combined_chloro_sites, aes(x = date, y = chloro)) +
-  geom_line() +
-  facet_wrap(~site, ncol = 1)
-Chloro_plot_complete
-
-# Plotting only years 2014-2015
-daily_chloro_data_tester <- combined_chloro_sites %>% 
-  filter(year(date) %in% seq(2014, 2015))
-
-Chloro_ggplot(daily_chloro_data_tester, aes(x = date, y = chloro)) +
-  geom_line() +
-  facet_wrap(~site, ncol = 1)
-Chloro_plot_filtered
-
-# # With the chloro pixels filter, it is now faster to create the daily data
-daily_chloro_data <-  %>%
-  dplyr::mutate(date = as.Date(date)) %>%
+daily_chloro <- chloro_data %>%
+  # dplyr::mutate(date = as.Date(date)) %>% 
   dplyr::group_by(combi, lon, lat, date) %>%
   dplyr::summarise(chloro = mean(chloro, na.rm = TRUE)) %>%
-  dplyr::group_by(combi, lon, lat) %>%
+  dplyr::group_by(combi, lon, lat) %>% 
+  drop_na() %>% 
   tidyr::nest() %>%
   dplyr::mutate(clims = purrr::map(data, ts2clm, x = date, y = chloro,
-                     climatologyPeriod = c("2002-07-13", "2018-12-04"), 
-                     maxPadLength = 8)) %>% 
+                     climatologyPeriod = c("2010-02-11", "2014-12-20"),
+                     maxPadLength = 8)) %>% # Adjust maxPadLength = X for longer interpolation
   dplyr::select(-data) %>%
   tidyr::unnest() %>%
   select(-doy, -seas, -thresh)
 
 
-## Plotting daily data
-# ggplot(daily_chloro_data, aes(x = date, y = chloro)) +
-#   geom_line() +
-#   facet_wrap(~combi, ncol = 1)
-
-# daily_chloro_match_sites <- daily_chloro_data %>%
-# left_join(pixel_match, by = c("combi", "lon", "lat", "month", "day", "year"))
+****Error: Evaluation error: sort(): detected NaN.*** 
 ```
 
 
