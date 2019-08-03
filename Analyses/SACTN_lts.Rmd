@@ -59,7 +59,7 @@ SACTN_US <- SACTN_daily_v4.2 %>%
   filter(index %in% site_list_sub$index) %>%
   separate(index, into = c("site", "src"), sep = "/", remove = FALSE)
 
-save(SACTN_US, file = "Data/SACTN_US.RData")
+# save(SACTN_US, file = "Data/SACTN_US.RData")
 ```
 
 # Long time series in_situ temperature
@@ -101,53 +101,67 @@ SACTN_HB <- SACTN_US %>%
   The rate of onset of MCS can be determined here
 
 ```{r}
+
 #' # Or if one wants to calculate MCSs
-res_clim <- ts2clm(SACTN_PN, climatologyPeriod = c("1974-01-01", "2015-12-31"),
-                   pctile = 10)
-PN_MCS <- detect_event(res_clim, coldSpells = TRUE)
 
-res_clim <- ts2clm(SACTN_LB, climatologyPeriod = c("1974-01-01", "2015-12-31"),
+MCS_func <- function(df){
+  res_clim <- ts2clm(df, climatologyPeriod = c("1974-01-01", "2015-12-31"),
                    pctile = 10)
-LB_MCS <- detect_event(res_clim, coldSpells = TRUE)
+  return(res_clim)
+}
 
-res_MCS <- ts2clm(SACTN_SB, climatologyPeriod = c("1974-01-01", "2015-12-31"),
-                   pctile = 10)
-SB_MCS <- detect_event(res_clim, coldSpells = TRUE)
+PN_MCS <- MCS_func(df = SACTN_PN)
+LB_MCS <- MCS_func(df = SACTN_LB)
+SB_MCS <- MCS_func(df = SACTN_SB)
+SP_MCS <- MCS_func(df = SACTN_SP)
 
-res_clim <- ts2clm(SACTN_SP, climatologyPeriod = c("1974-01-01", "2015-12-31"),
+res_clim <- ts2clm(SACTN_HB, climatologyPeriod = c("1974-01-01", "2005-10-19"), # Climatological period differs to the rest
                    pctile = 10)
-SP_MCS <- detect_event(res_clim, coldSpells = TRUE)
 
-res_clim <- ts2clm(SACTN_HB, climatologyPeriod = c("1974-01-01", "2005-10-19"),
-                   pctile = 10)
-HB_MCS <- detect_event(res_clim, coldSpells = TRUE)
+## Events
+MCS_event <- function(df){
+  detect <- detect_event(df, coldSpells = TRUE)
+  return(detect)
+}
+
+PN_MCS_events <- MCS_func(df = PN_MCS)
+LB_MCS_events <- MCS_func(df = LB_MCS)
+SB_MCS_events <- MCS_func(df = SB_MCS)
+SP_MCS_events <- MCS_func(df = SP_MCS)
+
+HB_MCS_events <- detect_event(res_clim, coldSpells = TRUE) # line 118 -
 ```
 
-## Upwelling events - 30th percentile used as a threshold to detect upwellling events
+## Upwelling events - 30th percentile used as a threshold to detect upwellling events. 
 
 ```{r}
-res_clim <- ts2clm(SACTN_PN, climatologyPeriod = c("1974-01-01", "2015-12-31"),
+upwell_func <- function(df){
+  res_clim <- ts2clm(df, climatologyPeriod = c("1974-01-01", "2015-12-31"),
                    pctile = 30)
-PN_upwelling <- detect_event(res_clim)
+  return(res_clim)
+}
 
-res_clim <- ts2clm(SACTN_LB, climatologyPeriod = c("1974-01-01", "2015-12-31"),
-                   pctile = 30)
-LB_MCS <- detect_event(res_clim)
+PN_upwell <- upwell_func(df = SACTN_PN)
+LB_upwell <- upwell_func(df = SACTN_LB)
+SB_upwell <- upwell_func(df = SACTN_SB)
+SP_upwell <- upwell_func(df = SACTN_SP)
 
-res_MCS <- ts2clm(SACTN_SB, climatologyPeriod = c("1974-01-01", "2015-12-31"),
-                   pctile = 30)
-SB_MCS <- detect_event(res_clim)
+res_clim <- ts2clm(SACTN_HB, climatologyPeriod = c("1974-01-01", "2005-10-19"), # Climatological period differs to the rest
+                   pctile = 10)
 
-res_clim <- ts2clm(SACTN_SP, climatologyPeriod = c("1974-01-01", "2015-12-31"),
-                   pctile = 30)
-SP_MCS <- detect_event(res_clim)
+## Events
+upwell_event <- function(df){
+  detect <- detect_event(df, minDuration = 2, coldSpells = TRUE)
+  return(detect)
+}
 
-res_clim <- ts2clm(SACTN_HB, climatologyPeriod = c("1974-01-01", "2005-10-19"),
-                   pctile = 30)
-HB_MCS <- detect_event(res_clim)
+PN_upwell_events <- MCS_func(df = PN_upwell)
+LB_upwell_events <- MCS_func(df = LB_upwell)
+SB_upwell_events <- MCS_func(df = SB_upwell)
+SP_upwell_events <- MCS_func(df = SP_upwell)
+
+HB_upwell_events <- detect_event(res_clim, minDuration = 2, coldSpells = TRUE) # line 1
 ```
-
-# Will have to be repeated for the remotely sensed sites
 
 
 
