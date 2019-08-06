@@ -86,7 +86,7 @@ llply(ncList, ncFun, csv.dir = MODIS_chlor.csv.dir, .parallel = TRUE)
 
 # Loading the data
 load("Data/MODIS_Chloro.RData") # Extracted chlorophyll data
-load("Data/site_list_sub.RData") # Site list of all the sites along the west coast
+load("~/Documents/Masters_2019/Upwelling_MCS/Data/site_list_sub.Rdata") # Site list of all the sites along the west coast
 
 chloro_plot <- MODIS_Chloro %>%
   filter(date == min(date)) %>%
@@ -114,34 +114,20 @@ chloro_match <- MODIS_Chloro %>%
 #   ggplot(aes(x = lon, y = lat)) +
 #   geom_raster(aes(fill = chloro))
 # 
-# chloro_sites <- chloro_match %>%
-#   left_join(pixel_match, by = c("combi", "lon", "lat")) %>% 
-#   dplyr::mutate(date = as.Date(date))
-# # save(chloro_sites, file = "Data_P1/chloro_sites.RData")
-# 
+chloro_sites <- chloro_match %>%
+  left_join(pixel_match, by = c("combi", "lon", "lat")) %>%
+  dplyr::mutate(date = as.Date(date))
+save(chloro_sites, file = "Data/chloro_sites.RData")
+
 # # Visualisation
-# load("Data_P1/chloro_sites.RData")
+load("Data/chloro_sites.RData")
 # Chloro_plot_complete <- ggplot(chloro_sites, aes(x = date, y = chloro)) +
 #   geom_line() +
 #   facet_wrap(~site, ncol = 1)
 # Chloro_plot_complete
-# 
-# # Study period from 2010 - 2014
-# chloro_data <- chloro_sites %>% 
-#   filter(year(date) %in% seq(2010, 2014))
-# # save(chloro_data, file = "Data_P1/chloro_data.RData")
-# 
-# # Plotting only years 2014-2015
-# load("Data_P1/chloro_data.RData")
-# Chloro_plot_filtered <- ggplot(chloro_data, aes(x = date, y = chloro)) +
-#   geom_line() +
-#   facet_wrap(~site, ncol = 1)
-# Chloro_plot_filtered
 
 # Creating daily temperatures
-load("Data_P1/chloro_data.RData") # Loading in the chlorophyll-a data
-
-daily_chloro <- chloro_data %>%
+daily_chloro <- chloro_sites %>%
   # dplyr::mutate(date = as.Date(date)) %>% 
   dplyr::group_by(combi, lon, lat, date) %>%
   dplyr::summarise(chloro = mean(chloro, na.rm = TRUE)) %>%
