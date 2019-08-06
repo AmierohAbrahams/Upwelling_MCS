@@ -25,12 +25,10 @@ library(plyr)
 library(lubridate)
 library(ggpubr)
 library(zoo)
-library(lubridate)
 library(data.table)
 library(heatwaveR)
 library(viridis)
 library(gridExtra)
-library(circular)
 library(fossil)
 library(plyr) # Never load plyr when also loading the tidyverse. It causes a lot of conflicts.
 library(stringr)
@@ -67,35 +65,21 @@ SACTN_US <- SACTN_daily_v4.2 %>%
   Now I determine the frequency and intensity of MCS using the MHW algorithm
   
 ```{r}
-SACTN_PN <- SACTN_US %>%
-  filter(site == "Port Nolloth") %>%
-  select(-index, -site, -src, -length) %>% 
-  dplyr::rename(t = date) %>% 
-  drop_na()
 
-SACTN_LB <- SACTN_US %>%
-  filter(site == "Lamberts Bay") %>%
+filter_SACTN <- function(df){
+  SACTN_PN <- SACTN_US %>%
+  filter(site == df) %>%
   select(-index, -site, -src, -length) %>% 
   dplyr::rename(t = date) %>% 
   drop_na()
+  return(SACTN_PN)
+}
 
-SACTN_SB <- SACTN_US %>%
-  filter(site == "Saldanha Bay") %>%
-  select(-index, -site, -src, -length) %>% 
-  dplyr::rename(t = date) %>% 
-  drop_na()
-
-SACTN_SP <- SACTN_US %>%
-  filter(site == "Sea Point") %>%
-  select(-index, -site, -src, -length) %>% 
-  dplyr::rename(t = date) %>% 
-  drop_na()
-
-SACTN_HB <- SACTN_US %>%
-  filter(site == "Hout Bay") %>%
-  select(-index, -site, -src, -length) %>% 
-  dplyr::rename(t = date) %>% 
-  drop_na()
+SACTN_LB <- filter_SACTN(df = "Lamberts Bay") 
+SACTN_PN <- filter_SACTN(df = "Port Nolloth") 
+SACTN_SB <- filter_SACTN(df = "Saldanha Bay") 
+SACTN_SP <- filter_SACTN(df = "Sea Point") 
+SACTN_HB <- filter_SACTN(df = "Hout Bay") 
 ```
 
   The rate of onset of MCS can be determined here
