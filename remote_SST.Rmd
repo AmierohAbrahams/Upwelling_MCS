@@ -40,7 +40,6 @@ OISST %>%
   geom_raster(aes(fill = temp))
 ```
 
-
 ## MUR dataset
 
 ```{r}
