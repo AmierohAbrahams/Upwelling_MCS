@@ -106,12 +106,12 @@ MCS_event <- function(df){
   return(detect)
 }
 
-PN_MCS_events <- MCS_func(df = PN_MCS)
-LB_MCS_events <- MCS_func(df = LB_MCS)
-SB_MCS_events <- MCS_func(df = SB_MCS)
-SP_MCS_events <- MCS_func(df = SP_MCS)
+PN_MCS_events_MUR <- MCS_func(df = PN_MCS)
+LB_MCS_events_MUR <- MCS_func(df = LB_MCS)
+SB_MCS_events_MUR <- MCS_func(df = SB_MCS)
+SP_MCS_events_MUR <- MCS_func(df = SP_MCS)
 
-HB_MCS_events <- detect_event(HB_MCS, coldSpells = TRUE) 
+HB_MCS_events_MUR <- detect_event(HB_MCS, coldSpells = TRUE) 
 ```
 
 ## Upwelling events - 30th percentile used as a threshold to detect upwellling events. 
@@ -137,12 +137,12 @@ upwell_event <- function(df){
   return(detect)
 }
 
-PN_upwell_events <- MCS_func(df = PN_upwell)
-LB_upwell_events <- MCS_func(df = LB_upwell)
-SB_upwell_events <- MCS_func(df = SB_upwell)
-SP_upwell_events <- MCS_func(df = SP_upwell)
+PN_upwell_events_MUR <- MCS_func(df = PN_upwell)
+LB_upwell_events_MUR <- MCS_func(df = LB_upwell)
+SB_upwell_events_MUR <- MCS_func(df = SB_upwell)
+SP_upwell_events_MUR <- MCS_func(df = SP_upwell)
 
-HB_upwell_events <- detect_event(HB_upwell, minDuration = 2, coldSpells = TRUE)
+HB_upwell_events_MUR <- detect_event(HB_upwell, minDuration = 2, coldSpells = TRUE)
 ```
 
 ## CMC dataset
@@ -208,12 +208,43 @@ MCS_event <- function(df){
   return(detect)
 }
 
-PN_MCS_events <- MCS_func(df = PN_MCS)
-LB_MCS_events <- MCS_func(df = LB_MCS)
-SB_MCS_events <- MCS_func(df = SB_MCS)
-SP_MCS_events <- MCS_func(df = SP_MCS)
+PN_MCS_events_CMC <- MCS_func(df = PN_MCS)
+LB_MCS_events_CMC <- MCS_func(df = LB_MCS)
+SB_MCS_events_CMC <- MCS_func(df = SB_MCS)
+SP_MCS_events_CMC <- MCS_func(df = SP_MCS)
 
-HB_MCS_events <- detect_event(HB_MCS, coldSpells = TRUE) 
+HB_MCS_events_CMC <- detect_event(HB_MCS, coldSpells = TRUE) 
+```
+
+## Upwelling events - 30th percentile used as a threshold to detect upwellling events. 
+
+```{r}
+upwell_func <- function(df){
+  res_clim <- ts2clm(df, climatologyPeriod = c("1991-09-01", "2015-12-30"),
+                   pctile = 30)
+  return(res_clim)
+}
+
+PN_upwell <- upwell_func(df = CMC_PN)
+LB_upwell <- upwell_func(df = CMC_LB)
+SB_upwell <- upwell_func(df = CMC_SB)
+SP_upwell <- upwell_func(df = CMC_SP)
+
+HB_upwell <- ts2clm(CMC_HB, climatologyPeriod = c("2002-06-01", "2005-10-19"), # Climatological period differs to the rest
+                   pctile = 10)
+
+## Events
+upwell_event <- function(df){
+  detect <- detect_event(df, minDuration = 2, coldSpells = TRUE)
+  return(detect)
+}
+
+PN_upwell_events_CMC <- MCS_func(df = PN_upwell)
+LB_upwell_events_CMC <- MCS_func(df = LB_upwell)
+SB_upwell_events_CMC <- MCS_func(df = SB_upwell)
+SP_upwell_events_CMC <- MCS_func(df = SP_upwell)
+
+HB_upwell_events_CMC <- detect_event(HB_upwell, minDuration = 2, coldSpells = TRUE)
 ```
 
 ## OISST
