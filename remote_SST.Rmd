@@ -28,7 +28,18 @@ library(fasttime)
 library(xtable)
 library(ggpubr)
 library(ggpubr); theme_set(theme_pubr())# library(devtools)
+library(FNN)
 ```
+
+# Plots
+
+```{r}
+OISST %>%
+  filter(date == min(date)) %>%
+  ggplot(aes(x = lon, y = lat)) +
+  geom_raster(aes(fill = temp))
+```
+
 
 ## MUR dataset
 
@@ -265,10 +276,8 @@ OISST %>%
 
 ## The nearest SST pixels
 Now we apply the FNN (Fast Nearest Neighbor) package to determine the nearesr SST pixel to the insitu collected sites. 
-
 ```{r}
-
-load("Data_P1/site_list_sub.Rdata") # Loading the SACTN_overlap dataset which allows me to match it to the OISST data 
+load("~/Documents/Masters_2019/Upwelling_MCS/Data/site_list_sub.Rdata")
 
 unique_pixel <- OISST %>%
   select(lon, lat) %>%
@@ -287,7 +296,7 @@ pixel_match <- unique_pixel[match_index,] %>%
 OISST_match <- OISST %>%
   unite(col = combi, lon, lat, sep = "/", remove = F) %>%
   filter(combi %in% pixel_match$combi)
-# save(OISST_match, file = "Data_P1/OISST_match.RData")
+# save(OISST_match, file = "Data/OISST_match.RData")
 
 OISST_sites <- OISST_match %>%
   left_join(pixel_match, by = c("combi", "lon", "lat")) %>%
@@ -297,8 +306,11 @@ OISST_sites <- OISST_sites %>%
   dplyr::rename(temp = temp_OISST) %>%
   dplyr::mutate(date = as.Date(date)) %>% 
   drop_na()
-# save(OISST_sites, file = "Data_P1/OISST_sites.RData")
+# save(OISST_sites, file = "Data/OISST_sites.RData")
+```
 
+```{r}
+load("~/Documents/Masters_2019/Upwelling_MCS/Data/OISST_sites.RData")
 ## Matching the Insitu data with the OISST SST data
 insitu_OISST <- match_func(df = OISST_sites)
 ```
