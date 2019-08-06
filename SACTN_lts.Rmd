@@ -82,7 +82,7 @@ SACTN_SP <- filter_SACTN(df = "Sea Point")
 SACTN_HB <- filter_SACTN(df = "Hout Bay") 
 ```
 
-  The rate of onset of MCS can be determined here
+The rate of onset of MCS can be determined here
 
 ```{r}
 

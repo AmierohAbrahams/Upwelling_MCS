@@ -5,9 +5,36 @@ date: "03 August 2019"
 output: html_document
 ---
 
+# Loading libraries
+
+```{r}
+library(tidyverse)
+library(plyr)
+library(lubridate)
+library(tidyverse)
+library(plyr)
+library(lubridate)
+library(ggpubr)
+library(zoo)
+library(data.table)
+library(heatwaveR)
+library(viridis)
+library(gridExtra)
+library(fossil)
+library(plyr) # Never load plyr when also loading the tidyverse. It causes a lot of conflicts.
+library(stringr)
+library(doMC); doMC::registerDoMC(cores = 4)
+library(fasttime)
+library(xtable)
+library(ggpubr)
+library(ggpubr); theme_set(theme_pubr())# library(devtools)
+```
+
 ## MUR dataset
 
 ```{r}
+load("~/Documents/Masters_2019/Upwelling_MCS/Data/SACTN_US.RData")
+
 MUR_Lamberts_Bay <- read_csv("Data/MUR/MUR_Lamberts Bay_SST_timeseries_5nearest.csv")
 MUR_Port_Nolloth <- read_csv("Data/MUR/MUR_Port Nolloth_SST_timeseries_5nearest.csv")
 MUR_Saldanha_Bay <- read_csv("Data/MUR/MUR_Saldanha Bay_SST_timeseries_5nearest.csv")
@@ -34,6 +61,90 @@ match_func <- function(df){
 insitu_MUR <- match_func(df = MUR_SST) 
 ```
 
+# Upwelling and MCS
+
+```{r}
+
+MUR_SST <- insitu_MUR %>% 
+  select(date,temp_MUR, site) %>% 
+  dplyr::rename(t = date) %>% 
+  dplyr::rename(temp = temp_MUR)
+
+filter_func <- function(df){
+  filtered <- MUR_SST  %>%  
+  filter(site == df) %>%
+  select(-site) %>% 
+  drop_na()
+  return(filtered)
+}
+
+MUR_LB <- filter_func(df = "Lamberts Bay") 
+MUR_SB <- filter_func(df = "Saldanha Bay") 
+MUR_HB <- filter_func(df = "Hout Bay") 
+MUR_PN <- filter_func(df = "Port Nolloth") 
+MUR_SP <- filter_func(df = "Sea Point") 
+
+# MCS
+
+MCS_func <- function(df){
+  res_clim <- ts2clm(df, climatologyPeriod = c("2002-06-01", "2015-12-30"),
+                   pctile = 10)
+  return(res_clim)
+}
+
+PN_MCS <- MCS_func(df = MUR_PN)
+LB_MCS <- MCS_func(df = MUR_LB)
+SB_MCS <- MCS_func(df = MUR_SB)
+SP_MCS <- MCS_func(df = MUR_SP)
+
+HB_MCS <- ts2clm(MUR_HB, climatologyPeriod = c("2002-06-01", "2005-10-19"), # Climatological period differs to the rest
+                   pctile = 10)
+
+## Events
+MCS_event <- function(df){
+  detect <- detect_event(df, coldSpells = TRUE)
+  return(detect)
+}
+
+PN_MCS_events <- MCS_func(df = PN_MCS)
+LB_MCS_events <- MCS_func(df = LB_MCS)
+SB_MCS_events <- MCS_func(df = SB_MCS)
+SP_MCS_events <- MCS_func(df = SP_MCS)
+
+HB_MCS_events <- detect_event(HB_MCS, coldSpells = TRUE) 
+```
+
+## Upwelling events - 30th percentile used as a threshold to detect upwellling events. 
+
+```{r}
+upwell_func <- function(df){
+  res_clim <- ts2clm(df, climatologyPeriod = c("2002-06-01", "2015-12-30"),
+                   pctile = 30)
+  return(res_clim)
+}
+
+PN_upwell <- upwell_func(df = MUR_PN)
+LB_upwell <- upwell_func(df = MUR_LB)
+SB_upwell <- upwell_func(df = MUR_SB)
+SP_upwell <- upwell_func(df = MUR_SP)
+
+HB_upwell <- ts2clm(MUR_HB, climatologyPeriod = c("2002-06-01", "2005-10-19"), # Climatological period differs to the rest
+                   pctile = 10)
+
+## Events
+upwell_event <- function(df){
+  detect <- detect_event(df, minDuration = 2, coldSpells = TRUE)
+  return(detect)
+}
+
+PN_upwell_events <- MCS_func(df = PN_upwell)
+LB_upwell_events <- MCS_func(df = LB_upwell)
+SB_upwell_events <- MCS_func(df = SB_upwell)
+SP_upwell_events <- MCS_func(df = SP_upwell)
+
+HB_upwell_events <- detect_event(HB_upwell, minDuration = 2, coldSpells = TRUE)
+```
+
 ## CMC dataset
 
 ```{r}
@@ -55,8 +166,54 @@ CMC <- CMC %>%
 
 ## Matching the Insitu data with the CMC SST data
 insitu_CMC <- match_func(df = CMC) 
-CMC_plot <- match_plot(df = insitu_CMC )
-CMC_temp<- temp_plot(df = insitu_CMC)
+
+CMC_SST <- insitu_CMC %>% 
+  select(date,temp_CMC, site) %>% 
+  dplyr::rename(t = date) %>% 
+  dplyr::rename(temp = temp_CMC)
+
+filter_func <- function(df){
+  filtered <- CMC_SST  %>%  
+  filter(site == df) %>%
+  select(-site) %>% 
+  drop_na()
+  return(filtered)
+}
+
+CMC_LB <- filter_func(df = "Lamberts Bay") 
+CMC_SB <- filter_func(df = "Saldanha Bay") 
+CMC_HB <- filter_func(df = "Hout Bay") 
+CMC_PN <- filter_func(df = "Port Nolloth") 
+CMC_SP <- filter_func(df = "Sea Point") 
+
+# MCS
+
+MCS_func <- function(df){
+  res_clim <- ts2clm(df, climatologyPeriod = c("1991-09-01", "2015-12-30"),
+                   pctile = 10)
+  return(res_clim)
+}
+
+PN_MCS <- MCS_func(df = CMC_PN)
+LB_MCS <- MCS_func(df = CMC_LB)
+SB_MCS <- MCS_func(df = CMC_SB)
+SP_MCS <- MCS_func(df = CMC_SP)
+
+HB_MCS <- ts2clm(CMC_HB, climatologyPeriod = c("2002-06-01", "2005-10-19"), # Climatological period differs to the rest
+                   pctile = 10)
+
+## Events
+MCS_event <- function(df){
+  detect <- detect_event(df, coldSpells = TRUE)
+  return(detect)
+}
+
+PN_MCS_events <- MCS_func(df = PN_MCS)
+LB_MCS_events <- MCS_func(df = LB_MCS)
+SB_MCS_events <- MCS_func(df = SB_MCS)
+SP_MCS_events <- MCS_func(df = SP_MCS)
+
+HB_MCS_events <- detect_event(HB_MCS, coldSpells = TRUE) 
 ```
 
 ## OISST
