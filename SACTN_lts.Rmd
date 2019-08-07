@@ -6,7 +6,7 @@ output: html_document
 ---
 
 # Detectig frequency and intensity of upwelling events - Use MHW algorithm 
-  Long time series of 30years
+  Long time series of 30 years
   Use OISST 
   Match this up with MCS occuring in the region
   Paper 1 (Local paper)
@@ -21,36 +21,34 @@ knitr::opts_chunk$set(
 )
 
 library(tidyverse)
-library(plyr)
 library(lubridate)
-library(ggpubr)
+library(ggpubr); theme_set(theme_pubr())
 library(zoo)
 library(data.table)
 library(heatwaveR)
 library(viridis)
 library(gridExtra)
 library(fossil)
-library(plyr) # Never load plyr when also loading the tidyverse. It causes a lot of conflicts.
 library(stringr)
 library(doMC); doMC::registerDoMC(cores = 4)
 library(fasttime)
 library(xtable)
-library(ggpubr)
-library(ggpubr); theme_set(theme_pubr())# library(devtools)
 
+# Disable scientific notation for numeric values
+# I just find it annoying
+options(scipen = 999)
 ```
 
 # Loading the data and finding a 30year time series
 
 ```{r}
-load("~/Documents/Masters_2019/Upwelling_MCS/Data/SACTN_daily_v4.2.RData")
-load("~/Documents/Masters_2019/Upwelling_MCS/Data/site_list_v4.2.RData")
+load("Data/SACTN_daily_v4.2.RData")
+load("Data/site_list_v4.2.RData")
 
 site_list_sub <- site_list %>%
   filter(coast == "wc") %>%
   filter(length > 10950) 
 # save(site_list_sub, file = "site_list_sub.Rdata")
-
 
 SACTN_US <- SACTN_daily_v4.2 %>%
   left_join(site_list[,c(4,13)], by = "index") %>%
@@ -60,95 +58,137 @@ SACTN_US <- SACTN_daily_v4.2 %>%
 # save(SACTN_US, file = "Data/SACTN_US.RData")
 ```
 
-# Long time series in_situ temperature
-  First creating datasets for each region
-  Now I determine the frequency and intensity of MCS using the MHW algorithm
+# Long _in situ_ temperature time series 
+
+Determine the frequency and intensity of MCS using the MHW algorithm
   
 ```{r}
+# Use purrr::nest() to allow the use of purrr::map() to grouped data
+SACTN_MCS <- SACTN_US %>% 
+  dplyr::rename(t = date) %>%
+  group_by(site) %>% 
+  nest() %>% 
+  mutate(clims = purrr::map(data, ts2clm,
+                          # NB: A 30 year period should be used for a climatology
+                          # Conveniently, this period works with all of the time series
+                          climatologyPeriod = c("1974-01-01", "2003-12-31"),  pctile = 10),
+         events = purrr::map(clims, detect_event, coldSpells = TRUE)) %>% 
+  select(-data, -clims) 
 
-filter_SACTN <- function(df){
-  SACTN_PN <- SACTN_US %>%
-  filter(site == df) %>%
-  select(-index, -site, -src, -length) %>% 
-  dplyr::rename(t = date) %>% 
-  drop_na()
-  return(SACTN_PN)
-}
+# Unnest the climatology results
+SACTN_MCS_clims <- SACTN_MCS %>% 
+  unnest(events) %>%
+  filter(row_number() %% 2 == 1) %>%
+  unnest(events)
 
-SACTN_LB <- filter_SACTN(df = "Lamberts Bay") 
-SACTN_PN <- filter_SACTN(df = "Port Nolloth") 
-SACTN_SB <- filter_SACTN(df = "Saldanha Bay") 
-SACTN_SP <- filter_SACTN(df = "Sea Point") 
-SACTN_HB <- filter_SACTN(df = "Hout Bay") 
-```
-
-The rate of onset of MCS can be determined here
-
-```{r}
-
-#' # Or if one wants to calculate MCSs
-
-MCS_func <- function(df){
-  res_clim <- ts2clm(df, climatologyPeriod = c("1974-01-01", "2015-12-31"),
-                   pctile = 10)
-  return(res_clim)
-}
-
-PN_MCS <- MCS_func(df = SACTN_PN)
-LB_MCS <- MCS_func(df = SACTN_LB)
-SB_MCS <- MCS_func(df = SACTN_SB)
-SP_MCS <- MCS_func(df = SACTN_SP)
-
-res_clim <- ts2clm(SACTN_HB, climatologyPeriod = c("1974-01-01", "2005-10-19"), # Climatological period differs to the rest
-                   pctile = 10)
-
-## Events
-MCS_event <- function(df){
-  detect <- detect_event(df, coldSpells = TRUE)
-  return(detect)
-}
-
-PN_MCS_events <- MCS_func(df = PN_MCS)
-LB_MCS_events <- MCS_func(df = LB_MCS)
-SB_MCS_events <- MCS_func(df = SB_MCS)
-SP_MCS_events <- MCS_func(df = SP_MCS)
-
-HB_MCS_events <- detect_event(res_clim, coldSpells = TRUE) # line 118 -
+# Unnest the event results
+SACTN_MCS_events <- SACTN_MCS %>% 
+  unnest(events) %>%
+  filter(row_number() %% 2 == 0) %>%
+  unnest(events)
 ```
 
 ## Upwelling events - 30th percentile used as a threshold to detect upwellling events. 
 
 ```{r}
-upwell_func <- function(df){
-  res_clim <- ts2clm(df, climatologyPeriod = c("1974-01-01", "2015-12-31"),
-                   pctile = 30)
-  return(res_clim)
-}
+SACTN_upwell <- SACTN_US %>% 
+  dplyr::rename(t = date) %>%
+  group_by(site) %>% 
+  nest() %>% 
+  mutate(clims = purrr::map(data, ts2clm,
+                          # NB: A 30 year period should be used for a climatology
+                          # Conveniently, this period works with all of the time series
+                          climatologyPeriod = c("1974-01-01", "2003-12-31"),  pctile = 30),
+         events = purrr::map(clims, detect_event, coldSpells = TRUE, minDuration = 2)) %>% 
+  select(-data, -clims) 
 
-PN_upwell <- upwell_func(df = SACTN_PN)
-LB_upwell <- upwell_func(df = SACTN_LB)
-SB_upwell <- upwell_func(df = SACTN_SB)
-SP_upwell <- upwell_func(df = SACTN_SP)
+# Unnest the climatology results
+SACTN_upwell_clims <- SACTN_upwell %>% 
+  unnest(events) %>%
+  filter(row_number() %% 2 == 1) %>%
+  unnest(events)
 
-res_clim <- ts2clm(SACTN_HB, climatologyPeriod = c("1974-01-01", "2005-10-19"), # Climatological period differs to the rest
-                   pctile = 10)
-
-## Events
-upwell_event <- function(df){
-  detect <- detect_event(df, minDuration = 2, coldSpells = TRUE)
-  return(detect)
-}
-
-PN_upwell_events <- MCS_func(df = PN_upwell)
-LB_upwell_events <- MCS_func(df = LB_upwell)
-SB_upwell_events <- MCS_func(df = SB_upwell)
-SP_upwell_events <- MCS_func(df = SP_upwell)
-
-HB_upwell_events <- detect_event(res_clim, minDuration = 2, coldSpells = TRUE) # line 1
+# Unnest the event results
+SACTN_upwell_events <- SACTN_upwell %>% 
+  unnest(events) %>%
+  filter(row_number() %% 2 == 0) %>%
+  unnest(events)
 ```
 
+# Test visuals
 
+The figures below compare the largest event detected with the classic MCS definition vs. the upwelling definition used here (i.e. 30th perc. thresh. and 2 day minimum). This isn't very usfeul... but we do see that only 2 of the 5 time series have largest events match up with the different definitions. I'm not sure that is useful though...
 
+```{r}
+# Port Nolloth
+ggarrange(event_line(SACTN_MCS$events[[1]]),
+          event_line(SACTN_upwell$events[[1]]), ncol = 1, nrow = 2)
+
+# Lamberts Bay
+ggarrange(event_line(SACTN_MCS$events[[2]]),
+          event_line(SACTN_upwell$events[[2]]), ncol = 1, nrow = 2)
+
+# Saldanha Bay
+ggarrange(event_line(SACTN_MCS$events[[3]]),
+          event_line(SACTN_upwell$events[[3]]), ncol = 1, nrow = 2)
+
+# Sea Point
+ggarrange(event_line(SACTN_MCS$events[[4]]),
+          event_line(SACTN_upwell$events[[4]]), ncol = 1, nrow = 2)
+
+# Hout Bay
+ggarrange(event_line(SACTN_MCS$events[[5]]),
+          event_line(SACTN_upwell$events[[5]]), ncol = 1, nrow = 2)
+```
+
+The following figures show each of the 5 long time series with the MCS days highlighted in blue, and the upwelling days shown with a rug plot. We see that the 30th percentile threshold shows near constant upwelling, which is likely not accurate. A more selective threshold should probably be used, but this will depned on what the upweliing index results show.
+
+```{r}
+ggplot(data = SACTN_MCS_clims, aes(x = t, y = temp)) +
+  geom_line() +
+  geom_point(data = filter(SACTN_MCS_clims, event == TRUE), colour = "navy") +
+  geom_rug(data = filter(SACTN_upwell_clims, event == TRUE), sides = "b") +
+  scale_x_date(expand = c(0, 0)) +
+  facet_wrap(~site, ncol = 1) +
+  theme_grey() +
+  labs(y = "Temperature (°C)", x = NULL)
+```
+
+# Linear regressions
+
+Below we use `purrr::map()` to apply a linear regression to every variable from our MCS and upwelling results. These results may need some thinking. I'm not certain that the negative values inherent in the MCS results are being handled correctly here.
+
+```{r}
+# Convenience function for below
+lm_coeff <- function(df){
+  res <- lm(formula = val ~ date_peak, data = df)
+  res_coeff <- round(as.numeric(res$coefficient[2]), 4)
+}
+
+# Changes in MCS metrics
+SACTN_MCS_lm <- SACTN_MCS_events %>% 
+  select(-c(index_start:index_end)) %>% 
+  gather(key = "var", value = "val", -c(site:date_end)) %>% 
+  group_by(site, var) %>% 
+  nest() %>% 
+  mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  # convert from daily to decadal values
+  mutate(slope = slope * 365.25*10)
+
+# Changes in upwelling metrics
+SACTN_upwell_lm <- SACTN_upwell_events %>% 
+  select(-c(index_start:index_end)) %>% 
+  gather(key = "var", value = "val", -c(site:date_end)) %>% 
+  group_by(site, var) %>% 
+  nest() %>% 
+  mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  # convert from daily to decadal values
+  mutate(slope = slope * 365.25*10)
+```
 
 
 
