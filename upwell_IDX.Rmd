@@ -23,6 +23,11 @@ In this equation μ represents the wind speed (m/s) and θ represents the wind d
 library(tidyverse)
 library(ggplot2)
 library(circular)
+# devtools::install_github("robwschlegel/coastR")
+library(coastR)
+library(gridExtra)
+library(dplyr)
+library(geosphere)
 ```
 
 # Steps
@@ -95,19 +100,67 @@ wind_daily <- wind_daily %>%
   dplyr::rename(sites = temp_sites)
 ```
 
-# Determining the upwelling indeces
+# Determining the angle perpendicular to the coastline and plotting it
+
+```{r}
+south_africa_away_wide <- transects(site_list_sub, spread = 30)
+
+world_map <- ggplot() + 
+  borders(fill = "grey40", colour = "black")
+
+# Create titles
+titles <- c("Shore-normal", "Islands")
+
+# Plotting function
+plot_sites <- function(site_list, buffer, title_choice, dist){
+  
+  # Find the point 200 km from the site manually to pass to ggplot
+  heading2 <- data.frame(geosphere::destPoint(p = select(site_list, lon, lat),  
+                                              b = site_list$heading, d = dist))
+  
+  # Add the new coordinates tot he site list
+  site_list <- site_list %>% 
+    mutate(lon_dest = heading2$lon,
+           lat_dest = heading2$lat)
+  
+  # Visualise
+  world_map +
+    geom_segment(data = site_list, colour = "red4", 
+                 aes(x = lon, y = lat, xend = lon_dest, yend = lat_dest)) +
+    geom_point(data = site_list, size = 3, colour = "black", aes(x = lon, y = lat)) +
+    geom_point(data = site_list, size = 3, colour = "red", aes(x = lon_dest, y = lat_dest)) +
+    coord_cartesian(xlim = c(min(site_list$lon - buffer), 
+                             max(site_list$lon + buffer)),
+                    ylim = c(min(site_list$lat - buffer), 
+                             max(site_list$lat + buffer))) +
+    labs(x = "", y = "", colour = "Site\norder") +
+    ggtitle(titles[title_choice])
+}
+
+south_africa_away <- plot_sites(south_africa_away_wide, 1, 1, 100000)
+```
+
+# Determining the upwelling indeces by changing the angle for each of the sites
 
 ```{r}
 
+wind_angle <- wind_daily %>% 
+  dplyr::rename(site = sites) %>% 
+  left_join(south_africa_away_wide[,c(2,21)], by = "site") %>% 
+  dplyr::rename(coast_angle = heading)
+
+##### Do this
 wind_UI <- wind_daily %>% 
-  group_by(sites) %>% 
-  mutate(ui.saws = mean_speed * (cos(dir_circ - 160))) %>% # Angle?
+  mutate(ui.saws = mean_speed * (cos(dir_circ - coast_angle))) %>% 
   drop_na
+
+
+
 
 index <- wind_UI %>% 
   group_by(sites) %>% 
   select("date", "ui.saws") %>% 
-  mutate(saws.condition = ifelse(ui.saws > 0, "upwelling", "downwelling"))
+  mutate(saws.condition = ifelse(ui.saws < 12.5, "upwelling"))
 
 
 ```
