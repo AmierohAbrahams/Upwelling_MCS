@@ -139,15 +139,16 @@ index <- index %>%
 
 match <- match_func(df = index)
 
-upwell_MCS <- ggplot(data = match, aes(x = t, y = temp)) +
+upwell_MCS <- ggplot(data = match, aes(x = t, y = ui.saws)) +
   geom_line() +
   geom_point(data = filter(match, event == TRUE), colour = "navy") +
-  geom_rug(data = filter(match, ui.saws == TRUE), sides = "b") +
+  geom_rug(data = filter(match, saws.condition == "upwelling"), sides = "b") +
   scale_x_date(expand = c(0, 0)) +
   facet_wrap(~site, ncol = 1) +
   theme_grey() +
   labs(y = "Temperature (°C)", x = NULL)
 upwell_MCS
+
 ```
 
 
