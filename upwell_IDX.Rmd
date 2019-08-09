@@ -126,14 +126,28 @@ plot1
 # MCS and upwelling indeces plot
 
 ```{r}
-ggplot(data = SACTN_MCS_clims, aes(x = t, y = temp)) +
+match_func <- function(df){
+  match <- SACTN_MCS_clims  %>% 
+  left_join(df, by = c("site", "t")) %>% 
+  na.trim()
+  return(match)
+}
+
+index <- index %>% 
+  dplyr::rename(site = sites) %>% 
+  dplyr::rename(t = date)
+
+match <- match_func(df = index)
+
+upwell_MCS <- ggplot(data = match, aes(x = t, y = temp)) +
   geom_line() +
-  geom_point(data = filter(SACTN_MCS_clims, event == TRUE), colour = "navy") +
-  geom_rug(data = filter(index, ui.saws == TRUE), sides = "b") +
+  geom_point(data = filter(match, event == TRUE), colour = "navy") +
+  geom_rug(data = filter(match, ui.saws == TRUE), sides = "b") +
   scale_x_date(expand = c(0, 0)) +
   facet_wrap(~site, ncol = 1) +
   theme_grey() +
   labs(y = "Temperature (°C)", x = NULL)
+upwell_MCS
 ```
 
 
