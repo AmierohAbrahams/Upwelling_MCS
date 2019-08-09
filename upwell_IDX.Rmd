@@ -1,0 +1,152 @@
+---
+title: "upwell_IDX"
+author: "Amieroh Abrahams"
+date: "08 August 2019"
+output: html_document
+---
+
+# Upwelling
+
+Upwelling is primarily caused by alongshore, equator ward winds. These winds are caused by cross-shore atmospheric pressure gradients, and these gradients occur predominantly during heating periods. Upwelling is defined as the process whereby cold, nutrient rich, high concentrated CO2, low pH, and low oxygenated waters are pushed to the surface as a result of alongshore winds interacting with the earth’s rotation.
+
+# Upwelling indeces
+  # Determining upwelling index from wind data (SAWS)
+  # Index Equation from Fielding & Davis 1989 paper
+
+$$ UpwellingIndex = μ{(Cosθ − 160)}$$
+
+In this equation μ represents the wind speed (m/s) and θ represents the wind direction which is measured in degrees. The 160 degrees is used as this refers to the angle of the coastline. This equation is largely dependant on wind speed and direction data in order to determing the intensity of the upwelling event. Wind data were obtained daily from the South African Weather Service (SAWS). This wind data was then matched to the date at which temperature were collected. With this data the upwelling index was determined.
+
+# libraries
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(circular)
+```
+
+# Steps
+  - Use the circular function 
+  - Determine daily wind data obtained from 3hr intervals
+
+```{r}
+# wind_1 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind1/wind1.txt", na.strings = "",
+#                      col.names = c("station_number", "station_name", "date", "hour", "sub", "speed", "dir"))
+# 
+# wind_2 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind2/wind2.txt", na.strings = "",
+#                      col.names = c("station_number", "station_name", "date", "hour", "sub" ,"speed", "dir"))
+# 
+# wind_3 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind3/wind3.txt", na.strings = "",
+#                      col.names = c("station_number", "station_name", "date", "hour", "sub" ,"speed", "dir"))
+# 
+# # Slecting the important columns for each of the datasets
+# wind_fix <- function(df){
+# wind <- df %>%
+#   select(station_name, date, hour, dir, speed) %>%  #column names
+#   mutate(date = as.Date(as.character(date)),
+#          hour = as.numeric(as.character(hour)),
+#          dir = as.numeric(as.character(dir)),
+#          speed = as.numeric(as.character(speed)))
+# }
+# 
+# wind_1 <- wind_fix(df = wind_1)
+# wind_2 <- wind_fix(df = wind_2)
+# wind_3 <- wind_fix(df = wind_3)
+# 
+# ## Renaming the sites within the wind datasets to match the name of the sites at which seawater temperature was collected
+# ## The wind data was obtained from the SAWS and the wind stations used were the closes stations to which temperature was collected
+# 
+# renaming_sites_1 <- function(df) {
+#   sites <- df %>%
+#       mutate(temp_sites = case_when(station_name == "CAPE TOWN TABLE BAY" ~ "Sea Point",
+#                                     station_name == "CAPE TOWN - ROYAL YACHT CLUB" ~ "Sea Point",
+#                                     station_name  == "PORT NOLLOTH" ~"Port Nolloth",
+#                                     station_name  == "CAPE TOWN SLANGKOP" ~ "Hout Bay",
+#                                     station_name  == "LAMBERTSBAAI NORTIER" ~ "Lamberts Bay",
+#                                     station_name  == "LANGEBAANWEG AWS" ~ "Saldanha Bay"))
+#   return(sites)
+# }
+# 
+# 
+# wind_sitesmatched_1 <-  renaming_sites_1(df = wind_1)
+# wind_sitesmatched_2 <-  renaming_sites_1(df = wind_2)
+# wind_sitesmatched_3 <-  renaming_sites_1(df = wind_3)
+# wind_data <- rbind(wind_sitesmatched_3,wind_sitesmatched_2,wind_sitesmatched_1)
+# # save(wind_data, file = "Data/wind_data.RData")
+# 
+# load("Data/wind_data.RData")
+# selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay", "Hout Bay")
+# 
+# wind_daily <- wind_data %>%
+#   # ungroup() %>%
+#   # mutate(date = as.Date(date))%>%
+#   dplyr::group_by(temp_sites, date) %>%
+#   filter(temp_sites %in% selected_sites) %>%
+#   dplyr::summarise(dir_circ = round(mean.circular(circular(dir, units = "degrees")),2),
+#                    mean_speed = round(mean(speed),2))
+# #save(wind_daily, file = "Data/wind_daily.RData")
+```
+
+# Load wind
+
+```{r}
+load("Data/wind_daily.RData") 
+wind_daily <- wind_daily %>% 
+  dplyr::rename(sites = temp_sites)
+```
+
+# Determining the upwelling indeces
+
+```{r}
+
+wind_UI <- wind_daily %>% 
+  group_by(sites) %>% 
+  mutate(ui.saws = mean_speed * (cos(dir_circ - 160))) %>% # Angle?
+  drop_na
+
+index <- wind_UI %>% 
+  group_by(sites) %>% 
+  select("date", "ui.saws") %>% 
+  mutate(saws.condition = ifelse(ui.saws > 0, "upwelling", "downwelling"))
+
+
+```
+
+# Visualisiing the data
+
+```{r}
+plot1 <- ggplot(data = index, aes(x = date, y = ui.saws)) +
+  geom_line() +
+  facet_wrap(~sites, ncol = 1) +
+  geom_area(aes( fill = saws.condition)) +
+  theme_grey()
+plot1
+```
+
+# MCS and upwelling indeces plot
+
+```{r}
+ggplot(data = SACTN_MCS_clims, aes(x = t, y = temp)) +
+  geom_line() +
+  geom_point(data = filter(SACTN_MCS_clims, event == TRUE), colour = "navy") +
+  geom_rug(data = filter(index, ui.saws == TRUE), sides = "b") +
+  scale_x_date(expand = c(0, 0)) +
+  facet_wrap(~site, ncol = 1) +
+  theme_grey() +
+  labs(y = "Temperature (°C)", x = NULL)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
