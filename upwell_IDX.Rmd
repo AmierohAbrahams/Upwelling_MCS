@@ -140,30 +140,26 @@ plot_sites <- function(site_list, buffer, title_choice, dist){
 south_africa_away <- plot_sites(south_africa_away_wide, 1, 1, 100000)
 ```
 
-# Determining the upwelling indeces by changing the angle for each of the sites
+You can then use the exceedence() function from heatwaveR to check for consecutive numbers of days at or above whatever the UI value is meant to be at 
+Sounds good. Good luck! 
 
 ```{r}
 
 wind_angle <- wind_daily %>% 
   dplyr::rename(site = sites) %>% 
   left_join(south_africa_away_wide[,c(2,21)], by = "site") %>% 
-  dplyr::rename(coast_angle = heading)
-
-##### Do this
-wind_UI <- wind_daily %>% 
+  dplyr::rename(coast_angle = heading) %>% 
   mutate(ui.saws = mean_speed * (cos(dir_circ - coast_angle))) %>% 
   drop_na
 
-
-
-
-index <- wind_UI %>% 
-  group_by(sites) %>% 
-  select("date", "ui.saws") %>% 
-  mutate(saws.condition = ifelse(ui.saws < 12.5, "upwelling"))
-
-
+# index <- wind_UI %>% 
+#   group_by(sites) %>% 
+#   select("date", "ui.saws") %>% 
+#   mutate(saws.condition = ifelse(ui.saws < 12.5, "upwelling"))
 ```
+
+
+
 
 # Visualisiing the data
 
