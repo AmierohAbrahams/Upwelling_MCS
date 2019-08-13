@@ -190,10 +190,13 @@ SACTN_upwell <- UI_angle %>%
          exceed = purrr::map(clim, exceedance, minDuration = 3, threshold = 3)) %>% 
   # mutate() %>% 
   select(-data, -clim) %>% 
+  unnest() %>%
+  filter(row_number() %% 2 == 1) %>%
   unnest()
 
 # SACTN_upwell_transform <- as.data.frame(read.zoo(transform( SACTN_upwell, Date = as.POSIXct(t) ), FUN = identity ))
 
+# SACTN_upwell_metrics
 
 ```
 
