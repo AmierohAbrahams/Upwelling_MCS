@@ -28,6 +28,7 @@ library(coastR)
 library(gridExtra)
 library(dplyr)
 library(geosphere)
+library(heatwaveR)
 ```
 
 # Steps
@@ -140,63 +141,81 @@ plot_sites <- function(site_list, buffer, title_choice, dist){
 south_africa_away <- plot_sites(south_africa_away_wide, 1, 1, 100000)
 ```
 
-You can then use the exceedence() function from heatwaveR to check for consecutive numbers of days at or above whatever the UI value is meant to be at 
-Sounds good. Good luck! 
-
 ```{r}
-
-wind_angle <- wind_daily %>% 
+UI_angle <- wind_daily %>% 
   dplyr::rename(site = sites) %>% 
   left_join(south_africa_away_wide[,c(2,21)], by = "site") %>% 
   dplyr::rename(coast_angle = heading) %>% 
-  mutate(ui.saws = mean_speed * (cos(dir_circ - coast_angle))) %>% 
+  mutate(ui.saws = mean_speed * (cos(dir_circ - coast_angle))) %>% # Calculated perpendicular angle for each of the sites. Not necessary
   drop_na
 
-# index <- wind_UI %>% 
-#   group_by(sites) %>% 
-#   select("date", "ui.saws") %>% 
+# index <- wind_UI %>%
+#   group_by(site) %>%
+#   select("date", "ui.saws") %>%
 #   mutate(saws.condition = ifelse(ui.saws < 12.5, "upwelling"))
+
+wind_UI <- wind_daily %>% 
+  mutate(ui.saws = mean_speed * (cos(dir_circ - 160))) %>% # 160 is angle perpendicular to the west coast of SA (See paper Fielding and Davis pg 182)
+  drop_na
+
+# Results obtained from UI_angle (Using the perpendicular angle for each site) and the results of wind_UI at -160 (angle of the west coast) appears to be the same
 ```
 
-
-
-
-# Visualisiing the data
+# Exceedence function heatwaveR - This is done to determine the consecutive number of days at or above what the UI value is ment to be 
 
 ```{r}
-plot1 <- ggplot(data = index, aes(x = date, y = ui.saws)) +
-  geom_line() +
-  facet_wrap(~sites, ncol = 1) +
-  geom_area(aes( fill = saws.condition)) +
-  theme_grey()
-plot1
+# Loading the insitu temperature data along the wc
+load("Data/SACTN_US.RData")
+
+# exceedance <-
+#   function(data,
+#            x = t,
+#            y = temp,
+#            threshold,
+#            below = FALSE,
+#            minDuration = 5,
+#            joinAcrossGaps = TRUE,
+#            maxGap = 2,
+#            maxPadLength = 3)
+
+# Upwelling temperature threshold 12.4 / 30th percentile
+
+SACTN_upwell <- SACTN_US %>% 
+  dplyr::rename(t = date) %>%
+  group_by(site) %>%
+  nest() %>% 
+  mutate(exceed = purrr::map(data, exceedance, threshold = 12.4, below = TRUE))
+
+# SACTN_upwell_transform <- as.data.frame(read.zoo(transform( SACTN_upwell, Date = as.POSIXct(t) ), FUN = identity ))
+
+
 ```
 
 # MCS and upwelling indeces plot
 
 ```{r}
-match_func <- function(df){
-  match <- SACTN_MCS_clims  %>% 
-  left_join(df, by = c("site", "t")) %>% 
-  na.trim()
-  return(match)
-}
-
-index <- index %>% 
-  dplyr::rename(site = sites) %>% 
-  dplyr::rename(t = date)
-
-match <- match_func(df = index)
-
-upwell_MCS <- ggplot(data = match, aes(x = t, y = ui.saws)) +
-  geom_line() +
-  geom_point(data = filter(match, event == TRUE), colour = "navy") +
-  geom_rug(data = filter(match, saws.condition == "upwelling"), sides = "b") +
-  scale_x_date(expand = c(0, 0)) +
-  facet_wrap(~site, ncol = 1) +
-  theme_grey() +
-  labs(y = "Temperature (°C)", x = NULL)
-upwell_MCS
+# match_func <- function(df){
+#   match <- SACTN_MCS_clims  %>% 
+#   left_join(df, by = c("site", "t")) %>% 
+#   na.trim()
+#   return(match)
+# }
+# 
+# index <- index %>% 
+#   dplyr::rename(site = sites) %>% 
+#   dplyr::rename(t = date)
+# 
+# match <- match_func(df = index)
+# 
+# upwell_MCS <- ggplot(data = match, aes(x = t, y = ui.saws)) +
+#   geom_line() +
+#   geom_point(data = filter(match, event == TRUE), colour = "navy") +
+#   geom_rug(data = filter(match, saws.condition == "upwelling"), sides = "b") +
+#   scale_x_date(expand = c(0, 0)) +
+#   facet_wrap(~site, ncol = 1) +
+#   theme_grey() +
+#   labs(y = "Temperature (°C)", x = NULL)
+# upwell_MCS
 
 ```
 
