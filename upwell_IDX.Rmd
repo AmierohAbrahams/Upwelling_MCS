@@ -21,12 +21,10 @@ In this equation μ represents the wind speed (m/s) and θ represents the wind d
 
 ```{r}
 library(tidyverse)
-library(ggplot2)
 library(circular)
 # devtools::install_github("robwschlegel/coastR")
 library(coastR)
 library(gridExtra)
-library(dplyr)
 library(geosphere)
 library(heatwaveR)
 ```
@@ -99,6 +97,7 @@ library(heatwaveR)
 load("Data/wind_daily.RData") 
 wind_daily <- wind_daily %>% 
   dplyr::rename(sites = temp_sites)
+load("Data/site_list_sub.Rdata")
 ```
 
 # Determining the angle perpendicular to the coastline and plotting it
@@ -161,7 +160,7 @@ wind_UI <- wind_daily %>%
 # Results obtained from UI_angle (Using the perpendicular angle for each site) and the results of wind_UI at -160 (angle of the west coast) appears to be the same
 ```
 
-# Exceedence function heatwaveR - This is done to determine the consecutive number of days at or above what the UI value is ment to be 
+# Exceedence function heatwaveR - This is done to determine the consecutive number of days at or above what the UI value is meant to be 
 
 ```{r}
 # Loading the insitu temperature data along the wc
@@ -180,11 +179,18 @@ load("Data/SACTN_US.RData")
 
 # Upwelling temperature threshold 12.4 / 30th percentile
 
-SACTN_upwell <- SACTN_US %>% 
-  dplyr::rename(t = date) %>%
+SACTN_upwell <- UI_angle %>% 
+  dplyr::rename(t = date,
+                temp = ui.saws) %>%
   group_by(site) %>%
+  # mutate(min_t = min(t), 
+  #        max_t = max(t)) %>% 
   nest() %>% 
-  mutate(exceed = purrr::map(data, exceedance, threshold = 12.4, below = TRUE))
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("2000-01-01", "2005-12-31")),
+         exceed = purrr::map(clim, exceedance, minDuration = 3, threshold = 3)) %>% 
+  # mutate() %>% 
+  select(-data, -clim) %>% 
+  unnest()
 
 # SACTN_upwell_transform <- as.data.frame(read.zoo(transform( SACTN_upwell, Date = as.POSIXct(t) ), FUN = identity ))
 
