@@ -20,13 +20,13 @@ In this equation μ represents the wind speed (m/s) and θ represents the wind d
 # libraries
 
 ```{r}
-library(tidyverse)
 library(circular)
 # devtools::install_github("robwschlegel/coastR")
-library(coastR)
 library(gridExtra)
 library(geosphere)
+library(tidyverse)
 library(heatwaveR)
+library(coastR)
 ```
 
 # Steps
@@ -103,7 +103,7 @@ load("Data/site_list_sub.Rdata")
 # Determining the angle perpendicular to the coastline and plotting it
 
 ```{r}
-south_africa_away_wide <- transects(site_list_sub, spread = 30)
+south_africa_away_wide <- coastR::transects(site_list_sub, spread = 30)
 
 world_map <- ggplot() + 
   borders(fill = "grey40", colour = "black")
@@ -146,7 +146,8 @@ UI_angle <- wind_daily %>%
   left_join(south_africa_away_wide[,c(2,21)], by = "site") %>% 
   dplyr::rename(coast_angle = heading) %>% 
   mutate(ui.saws = mean_speed * (cos(dir_circ - coast_angle))) %>% # Calculated perpendicular angle for each of the sites. Not necessary
-  drop_na
+  drop_na %>% 
+  dplyr::rename(t = date)
 
 # index <- wind_UI %>%
 #   group_by(site) %>%
@@ -180,24 +181,82 @@ load("Data/SACTN_US.RData")
 # Upwelling temperature threshold 12.4 / 30th percentile
 
 SACTN_upwell <- UI_angle %>% 
-  dplyr::rename(t = date,
-                temp = ui.saws) %>%
+  dplyr::rename(temp = ui.saws) %>%
   group_by(site) %>%
   # mutate(min_t = min(t), 
   #        max_t = max(t)) %>% 
   nest() %>% 
   mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("2000-01-01", "2005-12-31")),
-         exceed = purrr::map(clim, exceedance, minDuration = 3, threshold = 3)) %>% 
+         # NB: A threshold of 3 appeared to be far to strict
+         exceed = purrr::map(clim, exceedance, minDuration = 3, threshold = 1)) %>% 
   # mutate() %>% 
   select(-data, -clim) %>% 
   unnest() %>%
   filter(row_number() %% 2 == 1) %>%
-  unnest()
+  unnest() %>% 
+  dplyr::rename(ui.saws = temp) %>% 
+  select(site, t, ui.saws, exceedance)
 
 # SACTN_upwell_transform <- as.data.frame(read.zoo(transform( SACTN_upwell, Date = as.POSIXct(t) ), FUN = identity ))
 
-# SACTN_upwell_metrics
+# There are a few ideas on how to go about doing this
+# The first is to calculatea rolling climatology and to check the upwelling phenology agianst that
+# in order to determine changes in upwelling values, but this won't give us the metrics we want
+# Rather what we can do is set a static bottom threshold below which we are interested in looking for upwelling
+# We then use the upwelling index values created above as a second filter to determine the metrics of the upwelling
 
+# Unfortunately the way that the heatwaveR functions work well does with purrr. 
+# I've figured this out once before but can't remember where now.
+# Rather than go through the process I have rather just made a convenience function below that
+# does what I want and can simply be given to purrr::map() without any faffing about.
+detect_event_custom <- function(df){
+  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 3, coldSpells = T)
+  return(res)
+}
+
+# Calculate the upwelling event metrics
+SACTN_upwell_base <- SACTN_US %>% 
+  dplyr::rename(t = date) %>% 
+  group_by(site) %>% 
+  nest() %>% 
+  # The climatology base period used here is up for debate...
+  # The choice of the 30th percentile threshold also needs to be justified and sensitivty tested
+  mutate(clim = purrr::map(data, ts2clm, pctile = 30, climatologyPeriod = c("1995-01-01", "2004-12-31"))) %>%
+  select(-data) %>% 
+  unnest() %>%
+  left_join(SACTN_upwell, by = c("site", "t")) %>%
+  filter(!is.na(exceedance)) %>%
+  group_by(site) %>% 
+  # mutate(thresh = mean(seas, na.rm = T)-sd(seas, na.rm = T)) %>% # Manually set threshold to the mean
+  # mutate(thresh = 10) %>% # Manually set threshold to a static value. Doesn't work across all sites
+  # mutate(thresh = quantile(temp, 0.3, na.rm = T)) %>% # Manually set threshold to a single quantile
+  nest() %>% 
+  mutate(exceed = purrr::map(data, detect_event_custom)) %>% 
+  select(-data) #%>% 
+  # unnest() %>% 
+  # filter(row_number() %% 2 == 0) %>% # Select event summary metrics
+  # filter(row_number() %% 2 == 1) %>% # Select daily values
+  # unnest()
+
+# Unpack the event metric reults
+SACTN_upwell_metrics <- SACTN_upwell_base %>% 
+  unnest() %>%
+  filter(row_number() %% 2 == 0) %>%
+  unnest()
+
+# Unpack the daily climatology results
+SACTN_upwell_clims <- SACTN_upwell_base %>% 
+  unnest() %>%
+  filter(row_number() %% 2 == 1) %>% 
+  unnest()
+
+# The above chunk of code appears to work as expected.
+# What needs to be done now is that the thresholds for duration and UI strength need to be justified/decided uopn.
+# What also needs to be decided is if we are interested in any upwelling results throughout the year,
+# or only during the upwelling season, whenever that may be for each site.
+# I think we have demonstrated the technical capability needed to answer the question of whether or not upwelling
+# is changing over time.
+# Now we really need to focus on which of these parameters need to best be tweaked to answer that question.
 ```
 
 # MCS and upwelling indeces plot
@@ -226,6 +285,23 @@ SACTN_upwell <- UI_angle %>%
 #   labs(y = "Temperature (°C)", x = NULL)
 # upwell_MCS
 
+# Plot some of the Upwelling/MCS results
+SP_upwelling <- SACTN_upwell_clims %>% 
+  filter(site == "Sea Point", lubridate::year(t) %in% 2016:2018)
+
+ggplot(SP_upwelling, aes(x = t, y = temp)) +
+  geom_flame(aes(y = thresh, y2 = temp), fill = "navy", n = 3) +
+  geom_point(data = filter(SP_upwelling, !is.na(event_no))) +
+  geom_line(aes(y = thresh)) +
+  geom_line(alpha = 0.7) +
+  geom_rug(data = filter(SP_upwelling, event_no > 0), sides = "b")
+  
+# We can see in the figure above that the rug plot, which denotes when the wind driven upwelling was detected,
+# occurrs much less frequently than simply using the 30th percentile threshold.
+# The dots on the plot help to show the length of each wind driven upwelling event detected.
+# This supports the use of this methodology.
+
+# Up next is fitting linear models to the upwelling metric results to see what trends shake out.
 ```
 
 
