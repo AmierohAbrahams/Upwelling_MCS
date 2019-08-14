@@ -178,7 +178,7 @@ SACTN_upwell <- UI_angle %>%
   nest() %>% 
   mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("2000-01-01", "2005-12-31")),
          # NB: A threshold of 3 appeared to be far to strict
-         exceed = purrr::map(clim, exceedance, minDuration = 3, threshold = 1)) %>% 
+         exceed = purrr::map(clim, exceedance, minDuration = 2, threshold = 1)) %>% 
   # mutate() %>% 
   select(-data, -clim) %>% 
   unnest() %>%
@@ -197,7 +197,7 @@ SACTN_upwell <- UI_angle %>%
 # Rather than go through the process I have rather just made a convenience function below that
 # does what I want and can simply be given to purrr::map() without any faffing about.
 detect_event_custom <- function(df){
-  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 3, coldSpells = T)
+  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 2, coldSpells = T)
   return(res)
 }
 # Calculate the upwelling event metrics
@@ -207,7 +207,7 @@ SACTN_upwell_base <- SACTN_US %>%
   nest() %>% 
   # The climatology base period used here is up for debate...
   # The choice of the 30th percentile threshold also needs to be justified and sensitivty tested
-  mutate(clim = purrr::map(data, ts2clm, pctile = 30, climatologyPeriod = c("1995-01-01", "2004-12-31"))) %>%
+  mutate(clim = purrr::map(data, ts2clm, pctile = 20, climatologyPeriod = c("1995-01-01", "2004-12-31"))) %>%
   select(-data) %>% 
   unnest() %>%
   left_join(SACTN_upwell, by = c("site", "t")) %>%
