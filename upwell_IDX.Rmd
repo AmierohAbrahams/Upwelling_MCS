@@ -144,13 +144,18 @@ UI_angle <- wind_daily %>%
   mutate(ui.saws = mean_speed * (cos(dir_circ - coast_angle))) %>% # Calculated perpendicular angle for each of the sites. Not necessary
   drop_na %>% 
   dplyr::rename(t = date)
+
+# save(UI_angle, file = "Data/UI_angle.RData")
+
+
 # index <- wind_UI %>%
 #   group_by(site) %>%
 #   select("date", "ui.saws") %>%
 #   mutate(saws.condition = ifelse(ui.saws < 12.5, "upwelling"))
-wind_UI <- wind_daily %>% 
-  mutate(ui.saws = mean_speed * (cos(dir_circ - 160))) %>% # 160 is angle perpendicular to the west coast of SA (See paper Fielding and Davis pg 182)
-  drop_na
+
+# wind_UI <- wind_daily %>% 
+#   mutate(ui.saws = mean_speed * (cos(dir_circ - 160))) %>% # 160 is angle perpendicular to the west coast of SA (See paper Fielding and Davis pg 182)
+#   drop_na
 # Results obtained from UI_angle (Using the perpendicular angle for each site) and the results of wind_UI at -160 (angle of the west coast) appears to be the same
 ```
 
@@ -178,7 +183,7 @@ SACTN_upwell <- UI_angle %>%
   nest() %>% 
   mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("2000-01-01", "2005-12-31")),
          # NB: A threshold of 3 appeared to be far to strict
-         exceed = purrr::map(clim, exceedance, minDuration = 2, threshold = 1)) %>% 
+         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>% 
   # mutate() %>% 
   select(-data, -clim) %>% 
   unnest() %>%
@@ -186,6 +191,8 @@ SACTN_upwell <- UI_angle %>%
   unnest() %>% 
   dplyr::rename(ui.saws = temp) %>% 
   select(site, t, ui.saws, exceedance)
+
+
 # SACTN_upwell_transform <- as.data.frame(read.zoo(transform( SACTN_upwell, Date = as.POSIXct(t) ), FUN = identity ))
 # There are a few ideas on how to go about doing this
 # The first is to calculatea rolling climatology and to check the upwelling phenology agianst that
@@ -196,8 +203,9 @@ SACTN_upwell <- UI_angle %>%
 # I've figured this out once before but can't remember where now.
 # Rather than go through the process I have rather just made a convenience function below that
 # does what I want and can simply be given to purrr::map() without any faffing about.
+
 detect_event_custom <- function(df){
-  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 2, coldSpells = T)
+  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 3, coldSpells = T)
   return(res)
 }
 # Calculate the upwelling event metrics
@@ -223,8 +231,9 @@ SACTN_upwell_base <- SACTN_US %>%
   # filter(row_number() %% 2 == 0) %>% # Select event summary metrics
   # filter(row_number() %% 2 == 1) %>% # Select daily values
   # unnest()
+
 # Unpack the event metric reults
-SACTN_upwell_metrics <- SACTN_upwell_base %>% 
+SACTN_upwell_events <- SACTN_upwell_base %>% 
   unnest() %>%
   filter(row_number() %% 2 == 0) %>%
   unnest()
@@ -233,6 +242,7 @@ SACTN_upwell_clims <- SACTN_upwell_base %>%
   unnest() %>%
   filter(row_number() %% 2 == 1) %>% 
   unnest()
+
 # The above chunk of code appears to work as expected.
 # What needs to be done now is that the thresholds for duration and UI strength need to be justified/decided uopn.
 # What also needs to be decided is if we are interested in any upwelling results throughout the year,
@@ -240,6 +250,25 @@ SACTN_upwell_clims <- SACTN_upwell_base %>%
 # I think we have demonstrated the technical capability needed to answer the question of whether or not upwelling
 # is changing over time.
 # Now we really need to focus on which of these parameters need to best be tweaked to answer that question.
+
+# Linear Models
+lm_coeff <- function(df){
+  res <- lm(formula = val ~ date_peak, data = df)
+  res_coeff <- round(as.numeric(res$coefficient[2]), 4)
+}
+
+# Changes in upwelling metrics
+SACTN_upwell_lm <- SACTN_upwell_events %>% 
+  select(-c(index_start:index_end)) %>% 
+  gather(key = "var", value = "val", -c(site:date_end)) %>% 
+  group_by(site, var) %>% 
+  nest() %>% 
+  mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  # convert from daily to decadal values
+  mutate(slope = slope * 365.25*10)
+
 ```
 
 # MCS and upwelling indeces plot
@@ -282,15 +311,34 @@ ggplot(SP_upwelling, aes(x = t, y = temp)) +
 # The dots on the plot help to show the length of each wind driven upwelling event detected.
 # This supports the use of this methodology.
 # Up next is fitting linear models to the upwelling metric results to see what trends shake out.
+
 ```
 
+Increase in upwelling over the past years as a result of intensified winds over time?
+Weakening of th upwelling over time, leads to a decrease in the upwelling indexs
+Strong south easterly winds - Spring and summer: Upwelling is more intense in spring and summer months
+The formula used suggests that if values at + upwelling occurs and if values are - then downwelling occurs. But the intensity of upwelling changes.
+Compare upwelling indeces per season 
 
 
+```{r}
+## Adding a seasonal component to the UI_angle dataset
 
+# UI_angle_season <- UI_angle %>%
+#   mutate(month = month(t, abbr = T, label = T)) %>%
+#   mutate(season = ifelse(month %in% c("Jan", "Feb", "Mar"), "Summer",        
+#                           ifelse(month %in% c("Apr", "May", "Jun"), "Autumn",
+#                               ifelse(month %in% c("Jul", "Aug", "Sep"), "Winter",
+#                                       ifelse(month %in% c("Oct", "Nov", "Dec"), "Spring","Error")))))
 
+## save(UI_angle_season, file = "Data/UI_angle_season.RData")
 
+load("Data/UI_angle_season.RData")
+```
 
-
+# Show how winds intensified over the years
+# Show how upwwelling intensified over the years
+# Look at upwelling seasonally
 
 
 
