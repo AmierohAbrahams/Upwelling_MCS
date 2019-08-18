@@ -183,7 +183,7 @@ SACTN_upwell <- UI_angle %>%
   nest() %>% 
   mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("2000-01-01", "2005-12-31")),
          # NB: A threshold of 3 appeared to be far to strict
-         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>% 
+         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  #Upwelling cannot be descrbed as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
   # mutate() %>% 
   select(-data, -clim) %>% 
   unnest() %>%
@@ -237,38 +237,24 @@ SACTN_upwell_events <- SACTN_upwell_base %>%
   unnest() %>%
   filter(row_number() %% 2 == 0) %>%
   unnest()
+# save(SACTN_upwell_events, file = "Data/SACTN_upwell_events.RData")
+
+
 # Unpack the daily climatology results
 SACTN_upwell_clims <- SACTN_upwell_base %>% 
   unnest() %>%
   filter(row_number() %% 2 == 1) %>% 
   unnest()
+# save(SACTN_upwell_clims, file = "Data/SACTN_upwell_clims.RData")
 
 # The above chunk of code appears to work as expected.
-# What needs to be done now is that the thresholds for duration and UI strength need to be justified/decided uopn.
+# What needs to be done now is that the thresholds for duration and UI strength need to be justified/decided uopn. 
+    # Min duration for an upwelling event - 1day and threshold -1
 # What also needs to be decided is if we are interested in any upwelling results throughout the year,
 # or only during the upwelling season, whenever that may be for each site.
 # I think we have demonstrated the technical capability needed to answer the question of whether or not upwelling
 # is changing over time.
 # Now we really need to focus on which of these parameters need to best be tweaked to answer that question.
-
-# Linear Models
-lm_coeff <- function(df){
-  res <- lm(formula = val ~ date_peak, data = df)
-  res_coeff <- round(as.numeric(res$coefficient[2]), 4)
-}
-
-# Changes in upwelling metrics
-SACTN_upwell_lm <- SACTN_upwell_events %>% 
-  select(-c(index_start:index_end)) %>% 
-  gather(key = "var", value = "val", -c(site:date_end)) %>% 
-  group_by(site, var) %>% 
-  nest() %>% 
-  mutate(slope = purrr::map(data, lm_coeff)) %>% 
-  select(-data) %>% 
-  unnest() %>% 
-  # convert from daily to decadal values
-  mutate(slope = slope * 365.25*10)
-
 ```
 
 # MCS and upwelling indeces plot
@@ -312,6 +298,23 @@ ggplot(SP_upwelling, aes(x = t, y = temp)) +
 # This supports the use of this methodology.
 # Up next is fitting linear models to the upwelling metric results to see what trends shake out.
 
+
+# Linear Models
+lm_coeff <- function(df){
+  res <- lm(formula = val ~ date_peak, data = df)
+  res_coeff <- round(as.numeric(res$coefficient[2]), 4)
+}
+# Changes in upwelling metrics
+SACTN_upwell_lm <- SACTN_upwell_events %>% 
+  select(-c(index_start:index_end)) %>% 
+  gather(key = "var", value = "val", -c(site:date_end)) %>% 
+  group_by(site, var) %>% 
+  nest() %>% 
+  mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  # convert from daily to decadal values
+  mutate(slope = slope * 365.25*10)
 ```
 
 Increase in upwelling over the past years as a result of intensified winds over time?
@@ -324,24 +327,39 @@ Compare upwelling indeces per season
 ```{r}
 ## Adding a seasonal component to the UI_angle dataset
 
-# UI_angle_season <- UI_angle %>%
-#   mutate(month = month(t, abbr = T, label = T)) %>%
-#   mutate(season = ifelse(month %in% c("Jan", "Feb", "Mar"), "Summer",        
-#                           ifelse(month %in% c("Apr", "May", "Jun"), "Autumn",
-#                               ifelse(month %in% c("Jul", "Aug", "Sep"), "Winter",
-#                                       ifelse(month %in% c("Oct", "Nov", "Dec"), "Spring","Error")))))
+season_func <- function(df){
+  season <- df %>%
+  mutate(month = month(t, abbr = T, label = T),
+         year = year(t)) %>%
+  mutate(season = ifelse(month %in% c("Jan", "Feb", "Mar"), "Summer",
+                          ifelse(month %in% c("Apr", "May", "Jun"), "Autumn",
+                              ifelse(month %in% c("Jul", "Aug", "Sep"), "Winter",
+                                      ifelse(month %in% c("Oct", "Nov", "Dec"), "Spring","Error")))))
+return(season)
+}
 
-## save(UI_angle_season, file = "Data/UI_angle_season.RData")
+
+# UI_angle_season <- season_func(df = UI_angle)
+# save(UI_angle_season, file = "UI_angle_season.RData")
 
 load("Data/UI_angle_season.RData")
+
+# Speed of wind increased over time???
+anova_func <- function(df){
+  season_aov <- aov(mean_speed ~ site  * year * season, data = df)
+return(season_aov)
+}
+
+wind_speed_aov <- anova_func(df = UI_angle_season)
+summary(wind_speed_aov)
+
+anova_func <- function(df){
+  season_aov <- aov(ui.saws ~ site  * year * season, data = df)
+return(season_aov)
+}
+ui.saws_aov <- anova_func(df = UI_angle_season)
+summary(ui.saws_aov)
 ```
-
-# Show how winds intensified over the years
-# Show how upwwelling intensified over the years
-# Look at upwelling seasonally
-
-
-
 
 
 
