@@ -375,43 +375,14 @@ wind_daily <- wind_daily %>%
 
 load("Data/wind_daily_season.RData")
 
-wind_daily_season_HB <- wind_daily_season %>% 
-  filter(temp_sites == "Hout Bay") %>% 
-  group_by(season) %>% 
+wind_daily_season_test <- wind_daily_season %>% 
+  group_by(season, temp_sites) %>% 
   arrange(mean_speed) %>% 
   summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
             mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
 
-wind_daily_season_SP <- wind_daily_season %>% 
-  filter(temp_sites == "Sea Point") %>% 
-  group_by(season) %>% 
-  arrange(mean_speed) %>% 
-  summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
-            mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
-
-wind_daily_season_SB <- wind_daily_season %>% 
-  filter(temp_sites == "Saldanha Bay") %>% 
-  group_by(season) %>% 
-  arrange(mean_speed) %>% 
-  summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
-            mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
-
-wind_daily_season_PN <- wind_daily_season %>% 
-  filter(temp_sites == "Port Nolloth") %>% 
-  group_by(season) %>% 
-  arrange(mean_speed) %>% 
-  summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
-            mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
-
-wind_daily_season_LB <- wind_daily_season %>% 
-  filter(temp_sites == "Lamberts Bay") %>% 
-  group_by(season) %>% 
-  arrange(mean_speed) %>% 
-  summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
-            mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
 
 # T-test
-t.test(wind_daily_season_HB$msp_1st, wind_daily_season_HB$mspeed_perc, paired=TRUE)
 
 # T- test between seasons for all sites
 
