@@ -1,0 +1,8 @@
+---
+title: "SST_patterns"
+author: "Amieroh Abrahams"
+date: "19 August 2019"
+output: html_document
+---
+
+# Are the same upwelling signals present at different distances from the coastline and through the different datasets

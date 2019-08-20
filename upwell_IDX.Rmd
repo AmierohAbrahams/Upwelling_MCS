@@ -338,7 +338,6 @@ season_func <- function(df){
 return(season)
 }
 
-
 # UI_angle_season <- season_func(df = UI_angle)
 # save(UI_angle_season, file = "UI_angle_season.RData")
 
@@ -360,6 +359,83 @@ return(season_aov)
 ui.saws_aov <- anova_func(df = UI_angle_season)
 summary(ui.saws_aov)
 ```
+
+# Wind speed intensifed ovwer the years
+Take first third (33percentile) of the data and the last third (66th percentile) of the data for every season and then do a t-test
+
+```{r}
+load("Data/wind_daily.RData") 
+
+wind_daily <- wind_daily %>% 
+  dplyr::rename(t = date)
+
+# wind_daily_season <- season_func(df = wind_daily)
+
+#save(wind_daily_season, file = "Data/wind_daily_season.RData")
+
+load("Data/wind_daily_season.RData")
+
+wind_daily_season_HB <- wind_daily_season %>% 
+  filter(temp_sites == "Hout Bay") %>% 
+  group_by(season) %>% 
+  arrange(mean_speed) %>% 
+  summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
+            mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
+
+wind_daily_season_SP <- wind_daily_season %>% 
+  filter(temp_sites == "Sea Point") %>% 
+  group_by(season) %>% 
+  arrange(mean_speed) %>% 
+  summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
+            mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
+
+wind_daily_season_SB <- wind_daily_season %>% 
+  filter(temp_sites == "Saldanha Bay") %>% 
+  group_by(season) %>% 
+  arrange(mean_speed) %>% 
+  summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
+            mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
+
+wind_daily_season_PN <- wind_daily_season %>% 
+  filter(temp_sites == "Port Nolloth") %>% 
+  group_by(season) %>% 
+  arrange(mean_speed) %>% 
+  summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
+            mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
+
+wind_daily_season_LB <- wind_daily_season %>% 
+  filter(temp_sites == "Lamberts Bay") %>% 
+  group_by(season) %>% 
+  arrange(mean_speed) %>% 
+  summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
+            mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
+
+# T-test
+t.test(wind_daily_season_HB$msp_1st, wind_daily_season_HB$mspeed_perc, paired=TRUE)
+
+# T- test between seasons for all sites
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
