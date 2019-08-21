@@ -5,4 +5,268 @@ date: "19 August 2019"
 output: html_document
 ---
 
-# Are the same upwelling signals present at different distances from the coastline and through the different datasets
+# Are the same upwelling signals present at different distances from the coastline and throughout the different datasets
+
+
+```{r}
+knitr::opts_chunk$set(
+  comment = "R>",
+  warning = FALSE,
+  message = FALSE 
+)
+
+library(tidyverse)
+# library(plyr)
+library(lubridate)
+library(ggpubr)
+library(zoo)
+library(FNN)
+library(forecast)
+library(astrochron)
+library(WaveletComp)
+library(data.table)
+library(heatwaveR)
+library(viridis)
+library(ggrepel)
+library(maptools)
+library(sp)
+library(geosphere)
+library(PBSmapping)
+library(scales)
+library(grid)
+library(gridExtra)
+library(circular)
+library(fossil)
+library(mapproj)
+library(ncdf4)
+library(stringr)
+library(doMC); doMC::registerDoMC(cores = 4)
+library(fasttime)
+library(xtable)
+```
+
+```{r}
+load("Data/site_list_sub.Rdata")
+load("Data/SACTN_US.RData")
+
+SACTN_US <- SACTN_US %>% 
+  dplyr::rename(in_situ_temp = temp)
+
+# Visualising the data
+temp_plot <- function(df){
+  plot <- ggplot(data = df, aes(x = date, y = in_situ_temp, colour = site)) +
+    geom_line(aes(group = site)) +
+    labs(x = "", y = "Temperature (°C)") +
+    theme(axis.text.x = element_text(angle = 45)) +
+    theme(legend.position = "top")
+}
+
+SACTN_plot <- temp_plot(df = SACTN_US)
+SACTN_plot
+```
+
+# Loading MUR data
+
+```{r}
+MUR_Lamberts_Bay <- read_csv("Data/MUR/MUR_Lamberts Bay_SST_timeseries_5nearest.csv")
+MUR_Port_Nolloth <- read_csv("Data/MUR/MUR_Port Nolloth_SST_timeseries_5nearest.csv")
+MUR_Saldanha_Bay <- read_csv("Data/MUR/MUR_Saldanha Bay_SST_timeseries_5nearest.csv")
+MUR_Sea_Point <- read_csv("Data/MUR/MUR_Sea Point_SST_timeseries_5nearest.csv")
+MUR_Hout_Bay <- read_csv("Data/MUR/MUR_Hout Bay_SST_timeseries_5nearest.csv")
+
+MUR_SST <- rbind(MUR_Lamberts_Bay,MUR_Hout_Bay, MUR_Port_Nolloth,MUR_Saldanha_Bay, MUR_Sea_Point) %>%
+  dplyr::rename(site = station)
+
+MUR_SST$date <- (ymd(MUR_SST$date))
+MUR_SST <- MUR_SST %>% 
+  dplyr::rename(temp = nearest1) %>% 
+  drop_na()
+
+match_func <- function(df){
+  match <- SACTN_US  %>%  
+  left_join(df, by = c("site", "date")) %>% 
+  na.trim()
+  return(match)
+}
+
+MUR <- match_func(df = MUR_SST) %>%
+  drop_na()
+
+match_plot <- function(df){
+  plot1 <- df %>% 
+ggplot(aes(x = date, y = temp)) +
+  geom_hline(aes(yintercept = mean(temp)), colour = "salmon") +
+  geom_line() +
+  facet_wrap(~ site, nrow = 2) +
+  theme_bw()
+  return(plot1)
+}
+
+MUR_plot <- match_plot(df = MUR)
+
+```
+
+# CMC data
+
+```{r}
+CMC_Sea_Point <- read_csv("Data/CMC/Sea Point_SST_timeseries_5nearest.csv")
+CMC_Lamberts_Bay <- read_csv("Data/CMC/Lamberts Bay_SST_timeseries_5nearest.csv")
+CMC_Port_Nolloth <- read_csv("Data/CMC/Port Nolloth_SST_timeseries_5nearest.csv")
+CMC_Saldanha_Bay <- read_csv("Data/CMC/Saldanha Bay_SST_timeseries_5nearest.csv")
+CMC_Hout_Bay <- read_csv("Data/CMC/Hout Bay_SST_timeseries_5nearest.csv")
+
+CMC_SST <- rbind(CMC_Lamberts_Bay,CMC_Hout_Bay, CMC_Port_Nolloth, CMC_Saldanha_Bay, CMC_Sea_Point) %>%
+  dplyr::rename(site = station)
+
+CMC_SST$date <- (ymd(CMC_SST$date))
+CMC_SST <- CMC_SST %>% 
+  dplyr::rename(temp = nearest1) %>% 
+  drop_na()
+
+match_func <- function(df){
+  match <- SACTN_US  %>%  
+  left_join(df, by = c("site", "date")) %>% 
+  na.trim()
+  return(match)
+}
+
+CMC <- match_func(df = CMC_SST) %>%
+  drop_na()
+CMC_plot <- match_plot(df = CMC)
+CMC_plot
+```
+
+# Loading the OISST
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+load("Data/site_list_sub.Rdata")
+xtable(site_list_sub, auto = TRUE)
+west <- site_list_sub
+west$coast <- "west" # Chnages wc to west
+
+load("Data_P1/africa_coast.RData")
+
+## Downloading the bathy data from NOAA
+# Download mid-res bathymetry data
+# sa_lat <- c(-38, -24.5); sa_lon <- c(11.5, 35.5)
+# sa_bathy <- as.xyz(getNOAA.bathy(lon1 = sa_lon[1], lon2 = sa_lon[2], lat1 = sa_lat[1], lat2 = sa_lat[2], resolution = 4))
+# colnames(sa_bathy) <- c("lon", "lat", "depth")
+# sa_bathy <- sa_bathy[sa_bathy$depth <= 0,]
+# save(sa_bathy, file = "Data_P1/bathy/sa_bathy.RData")
+
+# Loading in the newly downloaded bathymetry data
+load("Data_P1/bathy/sa_bathy.RData")
+
+# This function takes one site (e.g. one set of lon/lats) and calculates a shore normal transect
+shore.normal.transect <- function(site, width = 2){
+  # Find the site on the coastline and it's nearest neighbour points
+  coords <- data.frame(lon = site$lon, lat = site$lat)
+  coords2 <- knnx.index(africa_coast[,1:2], as.matrix(coords), k = 1)
+  coords3 <- data.frame(site = site$site, africa_coast[c(coords2-width, coords2+width),]) 
+  coords3 <- coords3[2:1,1:3]
+  # Define the shore normal transect bearing
+  heading <- earth.bear(coords3[1,2], coords3[1,3], coords3[2,2], coords3[2,3]) + 90
+  if(heading >= 360){
+    heading <- heading-360
+  } else {
+    heading <- heading
+  }
+  heading2 <- data.frame(site = site$site, lon = site$lon, lat = site$lat, heading)
+  return(heading2)
+}
+
+# Creating the transects
+site_transects <- data.frame()
+for(i in 1:length(west$site)){
+ site <- west[i,]
+ site_transect <- shore.normal.transect(site, 2)
+ site_transects <- rbind(site_transects, site_transect)
+}
+
+# Manually correcting Sea Point and Kommetjie
+site_transects$heading[5:6] <- 290 
+# save(site_transects, file = "Data_P1/site_transects.RData")
+load("Data_P1/site_transects.RData")
+
+# This function takes one site (e.g. one set of lon/lats) and calculates a shore normal transect
+# It then extracts a lat/ lon point every X kilometres until reaching a specified isobath
+
+transect.pixel <- function(site, distances){
+  # Extract coordinates
+  coords <- data.frame(lon = site$lon, lat = site$lat)
+  # Find lon/ lats every X metres 
+  pixels <- data.frame()
+  # deep <- 999
+  # distance_multiplier <- 1
+  # while(deep > isobath){
+  for(i in 1:length(distances)){
+    coords2 <- as.data.frame(destPoint(p = coords, b = site$heading, d = distances[i]))
+    sitesIdx <- knnx.index(sa_bathy[,1:2], as.matrix(coords2), k = 1)
+    bathy2 <- sa_bathy[sitesIdx,]
+    bathy2 <- bathy2[complete.cases(bathy2$depth),]
+    bathy3 <- data.frame(site = site$site, lon = bathy2$lon, lat = bathy2$lat, 
+                         heading = site$heading, 
+                         distance = distances[i])
+    pixels <- rbind(pixels, bathy3)
+    coords <- coords2
+  }
+  if(nrow(pixels) < 1){
+    pixels <- data.frame(site, depth = NA)
+  }else{
+    pixels <- pixels
+  }
+  return(pixels)
+}
+
+# Pixel points
+site_pixels <- data.frame()
+for(i in 1:length(west$site)){
+  site <- site_transects[i,]
+  site_pixel <- transect.pixel(site, c(10000, 20000, 30000, 40000, 50000)) # RWS: fixed error
+  site_pixels <- rbind(site_pixels, site_pixel)
+}
+
+# save(site_pixels, file = "Data_P1/site_pixels.RData")
+load("Data_P1/site_pixels.RData")
+
+# Bounding box
+  # Only one is made in order to know how large the the geom_point() squares should be made to match
+bbox <- data.frame(xmin = destPoint(p = site_pixels[1,2:3], b = 270, d = 12500)[1],
+                   xmax = destPoint(p = site_pixels[1,2:3], b = 90, d = 12500)[1],
+                   ymin = destPoint(p = site_pixels[1,2:3], b = 180, d = 12500)[2],
+                   ymax = destPoint(p = site_pixels[1,2:3], b = 0, d = 12500)[2])
+
+# Determining the temperature at the various distances from the coast
+```
+
+
+
+
+
+
