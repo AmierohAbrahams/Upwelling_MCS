@@ -200,7 +200,8 @@ SACTN_upwell_quantiles <- SACTN_upwell %>%
             quant_25 = quantile(ui.saws, probs = 0.25, na.rm = TRUE),
             quant_50 = quantile(ui.saws, probs = 0.50, na.rm = TRUE),
             quant_75 = quantile(ui.saws, probs = 0.75, na.rm = TRUE),
-            quant_90 = quantile(ui.saws, probs = 0.90, na.rm = TRUE))
+            quant_90 = quantile(ui.saws, probs = 0.90, na.rm = TRUE)) %>% 
+  mutate_if(is.numeric, round, digits = 2)
   
 
 
