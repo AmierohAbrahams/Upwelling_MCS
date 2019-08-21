@@ -317,11 +317,12 @@ SACTN_upwell_lm <- SACTN_upwell_events %>%
   mutate(slope = slope * 365.25*10)
 ```
 
-Increase in upwelling over the past years as a result of intensified winds over time?
-Weakening of th upwelling over time, leads to a decrease in the upwelling indexs
-Strong south easterly winds - Spring and summer: Upwelling is more intense in spring and summer months
-The formula used suggests that if values at + upwelling occurs and if values are - then downwelling occurs. But the intensity of upwelling changes.
-Compare upwelling indeces per season 
+
+##### Upwelling #####
+# Min duration for an upwelling event - 1day and threshold -1. Upwelling can over within a few hours, but given that we have daily data - upwelling has a minimum duration of 1 day
+# Seasonal upwelling. Upwelling seasons are summer and spring
+# Did the wind intensify? This is usually done by taking first third of the dataset and the last thid of the dataset and doing a t-test on this
+# Strong south easterly winds lead to a stronger upwelling event
 
 
 ```{r}
@@ -360,7 +361,7 @@ ui.saws_aov <- anova_func(df = UI_angle_season)
 summary(ui.saws_aov)
 ```
 
-# Wind speed intensifed ovwer the years
+# Wind speed intensifed over the years
 Take first third (33percentile) of the data and the last third (66th percentile) of the data for every season and then do a t-test
 
 ```{r}
