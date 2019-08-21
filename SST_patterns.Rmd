@@ -304,6 +304,6 @@ Different distances from the coastline
 
 # Using the upwelling metrics created in `upwell.IDX.Rmd` Identify when upwelling occurs at the particular site. 
 # Is this upwelling event seen throughout the different distances from the coastline
-# Using CMC, MUR, OISST and SACTN_US to determine wether the upwelling events detected is present in each of the datasets
+# Using CMC, MUR, OISST and SACTN_US to determine wether the upwelling events detected are present in each of the datasets
 
 
