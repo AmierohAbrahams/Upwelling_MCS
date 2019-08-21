@@ -193,7 +193,8 @@ SACTN_upwell <- UI_angle %>%
   select(site, t, ui.saws, exceedance)
 
 # Calculate quantiles of upwelling index
-SACTN_upwell_quantiles <- SACTN_upwell %>% 
+SACTN_upwell_quantiles <- SACTN_upwell %>%
+  filter(ui.saws >= 0) %>% 
   group_by(site) %>% 
   summarize(quant_10 = quantile(ui.saws, probs = 0.10, na.rm = TRUE),
             quant_25 = quantile(ui.saws, probs = 0.25, na.rm = TRUE),
