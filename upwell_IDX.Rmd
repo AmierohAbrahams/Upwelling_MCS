@@ -192,6 +192,16 @@ SACTN_upwell <- UI_angle %>%
   dplyr::rename(ui.saws = temp) %>% 
   select(site, t, ui.saws, exceedance)
 
+# Calculate quantiles of upwelling index
+SACTN_upwell_quantiles <- SACTN_upwell %>% 
+  group_by(site) %>% 
+  summarize(quant_10 = quantile(ui.saws, probs = 0.10, na.rm = TRUE),
+            quant_25 = quantile(ui.saws, probs = 0.25, na.rm = TRUE),
+            quant_50 = quantile(ui.saws, probs = 0.50, na.rm = TRUE),
+            quant_75 = quantile(ui.saws, probs = 0.75, na.rm = TRUE),
+            quant_90 = quantile(ui.saws, probs = 0.90, na.rm = TRUE))
+  
+
 
 # SACTN_upwell_transform <- as.data.frame(read.zoo(transform( SACTN_upwell, Date = as.POSIXct(t) ), FUN = identity ))
 # There are a few ideas on how to go about doing this
@@ -379,6 +389,7 @@ load("Data/wind_daily_season.RData")
 wind_daily_season_test <- wind_daily_season %>% 
   group_by(season, temp_sites) %>% 
   arrange(mean_speed) %>% 
+  # Add the following line with mutate to filter the data and add a text label to use with an ANOVA
   summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
             mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
 
