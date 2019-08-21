@@ -92,6 +92,8 @@ match_func <- function(df){
 MUR <- match_func(df = MUR_SST) %>%
   drop_na()
 
+# save(MUR, file = "Data/MUR.RData")
+
 match_plot <- function(df){
   plot1 <- df %>% 
 ggplot(aes(x = date, y = temp)) +
@@ -103,7 +105,7 @@ ggplot(aes(x = date, y = temp)) +
 }
 
 MUR_plot <- match_plot(df = MUR)
-
+MUR_plot
 ```
 
 # CMC data
@@ -132,6 +134,9 @@ match_func <- function(df){
 
 CMC <- match_func(df = CMC_SST) %>%
   drop_na()
+
+# save(CMC, file = "Data/CMC.RData")
+
 CMC_plot <- match_plot(df = CMC)
 CMC_plot
 ```
@@ -139,38 +144,62 @@ CMC_plot
 # Loading the OISST
 
 ```{r}
+OISSTDir <- "~/Documents/Masters_2019/Data_SST"
+OISST <- fread(paste0(OISSTDir, "/csvavhrr-only-v2-19810901-20180630.csv"),
+            col.names = c("lon", "lat", "temp", "date"))
 
+# Visualise the data
+# To explore the data I visualise the min temperatures along the South african coastline.
+
+OISST %>%
+  filter(date == min(date)) %>%
+  ggplot(aes(x = lon, y = lat)) +
+  geom_raster(aes(fill = temp))
+
+load("Data/site_list_sub.Rdata") # Loading the SACTN_overlap dataset which allows me to match it to the OISST data 
+
+unique_pixel <- OISST %>%
+  select(lon, lat) %>%
+  unique()
+
+# Select nearest 1 pixels (k = 1)
+# Here I use knnx to find the closes 1 pixels to the insitu sites
+match_index <- knnx.index(data = as.matrix(unique_pixel[,1:2]),
+                      query = as.matrix(site_list_sub[,5:6]), k = 1)
+
+pixel_match <- unique_pixel[match_index,] %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>%
+  mutate(site = site_list_sub$site)
+
+# Subsetting the OISST data to match the upwelling sites within the in situ collected temperature data
+OISST_match <- OISST %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>%
+  filter(combi %in% pixel_match$combi)
+# save(OISST_match, file = "Data/OISST_match.RData")
+
+OISST_sites <- OISST_match %>%
+  left_join(pixel_match, by = c("combi", "lon", "lat")) #%>%
+  #dplyr::rename(temp_OISST =temp)
+
+OISST_sites <- OISST_sites %>% 
+  dplyr::mutate(date = as.Date(date)) %>% 
+  drop_na()
+# save(OISST_sites, file = "Data/OISST_sites.RData")
+
+## Matching the Insitu data with the OISST SST data
+OISST <- match_func(df = OISST_sites)
+# save(OISST, file = "Data/OISST.RData")
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Different distances from the coastline
 
 ```{r}
 load("Data/site_list_sub.Rdata")
-xtable(site_list_sub, auto = TRUE)
+# xtable(site_list_sub, auto = TRUE)
 west <- site_list_sub
 west$coast <- "west" # Chnages wc to west
 
-load("Data_P1/africa_coast.RData")
+load("Data/africa_coast.RData")
 
 ## Downloading the bathy data from NOAA
 # Download mid-res bathymetry data
@@ -181,7 +210,7 @@ load("Data_P1/africa_coast.RData")
 # save(sa_bathy, file = "Data_P1/bathy/sa_bathy.RData")
 
 # Loading in the newly downloaded bathymetry data
-load("Data_P1/bathy/sa_bathy.RData")
+load("Data/bathy/sa_bathy.RData")
 
 # This function takes one site (e.g. one set of lon/lats) and calculates a shore normal transect
 shore.normal.transect <- function(site, width = 2){
@@ -210,9 +239,9 @@ for(i in 1:length(west$site)){
 }
 
 # Manually correcting Sea Point and Kommetjie
-site_transects$heading[5:6] <- 290 
-# save(site_transects, file = "Data_P1/site_transects.RData")
-load("Data_P1/site_transects.RData")
+site_transects$heading[4:5] <- 290 
+# save(site_transects, file = "Data/site_transects.RData")
+load("Data/site_transects.RData")
 
 # This function takes one site (e.g. one set of lon/lats) and calculates a shore normal transect
 # It then extracts a lat/ lon point every X kilometres until reaching a specified isobath
@@ -252,9 +281,6 @@ for(i in 1:length(west$site)){
   site_pixels <- rbind(site_pixels, site_pixel)
 }
 
-# save(site_pixels, file = "Data_P1/site_pixels.RData")
-load("Data_P1/site_pixels.RData")
-
 # Bounding box
   # Only one is made in order to know how large the the geom_point() squares should be made to match
 bbox <- data.frame(xmin = destPoint(p = site_pixels[1,2:3], b = 270, d = 12500)[1],
@@ -263,9 +289,12 @@ bbox <- data.frame(xmin = destPoint(p = site_pixels[1,2:3], b = 270, d = 12500)[
                    ymax = destPoint(p = site_pixels[1,2:3], b = 0, d = 12500)[2])
 
 # Determining the temperature at the various distances from the coast
+
+save(site_pixels, file = "Data/site_pixels.RData")
+load("Data/site_pixels.RData")
 ```
 
-
+# 
 
 
 
