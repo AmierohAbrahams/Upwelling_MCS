@@ -202,8 +202,6 @@ SACTN_upwell_quantiles <- SACTN_upwell %>%
             quant_75 = quantile(ui.saws, probs = 0.75, na.rm = TRUE),
             quant_90 = quantile(ui.saws, probs = 0.90, na.rm = TRUE)) %>% 
   mutate_if(is.numeric, round, digits = 2)
-  
-
 
 # SACTN_upwell_transform <- as.data.frame(read.zoo(transform( SACTN_upwell, Date = as.POSIXct(t) ), FUN = identity ))
 # There are a few ideas on how to go about doing this
@@ -227,7 +225,7 @@ SACTN_upwell_base <- SACTN_US %>%
   nest() %>% 
   # The climatology base period used here is up for debate...
   # The choice of the 30th percentile threshold also needs to be justified and sensitivty tested
-  mutate(clim = purrr::map(data, ts2clm, pctile = 20, climatologyPeriod = c("1995-01-01", "2004-12-31"))) %>%
+  mutate(clim = purrr::map(data, ts2clm, pctile = 25, climatologyPeriod = c("1995-01-01", "2004-12-31"))) %>%
   select(-data) %>% 
   unnest() %>%
   left_join(SACTN_upwell, by = c("site", "t")) %>%
@@ -377,29 +375,23 @@ summary(ui.saws_aov)
 Take first third (33percentile) of the data and the last third (66th percentile) of the data for every season and then do a t-test
 
 ```{r}
-load("Data/wind_daily.RData") 
-
-wind_daily <- wind_daily %>% 
-  dplyr::rename(t = date)
-
-# wind_daily_season <- season_func(df = wind_daily)
-
-#save(wind_daily_season, file = "Data/wind_daily_season.RData")
-
-load("Data/wind_daily_season.RData")
-
-wind_daily_season_test <- wind_daily_season %>% 
-  group_by(season, temp_sites) %>% 
-  arrange(mean_speed) %>% 
-  # Add the following line with mutate to filter the data and add a text label to use with an ANOVA
-  summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
-            mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
-
-
-# T-test
-
-# T- test between seasons for all sites
-
+# load("Data/wind_daily.RData") 
+# 
+# wind_daily <- wind_daily %>% 
+#   dplyr::rename(t = date)
+# 
+# # wind_daily_season <- season_func(df = wind_daily)
+# 
+# #save(wind_daily_season, file = "Data/wind_daily_season.RData")
+# 
+# load("Data/wind_daily_season.RData")
+# 
+# wind_daily_season_test <- wind_daily_season %>% 
+#   group_by(season, temp_sites) %>% 
+#   arrange(mean_speed) %>% 
+#   # Add the following line with mutate to filter the data and add a text label to use with an ANOVA
+#   summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
+#             mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
 ```
 
 

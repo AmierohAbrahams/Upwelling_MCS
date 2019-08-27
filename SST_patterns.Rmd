@@ -70,6 +70,9 @@ load("Data/MUR.RData")
 # 
 # SACTN_plot <- temp_plot(df = SACTN_US)
 # SACTN_plot
+
+
+# 25th quantile
 ```
 
 # Loading MUR data
@@ -276,7 +279,8 @@ Different distances from the coastline
 #     pixels <- data.frame(site, depth = NA)
 #   }else{
 #     pixels <- pixels
-#   }
+#   }+
+
 #   return(pixels)
 # }
 # 
@@ -304,5 +308,137 @@ Different distances from the coastline
 # Using the upwelling metrics created in `upwell.IDX.Rmd` Identify when upwelling occurs at the particular site. 
 # Is this upwelling event seen throughout the different distances from the coastline
 # Using CMC, MUR, OISST and SACTN_US to determine wether the upwelling events detected are present in each of the datasets
+
+## Function
+Determining the temperatures at the various distances from the coastline
+
+```{r}
+# Splitting the dataset
+
+PN_site <- site_pixels %>% 
+  filter(site == "Port Nolloth")
+
+LB_site <- site_pixels %>% 
+  filter(site == "Lamberts Bay")
+
+SB_site <- site_pixels %>% 
+  filter(site == "Saldanha Bay")
+
+SP_site <- site_pixels %>% 
+  filter(site == "Sea Point")
+
+HB_site <- site_pixels %>% 
+  filter(site == "Hout Bay")
+
+## Functions: 
+
+MUR <- MUR %>% 
+  select(site, lon, lat, temp.y)
+
+OISST <- OISST %>% 
+  select(site, lon, lat, temp.y)
+
+
+unique_pixels <- function(df){
+  unique_pixel <- df %>%
+  select(lon, lat) %>%
+  unique()
+  return(unique_pixel)
+}
+
+MUR_pixels <- unique_pixels(df = MUR)
+# SACTN_pixels <- unique_pixels(df = SACTN)
+OISST_pixels <- unique_pixels(df = OISST)
+CMC_pixels <- unique_pixels(df = CMC)
+
+match_func <- function(df, xy){
+  match_index <- knnx.index(data = as.matrix(df[,1:2]),
+                    query = as.matrix(xy[,2:3]), k = 1)
+  return(match_index)
+}
+
+MUR_PN <- match_func(df = MUR_pixels, xy = PN_site)
+MUR_LB <- match_func(df = MUR_pixels, xy = LB_site)
+MUR_SB <- match_func(df = MUR_pixels, xy = SB_site)
+MUR_SP <- match_func(df = MUR_pixels, xy = SP_site)
+MUR_HB <- match_func(df = MUR_pixels, xy = HB_site)
+
+# SACTN_pixels <- match_func(df = SACTN)
+OISST_PN <- match_func(df = OISST_pixels, xy = PN_site)
+OISST_LB <- match_func(df = OISST_pixels, xy = LB_site)
+OISST_SB <- match_func(df = OISST_pixels, xy = SB_site)
+OISST_SP <- match_func(df = OISST_pixels, xy = SP_site)
+OISST_HB <- match_func(df = OISST_pixels, xy = HB_site)
+
+CMC_PN <- match_func(df = CMC_pixels, xy = PN_site)
+CMC_LB <- match_func(df = CMC_pixels, xy = LB_site)
+CMC_SB <- match_func(df = CMC_pixels, xy = SB_site)
+CMC_SP <- match_func(df = CMC_pixels, xy = SP_site)
+CMC_HB <- match_func(df = CMC_pixels, xy = HB_site)
+
+pixel_match_func <- function(df, xy){ 
+  pixel_match <- df[xy,] %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>%
+  mutate(site = PN_site$site)
+  return(pixel_match)
+}
+
+MUR_match_PN <- pixel_match_func(df = MUR_pixels, xy = MUR_PN)
+MUR_match_LB <- pixel_match_func(df = MUR_pixels, xy = MUR_LB)
+MUR_match_SB <- pixel_match_func(df = MUR_pixels, xy = MUR_SB)
+MUR_match_SP <- pixel_match_func(df = MUR_pixels, xy = MUR_SP)
+MUR_match_HB <- pixel_match_func(df = MUR_pixels, xy = MUR_HB)
+
+CMC_match_PN <- pixel_match_func(df = CMC_pixels, xy = CMC_PN)
+CMC_match_LB <- pixel_match_func(df = CMC_pixels, xy = CMC_LB)
+CMC_match_SB <- pixel_match_func(df = CMC_pixels, xy = CMC_SB)
+CMC_match_SP <- pixel_match_func(df = CMC_pixels, xy = CMC_SP)
+CMC_match_HB <- pixel_match_func(df = CMC_pixels, xy = CMC_HB)
+
+OISST_match_PN <- pixel_match_func(df = OISST_pixels, xy = OISST_PN)
+OISST_match_LB <- pixel_match_func(df = OISST_pixels, xy = OISST_LB)
+OISST_match_SB <- pixel_match_func(df = OISST_pixels, xy = OISST_SB)
+OISST_match_SP <- pixel_match_func(df = OISST_pixels, xy = OISST_SP)
+OISST_match_HB <- pixel_match_func(df = OISST_pixels, xy = OISST_HB)
+
+match_func <- function(df,xy){
+matched_coords <- df %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>%
+  filter(combi %in% xy$combi)
+return(matched_coords)
+}
+
+MUR_temp_PN <- match_func(df = MUR, xy = MUR_match_PN)
+MUR_temp_LB <- match_func(df = MUR, xy = MUR_match_LB)
+MUR_temp_SB <- match_func(df = MUR, xy = MUR_match_SB)
+MUR_temp_SP <- match_func(df = MUR, xy = MUR_match_SP)
+MUR_temp_HB <- match_func(df = MUR, xy = MUR_match_HB)
+
+CMC_temp_PN <- match_func(df = CMC, xy = CMC_match_PN)
+CMC_temp_LB <- match_func(df = CMC, xy = CMC_match_LB)
+CMC_temp_SB <- match_func(df = CMC, xy = CMC_match_SB)
+CMC_temp_SP <- match_func(df = CMC, xy = CMC_match_SP)
+CMC_temp_HB <- match_func(df = CMC, xy = CMC_match_HB)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
