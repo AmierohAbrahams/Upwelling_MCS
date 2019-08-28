@@ -312,123 +312,62 @@ Different distances from the coastline
 Determining the temperatures at the various distances from the coastline
 
 ```{r}
-# Splitting the dataset
 
-PN_site <- site_pixels %>% 
-  filter(site == "Port Nolloth")
 
-LB_site <- site_pixels %>% 
-  filter(site == "Lamberts Bay")
+# RWS: It appears as though the satellite data you are loading here have already been trimmed down to the one nearest pixel to each SACTN site
+# This won't work for the following steps because you need to be finding pixels from the COMPLETE set of satellite data you downloaded
+# Once you load the complete satellite data lon/lat values you can run the following code and it should give you the coordinates you want
 
-SB_site <- site_pixels %>% 
-  filter(site == "Saldanha Bay")
 
-SP_site <- site_pixels %>% 
-  filter(site == "Sea Point")
 
-HB_site <- site_pixels %>% 
-  filter(site == "Hout Bay")
-
-## Functions: 
-
+# These following three objects (MUR, OISST, CMC) need to be the complete set of lon/lat values for your satellite data
 MUR <- MUR %>% 
-  select(site, lon, lat, temp.y)
+  select(lon, lat) %>% 
+  mutate(product = "MUR")
 
 OISST <- OISST %>% 
-  select(site, lon, lat, temp.y)
+  select(lon, lat) %>% 
+  mutate(product = "OISST")
 
 CMC <- CMC %>% 
-  select(site, lon, lat, temp.y)
+  select(lon, lat) %>% 
+  mutate(product = "CMC")
 
+sat_data <- rbind(MUR, OISST) %>% 
+  rbind(., CMC) %>% 
+  select(product, lon, lat)
 
-unique_pixels <- function(df){
-  unique_pixel <- df %>%
-  select(lon, lat) %>%
+# rm(MUR, OISST, CMC); gc()
+
+sat_pixels <- sat_data %>% 
+  select(product, lon, lat) %>%
   unique()
-  return(unique_pixel)
+
+## For testing the nest/map pipeline
+# df <- sat_pixels %>% 
+#   filter(product == "MUR", site == "Lamberts Bay") %>% 
+#   select(-c(product, site))
+
+match_func <- function(df){
+  df <- na.omit(df) %>% 
+    dplyr::rename(lon_sat = lon, lat_sat = lat)
+  match_index <- knnx.index(data = as.matrix(site_pixels[,2:3]),
+                    query = as.matrix(df[,1:2]), k = 1)
+  res <- cbind(site_pixels[match_index,], df)
+  return(res)
 }
 
-MUR_pixels <- unique_pixels(df = MUR)
-# SACTN_pixels <- unique_pixels(df = SACTN)
-OISST_pixels <- unique_pixels(df = OISST)
-OISST_pixels <- OISST_pixels[-c(2),]
-  
-CMC_pixels <- unique_pixels(df = CMC)
+pixel_match <- sat_pixels %>% 
+  group_by(product) %>% 
+  nest() %>% 
+  mutate(match = purrr:::map(data, match_func)) %>% 
+  select(-data) %>%
+  unnest(match)
 
-match_func <- function(df, xy){
-  match_index <- knnx.index(data = as.matrix(df[,1:2]),
-                    query = as.matrix(xy[,2:3]), k = 1)
-  return(match_index)
-}
-
-MUR_PN <- match_func(df = MUR_pixels, xy = PN_site)
-MUR_LB <- match_func(df = MUR_pixels, xy = LB_site)
-MUR_SB <- match_func(df = MUR_pixels, xy = SB_site)
-MUR_SP <- match_func(df = MUR_pixels, xy = SP_site)
-MUR_HB <- match_func(df = MUR_pixels, xy = HB_site)
-
-# SACTN_pixels <- match_func(df = SACTN)
-OISST_PN <- match_func(df = OISST_pixels, xy = PN_site)
-OISST_LB <- match_func(df = OISST_pixels, xy = LB_site)
-OISST_SB <- match_func(df = OISST_pixels, xy = SB_site)
-OISST_SP <- match_func(df = OISST_pixels, xy = SP_site)
-OISST_HB <- match_func(df = OISST_pixels, xy = HB_site)
-
-CMC_PN <- match_func(df = CMC_pixels, xy = PN_site)
-CMC_LB <- match_func(df = CMC_pixels, xy = LB_site)
-CMC_SB <- match_func(df = CMC_pixels, xy = SB_site)
-CMC_SP <- match_func(df = CMC_pixels, xy = SP_site)
-CMC_HB <- match_func(df = CMC_pixels, xy = HB_site)
-
-pixel_match_func <- function(df, xy){ 
-  pixel_match <- df[xy,] %>%
-  unite(col = combi, lon, lat, sep = "/", remove = F) %>%
-  mutate(site = PN_site$site)
-  return(pixel_match)
-}
-
-MUR_match_PN <- pixel_match_func(df = MUR_pixels, xy = MUR_PN)
-MUR_match_LB <- pixel_match_func(df = MUR_pixels, xy = MUR_LB)
-MUR_match_SB <- pixel_match_func(df = MUR_pixels, xy = MUR_SB)
-MUR_match_SP <- pixel_match_func(df = MUR_pixels, xy = MUR_SP)
-MUR_match_HB <- pixel_match_func(df = MUR_pixels, xy = MUR_HB)
-
-CMC_match_PN <- pixel_match_func(df = CMC_pixels, xy = CMC_PN)
-CMC_match_LB <- pixel_match_func(df = CMC_pixels, xy = CMC_LB)
-CMC_match_SB <- pixel_match_func(df = CMC_pixels, xy = CMC_SB)
-CMC_match_SP <- pixel_match_func(df = CMC_pixels, xy = CMC_SP)
-CMC_match_HB <- pixel_match_func(df = CMC_pixels, xy = CMC_HB)
-
-OISST_match_PN <- pixel_match_func(df = OISST_pixels, xy = OISST_PN)
-OISST_match_LB <- pixel_match_func(df = OISST_pixels, xy = OISST_LB)
-OISST_match_SB <- pixel_match_func(df = OISST_pixels, xy = OISST_SB)
-OISST_match_SP <- pixel_match_func(df = OISST_pixels, xy = OISST_SP)
-OISST_match_HB <- pixel_match_func(df = OISST_pixels, xy = OISST_HB)
-
-match_func <- function(df,xy){
-matched_coords <- df %>%
-  unite(col = combi, lon, lat, sep = "/", remove = F) %>%
-  filter(combi %in% xy$combi)
-return(matched_coords)
-}
-
-MUR_temp_PN <- match_func(df = MUR, xy = MUR_match_PN)
-MUR_temp_LB <- match_func(df = MUR, xy = MUR_match_LB)
-MUR_temp_SB <- match_func(df = MUR, xy = MUR_match_SB)
-MUR_temp_SP <- match_func(df = MUR, xy = MUR_match_SP)
-MUR_temp_HB <- match_func(df = MUR, xy = MUR_match_HB)
-
-CMC_temp_PN <- match_func(df = CMC, xy = CMC_match_PN)
-CMC_temp_LB <- match_func(df = CMC, xy = CMC_match_LB)
-CMC_temp_SB <- match_func(df = CMC, xy = CMC_match_SB)
-CMC_temp_SP <- match_func(df = CMC, xy = CMC_match_SP)
-CMC_temp_HB <- match_func(df = CMC, xy = CMC_match_HB)
-
-OISST_temp_PN <- match_func(df = OISST, xy = OISST_match_PN)
-OISST_temp_LB <- match_func(df = OISST, xy = OISST_match_LB)
-OISST_temp_SB <- match_func(df = OISST, xy = OISST_match_SB)
-OISST_temp_SP <- match_func(df = OISST, xy = OISST_match_SP)
-OISST_temp_HB <- match_func(df = OISST, xy = OISST_match_HB)
+# You may then use the 'pixel_match' object to filter out the desired pixels from the full satellite products
+# You will then have one time series for each product for each pixel at each distance for each site that you may then
+# run the upwelling event function on
+# You should do this via purrr::nest+map as you can see how much less code it requires
 ```
 
 
