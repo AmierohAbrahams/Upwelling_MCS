@@ -7,7 +7,6 @@ output: html_document
 
 # Are the same upwelling signals present at different distances from the coastline and throughout the different datasets
 
-
 ```{r}
 knitr::opts_chunk$set(
   comment = "R>",
@@ -338,6 +337,9 @@ MUR <- MUR %>%
 OISST <- OISST %>% 
   select(site, lon, lat, temp.y)
 
+CMC <- CMC %>% 
+  select(site, lon, lat, temp.y)
+
 
 unique_pixels <- function(df){
   unique_pixel <- df %>%
@@ -349,6 +351,8 @@ unique_pixels <- function(df){
 MUR_pixels <- unique_pixels(df = MUR)
 # SACTN_pixels <- unique_pixels(df = SACTN)
 OISST_pixels <- unique_pixels(df = OISST)
+OISST_pixels <- OISST_pixels[-c(2),]
+  
 CMC_pixels <- unique_pixels(df = CMC)
 
 match_func <- function(df, xy){
@@ -419,6 +423,12 @@ CMC_temp_LB <- match_func(df = CMC, xy = CMC_match_LB)
 CMC_temp_SB <- match_func(df = CMC, xy = CMC_match_SB)
 CMC_temp_SP <- match_func(df = CMC, xy = CMC_match_SP)
 CMC_temp_HB <- match_func(df = CMC, xy = CMC_match_HB)
+
+OISST_temp_PN <- match_func(df = OISST, xy = OISST_match_PN)
+OISST_temp_LB <- match_func(df = OISST, xy = OISST_match_LB)
+OISST_temp_SB <- match_func(df = OISST, xy = OISST_match_SB)
+OISST_temp_SP <- match_func(df = OISST, xy = OISST_match_SP)
+OISST_temp_HB <- match_func(df = OISST, xy = OISST_match_HB)
 ```
 
 
