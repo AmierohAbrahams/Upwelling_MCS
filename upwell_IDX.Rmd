@@ -144,15 +144,11 @@ UI_angle <- wind_daily %>%
   mutate(ui.saws = mean_speed * (cos(dir_circ - coast_angle))) %>% # Calculated perpendicular angle for each of the sites. Not necessary
   drop_na %>% 
   dplyr::rename(t = date)
-
 # save(UI_angle, file = "Data/UI_angle.RData")
-
-
 # index <- wind_UI %>%
 #   group_by(site) %>%
 #   select("date", "ui.saws") %>%
 #   mutate(saws.condition = ifelse(ui.saws < 12.5, "upwelling"))
-
 # wind_UI <- wind_daily %>% 
 #   mutate(ui.saws = mean_speed * (cos(dir_circ - 160))) %>% # 160 is angle perpendicular to the west coast of SA (See paper Fielding and Davis pg 182)
 #   drop_na
@@ -191,7 +187,6 @@ SACTN_upwell <- UI_angle %>%
   unnest() %>% 
   dplyr::rename(ui.saws = temp) %>% 
   select(site, t, ui.saws, exceedance)
-
 # Calculate quantiles of upwelling index
 SACTN_upwell_quantiles <- SACTN_upwell %>%
   filter(ui.saws >= 0) %>% 
@@ -202,7 +197,6 @@ SACTN_upwell_quantiles <- SACTN_upwell %>%
             quant_75 = quantile(ui.saws, probs = 0.75, na.rm = TRUE),
             quant_90 = quantile(ui.saws, probs = 0.90, na.rm = TRUE)) %>% 
   mutate_if(is.numeric, round, digits = 2)
-
 # SACTN_upwell_transform <- as.data.frame(read.zoo(transform( SACTN_upwell, Date = as.POSIXct(t) ), FUN = identity ))
 # There are a few ideas on how to go about doing this
 # The first is to calculatea rolling climatology and to check the upwelling phenology agianst that
@@ -213,7 +207,6 @@ SACTN_upwell_quantiles <- SACTN_upwell %>%
 # I've figured this out once before but can't remember where now.
 # Rather than go through the process I have rather just made a convenience function below that
 # does what I want and can simply be given to purrr::map() without any faffing about.
-
 detect_event_custom <- function(df){
   res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 3, coldSpells = T)
   return(res)
@@ -241,22 +234,18 @@ SACTN_upwell_base <- SACTN_US %>%
   # filter(row_number() %% 2 == 0) %>% # Select event summary metrics
   # filter(row_number() %% 2 == 1) %>% # Select daily values
   # unnest()
-
 # Unpack the event metric reults
 SACTN_upwell_events <- SACTN_upwell_base %>% 
   unnest() %>%
   filter(row_number() %% 2 == 0) %>%
   unnest()
 # save(SACTN_upwell_events, file = "Data/SACTN_upwell_events.RData")
-
-
 # Unpack the daily climatology results
 SACTN_upwell_clims <- SACTN_upwell_base %>% 
   unnest() %>%
   filter(row_number() %% 2 == 1) %>% 
   unnest()
 # save(SACTN_upwell_clims, file = "Data/SACTN_upwell_clims.RData")
-
 # The above chunk of code appears to work as expected.
 # What needs to be done now is that the thresholds for duration and UI strength need to be justified/decided uopn. 
     # Min duration for an upwelling event - 1day and threshold -1
@@ -307,8 +296,6 @@ ggplot(SP_upwelling, aes(x = t, y = temp)) +
 # The dots on the plot help to show the length of each wind driven upwelling event detected.
 # This supports the use of this methodology.
 # Up next is fitting linear models to the upwelling metric results to see what trends shake out.
-
-
 # Linear Models
 lm_coeff <- function(df){
   res <- lm(formula = val ~ date_peak, data = df)
@@ -337,7 +324,6 @@ SACTN_upwell_lm <- SACTN_upwell_events %>%
 
 ```{r}
 ## Adding a seasonal component to the UI_angle dataset
-
 season_func <- function(df){
   season <- df %>%
   mutate(month = month(t, abbr = T, label = T),
@@ -348,21 +334,16 @@ season_func <- function(df){
                                       ifelse(month %in% c("Oct", "Nov", "Dec"), "Spring","Error")))))
 return(season)
 }
-
 # UI_angle_season <- season_func(df = UI_angle)
 # save(UI_angle_season, file = "UI_angle_season.RData")
-
 load("Data/UI_angle_season.RData")
-
 # Speed of wind increased over time???
 anova_func <- function(df){
   season_aov <- aov(mean_speed ~ site  * year * season, data = df)
 return(season_aov)
 }
-
 wind_speed_aov <- anova_func(df = UI_angle_season)
 summary(wind_speed_aov)
-
 anova_func <- function(df){
   season_aov <- aov(ui.saws ~ site  * year * season, data = df)
 return(season_aov)
@@ -393,7 +374,6 @@ Take first third (33percentile) of the data and the last third (66th percentile)
 #   summarize(msp_1st = quantile(mean_speed, probs=0.33, na.rm=TRUE),
 #             mspeed_2nd = quantile(mean_speed, probs=0.66, na.rm=TRUE))
 ```
-
 
 
 
