@@ -174,8 +174,8 @@ Different distances from the coastline
 ncDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily"
 csvDir <- "/home/amieroh/Documents"
 
-bbox <- data.frame(BenC = c(-35, -25, 15, 20), # Benguela Current
-                    CC = c(25, 35, 340, 355), # Canary Current
+bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
+                  CC = c(25, 35, 340, 355), # Canary Current
                    CalC = c(35, 45, 225, 240), # California Current
                    HC = c(-17.5, -7.5, 275, 290), # Humboldt Current
                    row.names = c("latmin", "latmax", "lonmin", "lonmax"))
@@ -221,7 +221,7 @@ system.time(llply(ncList, read_nc, region = "BC", csvDir = csvDir, .parallel = T
 ncDir <- "/home/amieroh/Documents/Data/Datasets/CMC/CMC_global"
 csvDir <- "/home/amieroh/Documents"
 
-bbox <- data.frame(BenC = c(-35, -25, 15, 20), # Benguela Current
+bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
                     CC = c(25, 35, 340, 355), # Canary Current
                    CalC = c(35, 45, 225, 240), # California Current
                    HC = c(-17.5, -7.5, 275, 290), # Humboldt Current
@@ -261,11 +261,8 @@ endDate <- str_sub(ncList[length(ncList)], start = 1, end = 8)
 # apply the function
 system.time(llply(ncList, read_nc, region = "BC", csvDir = csvDir, .parallel = TRUE))
 
-
 ncDir <- "/Volumes/Challenger_Deep/OceanData/CMC0.2deg-CMC-L4-GLOB-v2.0/netCDF"
 CMC.csv.dir <- "/Volumes/Challenger_Deep/spatial/processed/CMC0.2deg-CMC-L4-GLOB-v2.0/WBC/daily"
-
-system.time(read_nc(ncDir, "AC", CMC.csv.dir))
 ```
 
 # Extracting the OISST data
@@ -278,7 +275,7 @@ system.time(read_nc(ncDir, "AC", CMC.csv.dir))
 #                    row.names = c("latmin", "latmax", "lonmin", "lonmax"))
 # 
 # OISST.dir <- "/home/amieroh/Documents/Data/Datasets/OISSTv2/daily/netCDF/avhrr-only"
-# OISST.csv.dir <- "/home/amieroh/Documents/OISST_subset"
+# OISST.csv.dir <- "/home/amieroh/Documents/Data/Datasets/OISST_subset"
 # 
 # #          1         2
 # # 1234567890123456789012345
@@ -339,8 +336,6 @@ system.time(read_nc(ncDir, "AC", CMC.csv.dir))
 Determining the temperatures at the various distances from the coastline
 
 ```{r}
-
-
 # RWS: It appears as though the satellite data you are loading here have already been trimmed down to the one nearest pixel to each SACTN site
 # This won't work for the following steps because you need to be finding pixels from the COMPLETE set of satellite data you downloaded
 # Once you load the complete satellite data lon/lat values you can run the following code and it should give you the coordinates you want
