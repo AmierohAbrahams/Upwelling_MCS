@@ -19,19 +19,7 @@ library(lubridate)
 library(ggpubr)
 library(zoo)
 library(FNN)
-library(forecast)
-library(astrochron)
-library(WaveletComp)
-library(data.table)
-library(heatwaveR)
-library(viridis)
-library(ggrepel)
-library(maptools)
-library(sp)
-library(geosphere)
-library(PBSmapping)
 library(scales)
-# library(grid)
 library(gridExtra)
 library(circular)
 library(fossil)
@@ -41,6 +29,10 @@ library(stringr)
 library(doMC); doMC::registerDoMC(cores = 4)
 library(fasttime)
 library(xtable)
+library(ncdf4) # library for processing netCDFs
+library(ncdf4)
+library(data.table)
+library(plyr)
 ```
 
 # Loading in all the data created using the code bellow
@@ -49,9 +41,6 @@ library(xtable)
 load("Data/site_list_sub.Rdata")
 load("Data/SACTN_US.RData")
 load("Data/site_pixels.RData")
-load("Data/OISST.RData")
-load("Data/CMC.RData")
-load("Data/MUR.RData")
 ```
 
 ```{r}
@@ -72,132 +61,6 @@ load("Data/MUR.RData")
 
 
 # 25th quantile
-```
-
-# Loading MUR data
-
-```{r}
-# MUR_Lamberts_Bay <- read_csv("Data/MUR/MUR_Lamberts Bay_SST_timeseries_5nearest.csv")
-# MUR_Port_Nolloth <- read_csv("Data/MUR/MUR_Port Nolloth_SST_timeseries_5nearest.csv")
-# MUR_Saldanha_Bay <- read_csv("Data/MUR/MUR_Saldanha Bay_SST_timeseries_5nearest.csv")
-# MUR_Sea_Point <- read_csv("Data/MUR/MUR_Sea Point_SST_timeseries_5nearest.csv")
-# MUR_Hout_Bay <- read_csv("Data/MUR/MUR_Hout Bay_SST_timeseries_5nearest.csv")
-# 
-# MUR_SST <- rbind(MUR_Lamberts_Bay,MUR_Hout_Bay, MUR_Port_Nolloth,MUR_Saldanha_Bay, MUR_Sea_Point) %>%
-#   dplyr::rename(site = station)
-# 
-# MUR_SST$date <- (ymd(MUR_SST$date))
-# MUR_SST <- MUR_SST %>% 
-#   dplyr::rename(temp = nearest1) %>% 
-#   drop_na()
-# 
-# match_func <- function(df){
-#   match <- SACTN_US  %>%  
-#   left_join(df, by = c("site", "date")) %>% 
-#   na.trim()
-#   return(match)
-# }
-# 
-# MUR <- match_func(df = MUR_SST) %>%
-#   drop_na()
-# 
-# # save(MUR, file = "Data/MUR.RData")
-# 
-# match_plot <- function(df){
-#   plot1 <- df %>% 
-# ggplot(aes(x = date, y = temp)) +
-#   geom_hline(aes(yintercept = mean(temp)), colour = "salmon") +
-#   geom_line() +
-#   facet_wrap(~ site, nrow = 2) +
-#   theme_bw()
-#   return(plot1)
-# }
-# 
-# MUR_plot <- match_plot(df = MUR)
-# MUR_plot
-```
-
-# CMC data
-
-```{r}
-# CMC_Sea_Point <- read_csv("Data/CMC/Sea Point_SST_timeseries_5nearest.csv")
-# CMC_Lamberts_Bay <- read_csv("Data/CMC/Lamberts Bay_SST_timeseries_5nearest.csv")
-# CMC_Port_Nolloth <- read_csv("Data/CMC/Port Nolloth_SST_timeseries_5nearest.csv")
-# CMC_Saldanha_Bay <- read_csv("Data/CMC/Saldanha Bay_SST_timeseries_5nearest.csv")
-# CMC_Hout_Bay <- read_csv("Data/CMC/Hout Bay_SST_timeseries_5nearest.csv")
-# 
-# CMC_SST <- rbind(CMC_Lamberts_Bay,CMC_Hout_Bay, CMC_Port_Nolloth, CMC_Saldanha_Bay, CMC_Sea_Point) %>%
-#   dplyr::rename(site = station)
-# 
-# CMC_SST$date <- (ymd(CMC_SST$date))
-# CMC_SST <- CMC_SST %>% 
-#   dplyr::rename(temp = nearest1) %>% 
-#   drop_na()
-# 
-# match_func <- function(df){
-#   match <- SACTN_US  %>%  
-#   left_join(df, by = c("site", "date")) %>% 
-#   na.trim()
-#   return(match)
-# }
-# 
-# CMC <- match_func(df = CMC_SST) %>%
-#   drop_na()
-# 
-# # save(CMC, file = "Data/CMC.RData")
-# 
-# CMC_plot <- match_plot(df = CMC)
-# CMC_plot
-```
-
-# Loading the OISST
-
-```{r}
-# OISSTDir <- "~/Documents/Masters_2019/Data_SST"
-# OISST <- fread(paste0(OISSTDir, "/csvavhrr-only-v2-19810901-20180630.csv"),
-#             col.names = c("lon", "lat", "temp", "date"))
-# 
-# # Visualise the data
-# # To explore the data I visualise the min temperatures along the South african coastline.
-# 
-# OISST %>%
-#   filter(date == min(date)) %>%
-#   ggplot(aes(x = lon, y = lat)) +
-#   geom_raster(aes(fill = temp))
-# 
-# load("Data/site_list_sub.Rdata") # Loading the SACTN_overlap dataset which allows me to match it to the OISST data 
-# 
-# unique_pixel <- OISST %>%
-#   select(lon, lat) %>%
-#   unique()
-# 
-# # Select nearest 1 pixels (k = 1)
-# # Here I use knnx to find the closes 1 pixels to the insitu sites
-# match_index <- knnx.index(data = as.matrix(unique_pixel[,1:2]),
-#                       query = as.matrix(site_list_sub[,5:6]), k = 1)
-# 
-# pixel_match <- unique_pixel[match_index,] %>%
-#   unite(col = combi, lon, lat, sep = "/", remove = F) %>%
-#   mutate(site = site_list_sub$site)
-# 
-# # Subsetting the OISST data to match the upwelling sites within the in situ collected temperature data
-# OISST_match <- OISST %>%
-#   unite(col = combi, lon, lat, sep = "/", remove = F) %>%
-#   filter(combi %in% pixel_match$combi)
-# # save(OISST_match, file = "Data/OISST_match.RData")
-# 
-# OISST_sites <- OISST_match %>%
-#   left_join(pixel_match, by = c("combi", "lon", "lat")) #%>%
-#   #dplyr::rename(temp_OISST =temp)
-# 
-# OISST_sites <- OISST_sites %>% 
-#   dplyr::mutate(date = as.Date(date)) %>% 
-#   drop_na()
-# # save(OISST_sites, file = "Data/OISST_sites.RData")
-# 
-# ## Matching the Insitu data with the OISST SST data
-# OISST <- match_func(df = OISST_sites)
-# # save(OISST, file = "Data/OISST.RData")
 ```
 
 Different distances from the coastline
@@ -303,6 +166,164 @@ Different distances from the coastline
 # # save(site_pixels, file = "Data/site_pixels.RData")
 # load("Data/site_pixels.RData")
 ```
+
+# Extrcting the MUR data
+
+```{r}
+ncDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily"
+csvDir <- "/home/amieroh/Documents"
+
+bbox <- data.frame(BenC = c(-35, -25, 15, 20), # Benguela Current
+                    CC = c(25, 35, 340, 355), # Canary Current
+                   CalC = c(35, 45, 225, 240), # California Current
+                   HC = c(-17.5, -7.5, 275, 290), # Humboldt Current
+                   row.names = c("latmin", "latmax", "lonmin", "lonmax"))
+
+#          1         2         3         4
+# 12345678901234567890123456789012345678901
+# 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
+
+read_nc <- function(ncFile = ncFile, region = region, csvDir = csvDir) {
+  coords <- bbox[,region]
+    nc <- nc_open(ncFile)
+    pathLen <- nchar(paste0(ncDir, "/", region)) + 1
+    fNameStem <-
+      substr(ncFile, pathLen + 10, pathLen + 38)
+    fDate <- substr(ncFile, pathLen + 1, pathLen + 8)
+    sst <- ncvar_get(nc, varid = "analysed_sst") %>%
+      round(4)
+    dimnames(sst) <- list(lon = nc$dim$lon$vals,
+                          lat = nc$dim$lat$vals)
+    nc_close(nc)
+    sst <-
+      as.data.frame(melt(sst, value.name = "temp"), row.names = NULL) %>%
+      mutate(t = ymd(fDate)) %>%
+      na.omit()
+    fwrite(sst,
+           file = paste0(csvDir, "/", region, "-", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+           append = TRUE, col.names = FALSE)
+    rm(sst)
+}
+
+# the list of files
+ncList <- list.files(path = ncDir, pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+strtDate <- str_sub(ncList[1], start = 1, end = 8)
+endDate <- str_sub(ncList[length(ncList)], start = 1, end = 8)
+
+# apply the function
+system.time(llply(ncList, read_nc, region = "BC", csvDir = csvDir, .parallel = TRUE))
+```
+
+# Extracting the CMC data
+
+```{r}
+ncDir <- "/home/amieroh/Documents/Data/Datasets/CMC/CMC_global"
+csvDir <- "/home/amieroh/Documents"
+
+bbox <- data.frame(BenC = c(-35, -25, 15, 20), # Benguela Current
+                    CC = c(25, 35, 340, 355), # Canary Current
+                   CalC = c(35, 45, 225, 240), # California Current
+                   HC = c(-17.5, -7.5, 275, 290), # Humboldt Current
+                   row.names = c("latmin", "latmax", "lonmin", "lonmax"))
+
+#          1         2         3         4
+# 12345678901234567890123456789012345678901
+# 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
+
+read_nc <- function(ncFile = ncFile, region = region, csvDir = csvDir) {
+  coords <- bbox[,region]
+    nc <- nc_open(ncFile)
+    pathLen <- nchar(paste0(ncDir, "/", region)) + 1
+    fNameStem <-
+      substr(ncFile, pathLen + 10, pathLen + 38)
+    fDate <- substr(ncFile, pathLen + 1, pathLen + 8)
+    sst <- ncvar_get(nc, varid = "analysed_sst") %>%
+      round(4)
+    dimnames(sst) <- list(lon = nc$dim$lon$vals,
+                          lat = nc$dim$lat$vals)
+    nc_close(nc)
+    sst <-
+      as.data.frame(melt(sst, value.name = "temp"), row.names = NULL) %>%
+      mutate(t = ymd(fDate)) %>%
+      na.omit()
+    fwrite(sst,
+           file = paste0(csvDir, "/", region, "-", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+           append = TRUE, col.names = FALSE)
+    rm(sst)
+}
+
+# the list of files
+ncList <- list.files(path = ncDir, pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+strtDate <- str_sub(ncList[1], start = 1, end = 8)
+endDate <- str_sub(ncList[length(ncList)], start = 1, end = 8)
+
+# apply the function
+system.time(llply(ncList, read_nc, region = "BC", csvDir = csvDir, .parallel = TRUE))
+
+
+ncDir <- "/Volumes/Challenger_Deep/OceanData/CMC0.2deg-CMC-L4-GLOB-v2.0/netCDF"
+CMC.csv.dir <- "/Volumes/Challenger_Deep/spatial/processed/CMC0.2deg-CMC-L4-GLOB-v2.0/WBC/daily"
+
+system.time(read_nc(ncDir, "AC", CMC.csv.dir))
+```
+
+# Extracting the OISST data
+
+```{r}
+bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
+                   CC = c(25, 35, 340, 355), # Canary Current
+                   CalC = c(35, 45, 225, 240), # California Current
+                   HC = c(-17.5, -7.5, 275, 290), # Humboldt Current
+                   row.names = c("latmin", "latmax", "lonmin", "lonmax"))
+
+OISST.dir <- "/home/amieroh/Documents/Data/Datasets/OISSTv2/daily/netCDF/avhrr-only"
+OISST.csv.dir <- "/home/amieroh/Documents/OISST_subset"
+
+#          1         2
+# 1234567890123456789012345
+# avhrr-only-v2.19810901.nc
+
+# function to extract the dims and data from OISST netCDFs
+read_nc <- function(ncFile, region = region, csvDir = csvDir) {
+  coords <- bbox[, region]
+  nc <- nc_open(ncFile)
+  pathLen <- nchar(OISST.dir) + 1 # to account for the "/" that needs to be inserted
+  fNameStem <-
+    substr(ncFile, pathLen + 1, pathLen + 13)
+  fDate <- substr(ncFile, pathLen + 15, pathLen + 22)
+  LatIdx <- which(nc$dim$lat$vals > coords[1] & nc$dim$lat$vals < coords[2])
+  LonIdx <- which(nc$dim$lon$vals > coords[3] & nc$dim$lon$vals < coords[4])
+  sst <- ncvar_get(nc,
+                   varid = "sst",
+                   start = c(LonIdx[1], LatIdx[1], 1, 1),
+                   count = c(length(LonIdx), length(LatIdx), 1, 1)) %>%
+    round(4)
+  dimnames(sst) <- list(lon = nc$dim$lon$vals[LonIdx],
+                        lat = nc$dim$lat$vals[LatIdx])
+  nc_close(nc)
+  sst <-
+    as.data.table(melt(sst, value.name = "temp"), row.names = NULL) %>%
+    mutate(t = ymd(fDate)) %>%
+    na.omit()
+  fwrite(sst,
+         file = paste(csvDir, "/", region, "-", fNameStem, ".", strtDate, "-", endDate, ".csv", sep = ""),
+         append = TRUE, col.names = FALSE)
+  rm(sst)
+}
+
+# the list of files
+ncList <- list.files(path = OISST.dir, pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+strtDate <- str_sub(ncList[1], start = 15, end = 22)
+endDate <- str_sub(ncList[length(ncList)], start = 15, end = 22)
+
+# apply the function
+system.time(llply(ncList, read_nc, region = "BC", csvDir = OISST.csv.dir, .parallel = TRUE))
+# system.time(llply(ncList, read_nc, region = "CC", csvDir = OISST.csv.dir, .parallel = TRUE))
+# system.time(llply(ncList, read_nc, region = "CalC", csvDir = OISST.csv.dir, .parallel = TRUE))
+# system.time(llply(ncList, read_nc, region = "HC", csvDir = OISST.csv.dir, .parallel = TRUE))
+
+```
+
 
 # Using the upwelling metrics created in `upwell.IDX.Rmd` Identify when upwelling occurs at the particular site. 
 # Is this upwelling event seen throughout the different distances from the coastline
