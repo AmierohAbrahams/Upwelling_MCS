@@ -162,7 +162,7 @@ Global warming is increasing at an extremely high rate. This will result in an i
 
 ## Methods
 
-In order to compare abiotic variables such as wind action and direction along the South African coastline, large historical datasets for temperature, chlorophyll-a and wind were analysed and accessed.
+In order to compare abiotic variables such as wind action and direction along the South African coastline, large historical datasets for temperature and wind were analysed and accessed.
 
 ## Temperature data sources
 
@@ -177,10 +177,6 @@ Inorder to create a time series of each of the remotely sensed SST data represen
 ## Wind data
 
 Wind action was an important variable in this study as it was hypothesised that wind direction and wind speed may have a direct influence on the intensity and duration of upwelling events; consequently, wind action was investigated for its impact on upwelling at specific sites along the west coast of South Africa. Wind data was obtained from the South African Weather Service (SAWS), and were provided at three-hour resolutions. Specific wind characteristics were measured, namely, wind direction (dirw) and wind speed (spw).
-
-## Chlorophyll-a data
-
-In order to observe the patterns in the variation of the chlorophyll-a concentration with the intensity and duration of upwelling events,  MODIS-Aqua Chlorophyll a concentration, OCI Algorithm, 8-day composite were used. The National Aeronautics and Space Administration’s (NASA) Moderate Resolution imaging Spectroradiometer (MODIS) Aqua satellite is an example of a satellite currently collecting the reflected wavelength energy from the earth. The MODIS Aqua satellite records wavelength data down to the 1% photosynthetically available depth (0.1 PAR depth) of the water column, a vital component in the estimation of chlorophyll (NASA.GOV, http://oceancolor.gsfc.nasa.gov). Because chlorophyll-a concentration retrieval is only possible over cloud-free areas the daily data offered may have large data gaps due to cloud cover. The quality of the chlorophyll-a concentration  estimates depends strongly on the quality of the cloud mask. The NASA Aqua satellite contains the MODIS sensor that is used for detecting chlorophyll-a concentrations (ocean color) in the world's oceans, among other applications (NASA.GOV, http://oceancolor.gsfc.nasa.gov). The Level 3 standard mapped image (SMI) chlorophyll-a dataset has a monthly temporal resolution and 4.6 km spatial resolution. The SMI dataset is an image representation of binned MODIS data. 
 
 ## Site selection
 

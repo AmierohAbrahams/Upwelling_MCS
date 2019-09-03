@@ -42,6 +42,8 @@ load("Data/site_list_sub.Rdata")
 load("Data/SACTN_US.RData")
 load("Data/site_pixels.RData")
 load("Data/OISST.RData")
+OISST <- BC_avhrr_only_v2_Document_Document 
+rm(BC_avhrr_only_v2_Document_Document )
 ```
 
 ```{r}
@@ -171,11 +173,23 @@ Different distances from the coastline
 # Extrcting the MUR data
 
 ```{r}
+library(stringr)
+library(tidyverse)
+library(reshape2)
+library(ncdf4) # library for processing netCDFs
+library(plyr)
+library(lubridate)
+library(data.table)
+library(doMC); doMC::registerDoMC(cores = 7)
+
+# nc_data <- nc_open('/home/amieroh/Documents/Data/Datasets/MUR/daily/20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc')
+# print(nc_data)
+
 ncDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily"
 csvDir <- "/home/amieroh/Documents"
 
 bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
-                  CC = c(25, 35, 340, 355), # Canary Current
+                   CC = c(25, 35, 340, 355), # Canary Current
                    CalC = c(35, 45, 225, 240), # California Current
                    HC = c(-17.5, -7.5, 275, 290), # Humboldt Current
                    row.names = c("latmin", "latmax", "lonmin", "lonmax"))
@@ -184,35 +198,34 @@ bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
 # 12345678901234567890123456789012345678901
 # 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
 
-read_nc <- function(ncFile = ncFile, region = region, csvDir = csvDir) {
-  coords <- bbox[,region]
+read_nc <- function(ncDir = ncDir, csvDir = csvDir) 
+  ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+  ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+  ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+  strtDate <- str_sub(ncFirst, start = 1, end = 8)
+  endDate <- str_sub(ncLast, start = 1, end = 8)
+
+  ncFun <- function(ncFile = ncFile, csvDir = csvDir) {
     nc <- nc_open(ncFile)
-    pathLen <- nchar(paste0(ncDir, "/", region)) + 1
+    pathLen <- nchar(paste0(ncDir, "/")) + 1
     fNameStem <-
-      substr(ncFile, pathLen + 10, pathLen + 38)
-    fDate <- substr(ncFile, pathLen + 1, pathLen + 8)
+      substr(basename(ncFile), 10, 38)
+    fDate <- substr(basename(ncFile), 1, 8)
     sst <- ncvar_get(nc, varid = "analysed_sst") %>%
       round(4)
     dimnames(sst) <- list(lon = nc$dim$lon$vals,
                           lat = nc$dim$lat$vals)
     nc_close(nc)
-    sst <-
-      as.data.frame(melt(sst, value.name = "temp"), row.names = NULL) %>%
-      mutate(t = ymd(fDate)) %>%
-      na.omit()
+    sst <- as_tibble(melt(sst, value.name = "temp"))
+    sst$t <- ymd(fDate)
+    na.omit(sst)
     fwrite(sst,
-           file = paste0(csvDir, "/", region, "-", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+           file = paste0(csvDir, "/", fNameStem, "-", strtDate, "-", endDate, ".csv"),
            append = TRUE, col.names = FALSE)
     rm(sst)
-}
+  }
 
-# the list of files
-ncList <- list.files(path = ncDir, pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
-strtDate <- str_sub(ncList[1], start = 1, end = 8)
-endDate <- str_sub(ncList[length(ncList)], start = 1, end = 8)
-
-# apply the function
-system.time(llply(ncList, read_nc, region = "BC", csvDir = csvDir, .parallel = TRUE))
+llply(ncList, ncFun, csvDir = csvDir, .parallel = TRUE)
 ```
 
 # Extracting the CMC data
@@ -229,7 +242,6 @@ bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
 
 #          1         2         3         4
 # 12345678901234567890123456789012345678901
-# 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
 
 read_nc <- function(ncFile = ncFile, region = region, csvDir = csvDir) {
   coords <- bbox[,region]
@@ -262,7 +274,6 @@ endDate <- str_sub(ncList[length(ncList)], start = 1, end = 8)
 system.time(llply(ncList, read_nc, region = "BC", csvDir = csvDir, .parallel = TRUE))
 
 ncDir <- "/Volumes/Challenger_Deep/OceanData/CMC0.2deg-CMC-L4-GLOB-v2.0/netCDF"
-CMC.csv.dir <- "/Volumes/Challenger_Deep/spatial/processed/CMC0.2deg-CMC-L4-GLOB-v2.0/WBC/daily"
 ```
 
 # Extracting the OISST data
@@ -379,7 +390,7 @@ match_func <- function(df){
   return(res)
 }
 
-pixel_match <- sat_pixels %>% 
+pixel_match <- OISST %>% 
   group_by(product) %>% 
   nest() %>% 
   mutate(match = purrr:::map(data, match_func)) %>% 
