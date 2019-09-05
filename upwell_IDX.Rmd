@@ -140,6 +140,7 @@ plot_sites <- function(site_list, buffer, title_choice, dist){
     ggtitle(titles[title_choice])
 }
 south_africa_away <- plot_sites(south_africa_away_wide, 1, 1, 100000)
+south_africa_away
 ```
 
 # Upwelling indeces using the above formula
@@ -333,7 +334,7 @@ SACTN_upwell_lm <- SACTN_upwell_events %>%
   mutate(slope = slope * 365.25*10)
 ```
 
-
+# Bits of code testing the thresholds against the upwelling literature
 ##################### Upwelling ######################
 # Min duration for an upwelling event - 1day and threshold -1. Upwelling can over within a few hours, but given that we have daily data - upwelling has a minimum duration of 1 day
 # Seasonal upwelling. Upwelling seasons are summer and spring

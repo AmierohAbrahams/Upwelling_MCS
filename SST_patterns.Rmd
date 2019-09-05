@@ -182,17 +182,10 @@ library(lubridate)
 library(data.table)
 library(doMC); doMC::registerDoMC(cores = 7)
 
-# nc_data <- nc_open('/home/amieroh/Documents/Data/Datasets/MUR/daily/20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc')
-# print(nc_data)
+print(nc_data)
 
 ncDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily"
-csvDir <- "/home/amieroh/Documents"
-
-bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
-                   CC = c(25, 35, 340, 355), # Canary Current
-                   CalC = c(35, 45, 225, 240), # California Current
-                   HC = c(-17.5, -7.5, 275, 290), # Humboldt Current
-                   row.names = c("latmin", "latmax", "lonmin", "lonmax"))
+csvDir <- "/home/amieroh/Documents/Data/Datasets/MUR/Extracted_MUR"
 
 #          1         2         3         4
 # 12345678901234567890123456789012345678901
@@ -204,6 +197,8 @@ read_nc <- function(ncDir = ncDir, csvDir = csvDir)
   ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
   strtDate <- str_sub(ncFirst, start = 1, end = 8)
   endDate <- str_sub(ncLast, start = 1, end = 8)
+
+ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
 
   ncFun <- function(ncFile = ncFile, csvDir = csvDir) {
     nc <- nc_open(ncFile)
@@ -226,54 +221,55 @@ read_nc <- function(ncDir = ncDir, csvDir = csvDir)
   }
 
 llply(ncList, ncFun, csvDir = csvDir, .parallel = TRUE)
+
+
+MUR <- read_csv("~/Documents/JPL-L4UHfnd-GLOB-v01-fv03-MUR-20020601-20140727.csv")
+names(MUR)<-c("lon","lat", "temp", "date")
+MUR <- MUR %>% 
+  mutate(temp = temp - 273.15)
+
+JPL_L4UHfnd_GLOB_v01_fv04_MUR_20020601_20140727 <- read_csv("~/Documents/JPL-L4UHfnd-GLOB-v01-fv04-MUR-20020601-20140727.csv")
 ```
 
 # Extracting the CMC data
 
 ```{r}
-ncDir <- "/home/amieroh/Documents/Data/Datasets/CMC/CMC_global"
+ncDir <- "/home/amieroh/Documents/Data/Datasets/CMC/CMC_BC"
 csvDir <- "/home/amieroh/Documents"
 
-bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
-                    CC = c(25, 35, 340, 355), # Canary Current
-                   CalC = c(35, 45, 225, 240), # California Current
-                   HC = c(-17.5, -7.5, 275, 290), # Humboldt Current
-                   row.names = c("latmin", "latmax", "lonmin", "lonmax"))
+#          1         2         3         4         5         6
+# 123456789012345678901234567890123456789012345678901234567890
+# 20100609-JPL_OUROCEAN-L4UHfnd-GLOB-v01-fv01_0-G1SST_subset.nc
+read_nc <- function(ncDir = ncDir, csvDir = csvDir) 
+  ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+  ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+  ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+  strtDate <- str_sub(ncFirst, start = 1, end = 8)
+  endDate <- str_sub(ncLast, start = 1, end = 8)
 
-#          1         2         3         4
-# 12345678901234567890123456789012345678901
+# ncFile <- '/home/amieroh/Documents/Data/Datasets/CMC/CMC_BC/20100609-JPL_OUROCEAN-L4UHfnd-GLOB-v01-fv01_0-G1SST_subset.nc'
 
-read_nc <- function(ncFile = ncFile, region = region, csvDir = csvDir) {
-  coords <- bbox[,region]
+  ncFun <- function(ncFile = ncFile, csvDir = csvDir) {
     nc <- nc_open(ncFile)
-    pathLen <- nchar(paste0(ncDir, "/", region)) + 1
+    pathLen <- nchar(paste0(ncDir, "/")) + 1
     fNameStem <-
-      substr(ncFile, pathLen + 10, pathLen + 38)
-    fDate <- substr(ncFile, pathLen + 1, pathLen + 8)
+      substr(basename(ncFile), 10, 58)
+    fDate <- substr(basename(ncFile), 1, 8)
     sst <- ncvar_get(nc, varid = "analysed_sst") %>%
       round(4)
     dimnames(sst) <- list(lon = nc$dim$lon$vals,
                           lat = nc$dim$lat$vals)
     nc_close(nc)
-    sst <-
-      as.data.frame(melt(sst, value.name = "temp"), row.names = NULL) %>%
-      mutate(t = ymd(fDate)) %>%
-      na.omit()
+    sst <- as_tibble(melt(sst, value.name = "temp"))
+    sst$t <- ymd(fDate)
+    na.omit(sst)
     fwrite(sst,
-           file = paste0(csvDir, "/", region, "-", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+           file = paste0(csvDir, "/", fNameStem, "-", strtDate, "-", endDate, ".csv"),
            append = TRUE, col.names = FALSE)
     rm(sst)
-}
+  }
 
-# the list of files
-ncList <- list.files(path = ncDir, pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
-strtDate <- str_sub(ncList[1], start = 1, end = 8)
-endDate <- str_sub(ncList[length(ncList)], start = 1, end = 8)
-
-# apply the function
-system.time(llply(ncList, read_nc, region = "BC", csvDir = csvDir, .parallel = TRUE))
-
-ncDir <- "/Volumes/Challenger_Deep/OceanData/CMC0.2deg-CMC-L4-GLOB-v2.0/netCDF"
+llply(ncList, ncFun, csvDir = csvDir, .parallel = TRUE)
 ```
 
 # Extracting the OISST data
