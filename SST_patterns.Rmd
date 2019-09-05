@@ -44,6 +44,7 @@ load("Data/site_pixels.RData")
 load("Data/OISST.RData")
 OISST <- BC_avhrr_only_v2_Document_Document 
 rm(BC_avhrr_only_v2_Document_Document )
+load("Data/CMC.RData")
 ```
 
 ```{r}
@@ -118,7 +119,7 @@ Different distances from the coastline
 # # save(site_transects, file = "Data/site_transects.RData")
 # load("Data/site_transects.RData")
 # 
-# # This function takes one site (e.g. one set of lon/lats) and calculates a shore normal transect
+# # This function takes one site (e.g. one set of lon/lats) and calculates a shore norm./subal transect
 # # It then extracts a lat/ lon point every X kilometres until reaching a specified isobath
 # 
 # transect.pixel <- function(site, distances){
@@ -235,7 +236,7 @@ JPL_L4UHfnd_GLOB_v01_fv04_MUR_20020601_20140727 <- read_csv("~/Documents/JPL-L4U
 
 ```{r}
 ncDir <- "/home/amieroh/Documents/Data/Datasets/CMC/CMC_BC"
-csvDir <- "/home/amieroh/Documents"
+csvDir <- "/home/amieroh/Documents/Data/Datasets/CMC/CMC_extracted"
 
 #          1         2         3         4         5         6
 # 123456789012345678901234567890123456789012345678901234567890
@@ -270,6 +271,14 @@ read_nc <- function(ncDir = ncDir, csvDir = csvDir)
   }
 
 llply(ncList, ncFun, csvDir = csvDir, .parallel = TRUE)
+
+
+CMC <- read_csv("/home/amieroh/Documents/Data/Datasets/CMC/CMC_extracted/20000-CMC-L4_GHRSST-SSTfnd-CMC0.2deg-GLOB-v02.0-f-19910901-20170317.csv")
+names(CMC)<-c("lon","lat", "temp", "date")
+CMC <- CMC %>% 
+  mutate(temp = temp - 273.15)
+
+# save(CMC, file = "Data/CMC.RData")
 ```
 
 # Extracting the OISST data
@@ -362,7 +371,7 @@ CMC <- CMC %>%
   select(lon, lat) %>% 
   mutate(product = "CMC")
 
-sat_data <- rbind(MUR, OISST) %>% 
+sat_data <- rbind(CMC, OISST) %>% 
   rbind(., CMC) %>% 
   select(product, lon, lat)
 
