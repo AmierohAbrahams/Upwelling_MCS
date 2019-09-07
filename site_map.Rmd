@@ -167,11 +167,13 @@ load("Data/africa_coast.RData")
 load("Data/sa_provinces_new.RData")
 load("Data/site_list_sub.Rdata")
 load("Data/site_pixels.RData")
-load("Data/MUR.RData")
+load("MUR.RData")
 names(south_africa_coast)[1] <- "lon"
 
 # Manually divide up coastline
 wc <- south_africa_coast[291:410,]
+
+
 
 # Setting up the theme
 theme_set(theme_bw())
@@ -212,14 +214,14 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) + bw_update
                        labels = scales::unit_format(unit = "°S", sep = "")) +
   theme(panel.background = element_rect(fill = "ivory", colour = NA),
         panel.border = element_rect(colour = "black", size = 0.5),
-        panel.grid.minor = element_line(colour = "NA"),
-        panel.grid.major = element_line(colour = "ivory", size = 0.2, linetype = "dotted"),
-        legend.text = element_text(size = 8),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.text = element_text(size = 12),
         legend.title = element_text(size = 8),
         legend.key = element_blank(),
         legend.background = element_blank(),
         axis.ticks = element_line(size = 0.5),
-        axis.text = element_text(size = 6)) +
+        axis.text = element_text(size = 10)) +
     guides(fill = guide_colourbar(barheight = 1.00, barwidth = 10)) +
   theme(panel.background = element_rect(fill = "ivory", colour = NA),
         panel.border = element_rect(colour = "black", size = 0.5),
@@ -233,7 +235,10 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) + bw_update
         legend.key = element_blank(),
         legend.background = element_blank(),
         axis.ticks = element_line(size = 0.5))
-site_map
+site_map 
+
+pdf("Figures/site_map.pdf", width = 10, height = 7, pointsize = 4) # Set PDF dimensions
+
 
 africa_map <- ggplot(africa_coast, aes(x = lon, y = lat)) + 
   theme_bw() + 
