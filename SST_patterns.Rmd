@@ -455,22 +455,15 @@ pixel_match <- pixel_match %>%
   
 
 # You may then use the 'pixel_match' object to filter out the desired pixels from the full satellite products
-
-match_func <- function(df){
-  match <- SACTN_daily_clusters_sub_1  %>% 
-  left_join(df, by = c("site", "date")) %>% 
-  na.trim()
-  return(match)
+temp_match <- function(df){
+  temp <- df %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>%
+  filter(combi %in% pixel_match$combi)
 }
 
-insitu_MUR <- match_func(df = MUR_data)
+OISST_temp <- temp_match(df = OISST)
+CMC_temp <- temp_match(df = CMC)
 
-# OISST_temp <- OISST %>%
-#   unite(col = combi, lon, lat, sep = "/", remove = F) %>% 
-#   filter(combi %in% pixel_match$combi)
-
-# combined_OISST_match <- CMC %>% 
-#   filter(combi %in% pixel_match$combi)
 
 # You will then have one time series for each product for each pixel at each distance for each site that you may then
 # run the upwelling event function on
