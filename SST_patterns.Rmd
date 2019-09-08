@@ -458,12 +458,12 @@ pixel_match <- pixel_match %>%
 temp_match <- function(df){
   temp <- df %>%
   unite(col = combi, lon, lat, sep = "/", remove = F) %>%
-  filter(combi %in% pixel_match$combi)
+  filter(combi %in% pixel_match$combi) %>% 
+  select(distance)
 }
 
 OISST_temp <- temp_match(df = OISST)
 CMC_temp <- temp_match(df = CMC)
-
 
 # You will then have one time series for each product for each pixel at each distance for each site that you may then
 # run the upwelling event function on
