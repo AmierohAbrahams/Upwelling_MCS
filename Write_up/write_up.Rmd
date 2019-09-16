@@ -204,33 +204,6 @@ Inorder to determine whether or not upwelling signals are present at different d
 
 In this equation μ represents the wind speed (m/s) and θ represents the wind direction which is measured in degrees. The coastal angle is the angle of each of the sites perpendicular to the coastline. Thereafter, the 'exceedance' function within the heatwaveR package was used to determine the consecutive number of days at or above which the upwelling index value is ment to be. Here it was specified that the minimum duration for upwelling is 1 day with a threshold value obtained from the upwelling indeces as 1. Inorder to obtain a more approved threshold value, a percentile value was determined. To determine changes within the upwelling values, the 'detect event' fuction within the heatwaveR package was used. Thereafter, to determine the upwelling event metrics ( frequency and intensity) the detect event function was used as a first filter with a threshold of 25th percentile. Values obtained from the upwelling indeces were used as a second threshold. An R script (https://github.com/AmierohAbrahams/Upwelling_MCS) was used to further used to calculate the individual upwelling events for both the *in situ* and remotely sensed SST data. Because upwelling events were calculated relative to percentile exceedences, rather than an absolute definition such as periods with temperatures above a fixed temperature threshold, upwelling events occured any time of the year with upwelling shown to be more dominant during spring and summer months. 
 
-########## 
-
-
-### Detecting the intensity and duration of upwelling
-
-In South Africa, the changes in wind patterns, which occurred in the early 1980s, have resulted in increased upwelling variability and mean upwelling intensity along the west coast in particular, since the early 1990s (Blamey et al. 2012). This is driven by the shift to stronger south-easterly winds which are the drivers of upwelling in this system (Blamey et al. 2012, Hutchings et al. 2012). Additionally, Rouault et al. (2010) have described a negative trend (0.5°C per decade) in seawater temperature along the west coast which is a suggested result of the intensification of upwelling- favourable wind patterns (Blamey et al. 2015). This is contrary to the global trend of warming ocean temperatures as a result of climate change. *In order to determine wether upwelling had an influence on MCS, First we had to determine the various upwelling events and then using the same dataset we had to determine when marine cold spells occured or if there was a change in upwelling and 
-
-## Determining the upwelling events 
-Known upwelling events and how they link up with Cold spells
-
-- Step 1 Find upwelling events
-- Step 2 when have upwelling see if this match the MCS with that
-
-
-### MCS
-
-
-## Results
-
-### Wind patterns during upwelling events
-
-```{r  echo= FALSE, message=FALSE, warning=FALSE, fig.cap="Wind rose diagrams representing the the most predominant wind direction for each of the sites for the years 2010 - 2014. Each spoke is divided by color into wind speed ranges. The radial length of each spoke around the circle is the amount of times that the wind comes from that direction", fig.height=8, fig.width=12, fig.pos="H"}
-
- knitr::include_graphics("../Figures/wind.png")
-```
-
-## Chlorophyll a content during upwelling and cold spells
 
 
 
