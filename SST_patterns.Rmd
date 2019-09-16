@@ -85,9 +85,9 @@ Different distances from the coastline
 # # sa_bathy <- sa_bathy[sa_bathy$depth <= 0,]
 # # save(sa_bathy, file = "Data_P1/bathy/sa_bathy.RData")
 # 
-# # Loading in the newly downloaded bathymetry data
+# # Loading in the newly downloaded bathymetry data               
 # load("Data/bathy/sa_bathy.RData")
-# 
+
 # # This function takes one site (e.g. one set of lon/lats) and calculates a shore normal transect
 # shore.normal.transect <- function(site, width = 2){
 #   # Find the site on the coastline and it's nearest neighbour points
@@ -202,8 +202,8 @@ Different distances from the coastline
 #   ncFun <- function(ncFile = ncFile, csvDir = csvDir) {
 #     nc <- nc_open(ncFile)
 #     pathLen <- nchar(paste0(ncDir, "/")) + 1
-#     fNameStem <-
-#       substr(basename(ncFile), 10, 38)
+    # fNameStem <-
+    #   substr(basename(ncFile), 10, 38)
 #     fDate <- substr(basename(ncFile), 1, 8)
 #     sst <- ncvar_get(nc, varid = "analysed_sst") %>%
 #       round(4)
@@ -450,28 +450,12 @@ pixel_match <- sat_data %>%
   select(-data) %>%
   unnest(match)
 
-pixel_match <- pixel_match %>%
-  unite(col = combi, lon_sat, lat_sat, sep = "/", remove = F)
-  
-
 # You may then use the 'pixel_match' object to filter out the desired pixels from the full satellite products
-temp_match <- function(df){
-  temp <- df %>%
-  unite(col = combi, lon, lat, sep = "/", remove = F) %>%
-  filter(combi %in% pixel_match$combi) %>% 
-  select(distance)
-}
-
-OISST_temp <- temp_match(df = OISST)
-CMC_temp <- temp_match(df = CMC)
 
 # You will then have one time series for each product for each pixel at each distance for each site that you may then
 # run the upwelling event function on
 # You should do this via purrr::nest+map as you can see how much less code it requires
 ```
-
-
-
 
 
 
