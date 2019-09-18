@@ -411,6 +411,9 @@ Determining the temperatures at the various distances from the coastline
 #   select(lon, lat) %>% 
 #   mutate(product = "MUR")
 
+# Decided to work with OISST and CMC as both has a time series of 30years
+#
+
 OISST <- OISST %>% 
   select(lon, lat) %>% 
   mutate(product = "OISST")

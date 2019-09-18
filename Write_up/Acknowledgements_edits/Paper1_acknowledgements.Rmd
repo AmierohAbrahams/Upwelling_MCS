@@ -1,0 +1,10 @@
+---
+title: "Acknowledgements"
+author: "Amieroh Abrahams"
+date: "18 September 2019"
+output: html_document
+---
+
+## Acknowledgements
+
+We would like to thank SAWS, DAFF, DEA, EKZNW and SAEON for the contribution of all the raw data used in this study. Without the collection of this data this article and the South African Coastal Temperature Network (SACTN) would not be possible. This research is funded by a South African National Research Foundation Grant (SFH180604339745). The data and analyses used in this paper may be found at [Add appendix link here]
