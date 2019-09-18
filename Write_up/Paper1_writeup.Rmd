@@ -1,8 +1,43 @@
 ---
-title: "Paper1"
+title: "Upwelling variability across the Benguela upwelling systems"
 author: "Amieroh Abrahams"
-date: "17 September 2019"
-output: html_document
+date: "18 September 2019"
+output:
+  word_document:
+    fig_caption: yes
+    fig_height: 7
+    fig_width: 7
+    highlight: zenburn
+    toc: yes
+  html_document:
+    fig_caption: yes
+    fig_retina: 2
+    fig_width: 7
+    highlight: espresso
+    theme: sandstone
+    toc_float: no
+  bookdown::html_document2:
+    fig_caption: yes
+    fig_retina: 2
+    fig_width: 7
+    highlight: espresso
+    theme: sandstone
+    toc_float: no
+  pdf_document:
+    toc: yes
+    toc_depth: 4
+    highlight: default
+    keep_tex: yes
+    latex_engine: xelatex
+fontsize: 10pt
+geometry: margin=1in
+language: Australian
+mainfont: Minion Pro
+monofont: Courier
+papersize: A4
+sansfont: Myriad Pro
+tables: yes
+bibliography: ../bib_master.bib
 ---
 
 # Paper 1
