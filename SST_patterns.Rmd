@@ -414,16 +414,16 @@ Determining the temperatures at the various distances from the coastline
 # Decided to work with OISST and CMC as both has a time series of 30years
 #
 
-OISST <- OISST %>% 
+OISST_prod <- OISST %>% 
   select(lon, lat) %>% 
   mutate(product = "OISST")
 
-CMC <- CMC %>% 
+CMC_prod <- CMC %>% 
   select(lon, lat) %>% 
   mutate(product = "CMC")
 
-sat_data <- rbind(CMC, OISST) %>% 
-  rbind(., CMC) %>% 
+sat_data <- rbind(CMC_prod, OISST_prod) %>% 
+  #rbind(., CMC) %>% 
   select(product, lon, lat)
 
 # rm(MUR, OISST, CMC); gc()
@@ -451,13 +451,22 @@ pixel_match <- sat_data %>%
   nest() %>% 
   mutate(match = purrr:::map(data, match_func)) %>% 
   select(-data) %>%
-  unnest(match)
+  unnest(match) %>% 
+  unite(col = combi, lon, lat, sep = "/", remove = F)
 
 # You may then use the 'pixel_match' object to filter out the desired pixels from the full satellite products
+# one time series for each product for each pixel at each distance for each site that you may then
+dataset_filt <- function(df){
+  filtered_products <- OISST %>% 
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>% 
+  filter(combi %in% pixel_match$combi)
+}
 
-# You will then have one time series for each product for each pixel at each distance for each site that you may then
-# run the upwelling event function on
-# You should do this via purrr::nest+map as you can see how much less code it requires
+OISST_fil <- dataset_filt(df = OISST)
+CMC_fil <- dataset_filt(df = CMC)
+
+# Repeat this on MODIS K10 and another time series of 10 years
+
 ```
 
 
