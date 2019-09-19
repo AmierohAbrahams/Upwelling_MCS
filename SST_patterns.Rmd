@@ -40,11 +40,11 @@ library(plyr)
 ```{r}
 load("Data/site_list_sub.Rdata")
 load("Data/SACTN_US.RData")
-load("Data/site_pixels.RData")
-load("Data/OISST.RData")
+load("Data/site_pixels.RData") # 5 decimal places
+load("Data/OISST.RData") # 2 decimal places
 OISST <- BC_avhrr_only_v2_Document_Document 
 rm(BC_avhrr_only_v2_Document_Document )
-load("Data/CMC.RData")
+load("Data/CMC.RData") # 1decimal places
 ```
 
 ```{r}
@@ -169,6 +169,8 @@ Different distances from the coastline
 # 
 # # save(site_pixels, file = "Data/site_pixels.RData")
 # load("Data/site_pixels.RData")
+
+
 ```
 
 # Extrcting the MUR data
@@ -405,6 +407,8 @@ Determining the temperatures at the various distances from the coastline
 # Once you load the complete satellite data lon/lat values you can run the following code and it should give you the coordinates you want
 
 
+site_pixels$lat<-round(site_pixels$lat, 1) #CMC is to 1 decimal place and OISST is to 2
+site_pixels$lon<-round(site_pixels$lon, 1)
 
 # These following three objects (MUR, OISST, CMC) need to be the complete set of lon/lat values for your satellite data
 # MUR <- MUR %>% 
@@ -412,7 +416,6 @@ Determining the temperatures at the various distances from the coastline
 #   mutate(product = "MUR")
 
 # Decided to work with OISST and CMC as both has a time series of 30years
-#
 
 OISST_prod <- OISST %>% 
   select(lon, lat) %>% 
@@ -431,7 +434,6 @@ sat_data <- rbind(CMC_prod, OISST_prod) %>%
 sat_pixels <- sat_data %>% 
   select(product, lon, lat) %>%
   unique()
-
 ## For testing the nest/map pipeline
 # df <- sat_pixels %>% 
 #   filter(product == "MUR", site == "Lamberts Bay") %>% 
@@ -440,7 +442,7 @@ sat_pixels <- sat_data %>%
 match_func <- function(df){
   df <- na.omit(df) %>% 
     dplyr::rename(lon_sat = lon, lat_sat = lat)
-  match_index <- knnx.index(data = as.matrix(site_pixels[,2:3]),
+  match_index <- knnx.index(data = as.matrix(round(site_pixels[,2:3]),1),
                     query = as.matrix(df[,1:2]), k = 1)
   res <- cbind(site_pixels[match_index,], df)
   return(res)
@@ -451,22 +453,37 @@ pixel_match <- sat_data %>%
   nest() %>% 
   mutate(match = purrr:::map(data, match_func)) %>% 
   select(-data) %>%
-  unnest(match) %>% 
-  unite(col = combi, lon, lat, sep = "/", remove = F)
+  unnest(match) #%>% 
+  #unite(col = combi, lon, lat, sep = "/", remove = F)
+
+pixel_match$lat<-round(pixel_match$lat, 1) #CMC is to 1 decimal place and OISST is to 2
+pixel_match$lon<-round(pixel_match$lon, 1)
 
 # You may then use the 'pixel_match' object to filter out the desired pixels from the full satellite products
 # one time series for each product for each pixel at each distance for each site that you may then
-dataset_filt <- function(df){
-  filtered_products <- OISST %>% 
-  unite(col = combi, lon, lat, sep = "/", remove = F) %>% 
-  filter(combi %in% pixel_match$combi)
+# dataset_filt <- function(df){
+#   filtered_products <- df %>% 
+#   unite(col = combi, lon, lat, sep = "/", remove = F) #%>% 
+#   #filter(combi %in% pixel_match$combi)
+# }
+
+# OISST_fil <- dataset_filt(df = OISST)
+# CMC_fil <- dataset_filt(df = CMC)
+# 
+# 
+# pixel_match$lat
+# pixel_match$lon
+
+filterted_product <- function(df){
+  extracted <- pixel_match %>% 
+  right_join(df, by = c("lon", "lat")) %>% 
+  select(date,temp,lat,lon)
 }
 
-OISST_fil <- dataset_filt(df = OISST)
-CMC_fil <- dataset_filt(df = CMC)
+OISST_fil <- filterted_product(df = OISST)
+CMC_fil <- filterted_product(df = CMC)
 
-# Repeat this on MODIS K10 and another time series of 10 years
-
+# Next to run upwelling index
 ```
 
 
