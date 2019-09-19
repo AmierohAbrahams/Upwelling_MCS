@@ -33,6 +33,7 @@ library(ncdf4) # library for processing netCDFs
 library(ncdf4)
 library(data.table)
 library(plyr)
+library(heatwaveR)
 ```
 
 # Loading in all the data created using the code bellow
@@ -477,13 +478,69 @@ pixel_match$lon<-round(pixel_match$lon, 1)
 filterted_product <- function(df){
   extracted <- pixel_match %>%
   right_join(df, by = c("lon", "lat")) %>% 
-  select(date,temp,lat,lon)
+  select(date,temp,lat,lon) 
 }
 
-OISST_fil <- filterted_product(df = OISST)
-CMC_fil <- filterted_product(df = CMC)
+OISST_fil <- filterted_product(df = OISST) # Need to add a site column
+CMC_fil <- filterted_product(df = CMC) # Need to add a site column
 
+# OISST_sites <- OISST_fil %>% 
+#   left_join(site_list_sub[,c(2,3)], by = c("lat","lon"))
+
+# All the code below can be viewed in upwell_IDX.Rmd
 # Next to run upwelling index
+# UI Created using SAWS wind data (Find in upwell_IDX_Rmd)
+load("Data/UI_angle.RData")
+
+upwelling <- UI_angle %>% 
+  dplyr::rename(temp = ui.saws) %>%
+  group_by(site) %>%
+  # mutate(min_t = min(t), 
+  #        max_t = max(t)) %>% 
+  nest() %>% # apply the following functions to all of the variables in te dataset
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1997-01-01", "2015-12-31")), # creating a column of climaatologies. Column will be named clim
+         # NB: A threshold of 3 appeared to be far to strict
+         # purr::map - apllies a function to each element of a vector
+         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  #Upwelling cannot be descrbed as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
+  # Detect consecutive days in exceedance of a given threshold.
+  # mutate() %>% 
+  select(-data, -clim) %>% 
+  unnest() %>%
+  filter(row_number() %% 2 == 1) %>%
+  unnest() %>% # creates a column for each variables
+  dplyr::rename(ui.saws = temp) %>% # rename upwelling index vale to temp so that it could work with the function
+  select(site, t, ui.saws, exceedance) 
+
+# Now applying the Upwelling func
+detect_event_custom <- function(df){
+  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 3, coldSpells = T)
+  return(res)
+}
+
+# Calculate the upwelling event metrics
+upwelling_detect_event <- function(df){
+upwell_base <- df %>% 
+  dplyr::rename(t = date) %>% 
+  group_by(lat,lon) %>% 
+  nest() %>% 
+  # The climatology base period used here is up for debate...
+  # The choice of the 30th percentile threshold also needs to be justified and sensitivty tested
+  mutate(clim = purrr::map(data, ts2clm, pctile = 25, climatologyPeriod = c("1989-01-01", "2017-12-31"))) %>%
+  select(-data) %>% 
+  unnest() %>%
+  left_join(upwelling, by = c("site", "t")) %>%
+  filter(!is.na(exceedance)) %>%
+  group_by(lat, lon) %>% 
+  # mutate(thresh = mean(seas, na.rm = T)-sd(seas, na.rm = T)) %>% # Manually set threshold to the mean
+  # mutate(thresh = 10) %>% # Manually set threshold to a static value. Doesn't work across all sites
+  # mutate(thresh = quantile(temp, 0.3, na.rm = T)) %>% # Manually set threshold to a single quantile
+  nest() %>% 
+  mutate(exceed = purrr::map(data, detect_event_custom)) %>% 
+  select(-data)
+}
+
+OISST_upwell_base <- upwelling_detect_event(df = OISST_fil)
+CMC_upwell_base <- upwelling_detect_event(df = CMC_fill)
 ```
 
 
