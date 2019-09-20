@@ -475,6 +475,7 @@ pixel_match$lon<-round(pixel_match$lon, 1)
 # pixel_match$lat
 # pixel_match$lon
 
+# Flterning out the data from the desired pixels. Here the distances from the coastline is not shown?
 filterted_product <- function(df){
   extracted <- pixel_match %>%
   right_join(df, by = c("lon", "lat")) %>% 
