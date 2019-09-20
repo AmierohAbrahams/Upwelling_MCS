@@ -2,7 +2,7 @@
 # This script extracts MUR, CMC and OISST data
 
 
-# EXtracting MUR
+# Laoding Libraries
 library(stringr)
 library(tidyverse)
 library(reshape2)
