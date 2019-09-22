@@ -62,8 +62,11 @@ source("Functions/scale.bar.func.R")
 load("Data/site_list_sub.Rdata")
 load("Data/africa_coast.RData")
 xtable(site_list_sub, auto = TRUE)
-west <- site_list_sub
+west <- site_list_sub[-5,]
 west$coast <- "west" # Chnages wc to west
+
+site_list_sub <- site_list_sub[-5,]
+
 
 load("Data/sa_bathy.RData")
 ## Downloading the bathy data from NOAA
@@ -173,6 +176,7 @@ names(south_africa_coast)[1] <- "lon"
 # Manually divide up coastline
 wc <- south_africa_coast[291:410,]
 
+site_list_sub <- site_list_sub[-5,]
 
 
 # Setting up the theme
