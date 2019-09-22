@@ -20,20 +20,20 @@ In this equation μ represents the wind speed (m/s) and θ represents the wind d
 # libraries
 
 ```{r}
-library(circular)
-# devtools::install_github("robwschlegel/coastR")
-library(gridExtra)
-library(geosphere)
-library(tidyverse)
-library(heatwaveR)
-library(coastR)
-```
-
-# Steps
-  - Use the circular function 
-  - Determine daily wind data obtained from 3hr intervals
-
-```{r}
+# library(circular)
+# # devtools::install_github("robwschlegel/coastR")
+# library(gridExtra)
+# library(geosphere)
+# library(tidyverse)
+# library(heatwaveR)
+# library(coastR)
+# ```
+# 
+# # Steps
+#   - Use the circular function 
+#   - Determine daily wind data obtained from 3hr intervals
+# 
+# ```{r}
 # wind_1 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind1/wind1.txt", na.strings = "",
 #                      col.names = c("station_number", "station_name", "date", "hour", "sub", "speed", "dir"))
 # 
@@ -65,7 +65,7 @@ library(coastR)
 #       mutate(temp_sites = case_when(station_name == "CAPE TOWN TABLE BAY" ~ "Sea Point",
 #                                     station_name == "CAPE TOWN - ROYAL YACHT CLUB" ~ "Sea Point",
 #                                     station_name  == "PORT NOLLOTH" ~"Port Nolloth",
-#                                     station_name  == "CAPE TOWN SLANGKOP" ~ "Hout Bay",
+#                                     #station_name  == "CAPE TOWN SLANGKOP" ~ "Hout Bay",
 #                                     station_name  == "LAMBERTSBAAI NORTIER" ~ "Lamberts Bay",
 #                                     station_name  == "LANGEBAANWEG AWS" ~ "Saldanha Bay"))
 #   return(sites)
@@ -76,19 +76,19 @@ library(coastR)
 # wind_sitesmatched_2 <-  renaming_sites_1(df = wind_2)
 # wind_sitesmatched_3 <-  renaming_sites_1(df = wind_3)
 # wind_data <- rbind(wind_sitesmatched_3,wind_sitesmatched_2,wind_sitesmatched_1)
-# # save(wind_data, file = "Data/wind_data.RData")
+# save(wind_data, file = "Data/wind_data.RData")
 # 
 # load("Data/wind_data.RData")
 # selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay", "Hout Bay")
 # 
-# wind_daily <- wind_data %>% 
+# wind_daily <- wind_data %>%
 #   # ungroup() %>%
-#   # mutate(date = as.Date(date))%>% # Changing the date to date format 
-#   dplyr::group_by(temp_sites, date) %>% 
+#   # mutate(date = as.Date(date))%>% # Changing the date to date format
+#   dplyr::group_by(temp_sites, date) %>%
 #   filter(temp_sites %in% selected_sites) %>%  # Matching the sites to wind temp sites
 #   dplyr::summarise(dir_circ = round(mean.circular(circular(dir, units = "degrees")),2), # Direction using the circular function
-#                    mean_speed = round(mean(speed),2)) # Calculating the mean 
-# #save(wind_daily, file = "Data/wind_daily.RData")
+#                    mean_speed = round(mean(speed),2)) # Calculating the mean
+# save(wind_daily, file = "Data/wind_daily.RData")
 ```
 
 # Load wind

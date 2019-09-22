@@ -48,14 +48,15 @@ load("Data/site_list_v4.2.RData")
 site_list_sub <- site_list %>%
   filter(coast == "wc") %>%
   filter(length > 10950) 
-# save(site_list_sub, file = "site_list_sub.Rdata")
+#site_list_sub <- site_list_sub[-5,]
+save(site_list_sub, file = "Data/site_list_sub.Rdata")
 
 SACTN_US <- SACTN_daily_v4.2 %>%
   left_join(site_list[,c(4,13)], by = "index") %>%
   filter(index %in% site_list_sub$index) %>%
   separate(index, into = c("site", "src"), sep = "/", remove = FALSE)
 
-# save(SACTN_US, file = "Data/SACTN_US.RData")
+save(SACTN_US, file = "Data/SACTN_US.RData")
 ```
 
 # Long _in situ_ temperature time series 
