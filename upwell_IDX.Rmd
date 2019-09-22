@@ -20,20 +20,20 @@ In this equation μ represents the wind speed (m/s) and θ represents the wind d
 # libraries
 
 ```{r}
-# library(circular)
-# # devtools::install_github("robwschlegel/coastR")
-# library(gridExtra)
-# library(geosphere)
-# library(tidyverse)
-# library(heatwaveR)
-# library(coastR)
-# ```
-# 
-# # Steps
-#   - Use the circular function 
-#   - Determine daily wind data obtained from 3hr intervals
-# 
-# ```{r}
+library(circular)
+# devtools::install_github("robwschlegel/coastR")
+library(gridExtra)
+library(geosphere)
+library(tidyverse)
+library(heatwaveR)
+library(coastR)
+```
+
+# Steps
+  - Use the circular function
+  - Determine daily wind data obtained from 3hr intervals
+
+```{r}
 # wind_1 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind1/wind1.txt", na.strings = "",
 #                      col.names = c("station_number", "station_name", "date", "hour", "sub", "speed", "dir"))
 # 
@@ -65,7 +65,7 @@ In this equation μ represents the wind speed (m/s) and θ represents the wind d
 #       mutate(temp_sites = case_when(station_name == "CAPE TOWN TABLE BAY" ~ "Sea Point",
 #                                     station_name == "CAPE TOWN - ROYAL YACHT CLUB" ~ "Sea Point",
 #                                     station_name  == "PORT NOLLOTH" ~"Port Nolloth",
-#                                     #station_name  == "CAPE TOWN SLANGKOP" ~ "Hout Bay",
+#                                     station_name  == "CAPE TOWN SLANGKOP" ~ "Hout Bay",
 #                                     station_name  == "LAMBERTSBAAI NORTIER" ~ "Lamberts Bay",
 #                                     station_name  == "LANGEBAANWEG AWS" ~ "Saldanha Bay"))
 #   return(sites)
