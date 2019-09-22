@@ -558,13 +558,19 @@ load("Data/SACTN_upwell_base.RData")
 ```
 
 To accurately compare 
-Start date CMC start date 1991-09-02 end date 2017-03-15
-Start date OISST start date 1981-09- 01  and end date 2018-09-28
-Start date SACTN start date 1973 and end date 2017-12-16
+  Start date CMC start date 1991-09-02 end date 2017-03-15
+  Start date OISST start date 1981-09- 01  and end date 2018-09-28
+  Start date SACTN start date 1973 and end date 2017-12-16
 
-As a common date we will use a start date from 1992-01-31 and end date 17-01-31
+As a common date we will use a start date from 1992-01-31 and end date 16-12-31
 
+Using the generalised linear hypotheses - Look at the difference in count of upwelling within the different datasets (in situ, CMC, OISST). Look at the difference in duration of upwelling between the thre datasets.
 
+To determine wether or not the same upwlling patterns are present at different distances from the coastline
+
+Offshore Upwelling:
+Which pixels showed the highest upwelling counts
+Which site showed the most intense upwelling 
 
 
 
