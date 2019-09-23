@@ -564,21 +564,90 @@ To accurately compare
 
 As a common date we will use a start date from 1992-01-31 and end date 16-12-31
 
-Using the generalised linear hypotheses - Look at the difference in count of upwelling within the different datasets (in situ, CMC, OISST). Look at the difference in duration of upwelling between the thre datasets.
+```{r}
+# Generalosed linear models
+#Using the generalised linear hypotheses - Look at the difference in metrics (duration and intensity) of in situ upwelling and remotely sensed SST data upwelling 
 
-To determine wether or not the same upwlling patterns are present at different distances from the coastline
+lm_coeff <- function(df){
+  res <- lm(formula = val ~ date_peak, data = df)
+  res_coeff <- round(as.numeric(res$coefficient[2]), 4)
+}
+# Changes in upwelling metrics
+lm_func <- function(df){
+  upwell_lm <- df %>% 
+  select(-c(index_start:index_end)) %>% 
+  gather(key = "var", value = "val", -c(site:date_end)) %>% 
+  group_by(site, var, distance) %>% 
+  nest() %>% 
+  mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  # convert from daily to decadal values
+  mutate(slope = slope * 365.25*10)
+}
 
-Offshore Upwelling:
-Which pixels showed the highest upwelling counts
-Which site showed the most intense upwelling 
+OISST_lm <- lm_func(df = OISST_upwell_base)
+CMC_lm <- lm_func(df = CMC_upwell_base)
 
 
+SACTN_lm <- SACTN_upwell_base %>% 
+  select(-c(index_start:index_end)) %>% 
+  gather(key = "var", value = "val", -c(site:date_end)) %>% 
+  group_by(site, var) %>% 
+  nest() %>% 
+  mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  # convert from daily to decadal values
+  mutate(slope = slope * 365.25*10)
+```
+
+# From the years 1992 - 2017
+
+```{r}
+# Which pixels showed the highest upwelling counts within the different datasets
+# Which site showed the most intense upwelling within the different datasets
+# Where is the largest upwelling event occuring? 
+
+metric_func <- function(df){
+ metrics <-df %>% 
+  filter(year(date_start) %in% 1992:2017) %>% 
+  #mutate(year = year(date_start)) %>% 
+  group_by(distance, site) %>% 
+  summarise(mean_intensity = mean(intensity_mean),
+            sum_events = sum(event_no)) %>% 
+   select(site, distance, mean_intensity, sum_events)
+}
+
+OISST_metrics <- metric_func(OISST_upwell_base)
+CMC_metrics <- metric_func(CMC_upwell_base)
+
+# No of u pwelling events found at the different sites
+SACTN_metrics <- SACTN_upwell_base %>% 
+  filter(year(date_start) %in% 1992:2017) %>% 
+  group_by(site) %>% 
+  summarise(mean_intensity = mean(intensity_mean),
+            sum_events = sum(event_no)) %>% 
+  select(site, mean_intensity, sum_events)
+
+# Create a table showing these metrics
 
 
+```
+
+Create visualisation which compares the presence and absence of events
+If a event is found in a particular site at a particulate dat, is the same event present in the other datasets? Show how the events detected varies between site and dataset.
+
+```{r}
+# To determine wether or not the same upwlling patterns are present at different distances from the coastline
+
+```
 
 
-
-
+- Pvalues
+- plotting
+- ERA5
+- Plot wind data
 
 
 

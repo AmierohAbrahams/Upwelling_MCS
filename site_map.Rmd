@@ -164,7 +164,8 @@ bbox <- data.frame(xmin = destPoint(p = site_pixels[1,2:3], b = 270, d = 12500)[
 ```
 
 
-```{r}
+```{r , echo= FALSE, message=FALSE, warning=FALSE, fig.cap="Map representing the study region along the South African coastline. The black points represent the location of their *in situ* temperatures and approximations of the pixels used along the shore normal trasect from the satellite sea surface temperatures shown with black boxes", fig.height=6, fig.width=10, fig.pos="H"}
+
 load("Data/south_africa_coast.RData")
 load("Data/africa_coast.RData")
 load("Data/sa_provinces_new.RData")
@@ -220,8 +221,8 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) + bw_update
         panel.border = element_rect(colour = "black", size = 0.5),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 10),
         legend.key = element_blank(),
         legend.background = element_blank(),
         axis.ticks = element_line(size = 0.5),
@@ -233,7 +234,7 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) + bw_update
         panel.grid.major = element_line(colour = "ivory", size = 0.2, linetype = "dotted"),
         legend.direction = "horizontal",
         legend.justification = c(1,0),
-        legend.position = c(0.65, 0.80),
+        legend.position = c(0.85, 0.70),
         legend.text = element_text(size = 8),
         legend.title = element_text(size = 8),
         legend.key = element_blank(),
@@ -262,12 +263,12 @@ africa_map
 
 # More mapping - http://r-nold.blogspot.com/2014/06/creating-inset-map-with-ggplot2.html
 
-pdf("Figures/map_fixed.pdf", width = 10, height = 7, pointsize = 4) # Set PDF dimensions
 vp1 <- viewport(x = 0.70, y = 0.58, w = 0.25, h = 0.25) # Africa
 vp2 <- viewport(x = 1.0, y = 1.0, w = 1.00, h = 1.00, just = c("right", "top"))  # South Africa
 print(site_map, vp = vp2)
 print(africa_map, vp = vp1)
 dev.off()
+pdf("Figures/map_fixed.pdf", width = 10, height = 7, pointsize = 4) # Set PDF dimensions
 
 # Site map
 # The insetting needs to be placed at appropriate location
