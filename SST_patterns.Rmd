@@ -561,12 +561,8 @@ To accurately compare
   Start date CMC start date 1991-09-02 end date 2017-03-15
   Start date OISST start date 1981-09- 01  and end date 2018-09-28
   Start date SACTN start date 1973 and end date 2017-12-16
-
-As a common date we will use a start date from 1992-01-31 and end date 16-12-31
-
+  
 ```{r}
-# Generalosed linear models
-#Using the generalised linear hypotheses - Look at the difference in metrics (duration and intensity) of in situ upwelling and remotely sensed SST data upwelling 
 
 lm_coeff <- function(df){
   res <- lm(formula = val ~ date_peak, data = df)
@@ -589,7 +585,6 @@ lm_func <- function(df){
 OISST_lm <- lm_func(df = OISST_upwell_base)
 CMC_lm <- lm_func(df = CMC_upwell_base)
 
-
 SACTN_lm <- SACTN_upwell_base %>% 
   select(-c(index_start:index_end)) %>% 
   gather(key = "var", value = "val", -c(site:date_end)) %>% 
@@ -601,13 +596,50 @@ SACTN_lm <- SACTN_upwell_base %>%
   # convert from daily to decadal values
   mutate(slope = slope * 365.25*10)
 ```
+  
+
+As a common date we will use a start date from 1992-01-31 and end date 16-12-31
+
+```{r}
+# Generalosed linear models
+
+# Generalized Linear Models- Look at the difference in metrics of in situ upwelling and remotely sensed SST data upwelling 
+# Generalized linear models are fit using the glm( ) function. The form of the glm function is glm(formula, family=familytype(link=linkfunction), data=)
+
+trends_duration_func <- function(df){
+  upwellmodel <- glm(SACTN_upwell_base$duration[SACTN_upwell_base$event_no] ~ seq(1:length(SACTN_upwell_base$duration[SACTN_upwell_base$event_no])), 
+                     family = poisson(link = "log"))
+  upwellmodel0 <- glm(SACTN_upwell_base$duration[SACTN_upwell_base$event_no] ~ 1, family = poisson(link = "log")) # intercept only
+  dat2 <- data.frame(site = SACTN_upwell_base$site, upwelltrend = round(as.numeric(coef(upwellmodel)[2]*10),1),
+                       upwellR2 = round(1-logLik(upwellmodel)/logLik(upwellmodel0),2), # McFadden's pseudo-R2
+                       upwell.val = round(coef(summary(upwellmodel))[,4][2],2))
+}
+
+OISST_trends_duration_func <- trends_duration_func(df = OISST_upwell_base)
+CMC_trends_duration_func <- trends_duration_func(df = CMC_upwell_base)
+SACTN_trends_duration_func <- trends_duration_func(df = SACTN_upwell_base)
+
+
+### intensoty 
+trends_intensity_func <- function(df){
+  upwellmodel <- glm(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no] ~ seq(1:length(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no])), 
+                     family = gaussian(link = "identity"))
+  upwellmodel0 <- glm(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no] ~ 1, family = gaussian(link = "identity")) # intercept only
+  dat2 <- data.frame(site = SACTN_upwell_base$site, upwelltrend = round(as.numeric(coef(upwellmodel)[2]*10),1),
+                       upwellR2 = round(1-logLik(upwellmodel)/logLik(upwellmodel0),2), # McFadden's psesudo-R2
+                       upwell.val = round(coef(summary(upwellmodel))[,4][2],2))
+}
+
+OISST_trends_intensity_func <- trends_intensity_func(df = OISST_upwell_base)
+CMC_trends_intensity_func <- trends_intensity_func(df = CMC_upwell_base)
+SACTN_trends_intensity_func <- trends_intensity_func(df = SACTN_upwell_base)
+```
 
 # From the years 1992 - 2017
 
 ```{r}
 # Which pixels showed the highest upwelling counts within the different datasets
 # Which site showed the most intense upwelling within the different datasets
-# Where is the largest upwelling event occuring? 
 
 metric_func <- function(df){
  metrics <-df %>% 
@@ -635,19 +667,75 @@ SACTN_metrics <- SACTN_upwell_base %>%
 
 ```
 
+# Wind plots
+
+```{r, fig.cap = "Windrose diagram representing the wind direction and speed for each of the sites", fig.height = 10, fig.width = 20}
+library(ggradar)
+library(dplyr)
+library(scales)
+library(tibble)
+load("Data/UI_angle.RData")
+
+# Detects NA values, no NA values are present
+# Plotting wind variables
+source("Functions/wind.rose.R") # This it may be related to the countmax = NA in the function
+
+wind_daily_renamed <- UI_angle %>% 
+  dplyr::rename(spd = mean_speed) %>%
+  dplyr::rename(dir = dir_circ) 
+
+p.wr2 <- plot.windrose(data = wind_daily_renamed,
+              spd = "spd",
+              dir = "dir")
+
+p.wr3 <- p.wr2 + facet_wrap(.~ site, ncol = 4, nrow = 5) +
+  theme(strip.text.x = element_text(size = 25))
+p.wr3
+
+################3
+
+load("Data/UI_angle.RData")
+
+wind_plot_prep <- UI_angle %>% 
+  select(-t, -ui.saws)
+
+wind_plot <- wind_plot_prep %>% 
+  as_tibble(rownames = "site") %>% 
+  group_by(site) %>% 
+  mutate_at(vars(-site), rescale) %>% 
+  tail(4) 
+
+ggradar(wind_plot)
+
+??countmax
+
+```
+
+# ANOVA
+- Relationship between duration, year and distance as a function of the mean intensity. 
+
+```{r}
+anova_func <- function(df){
+  sites_aov <- aov(intensity_mean ~ site * lubridate::year(date_start) * duration * distance, data = df)
+return(sites_aov)
+}
+
+OISST_anov <- anova_func(df = OISST_upwell_base)
+OISST_anov
+CMC_anov <- anova_func(df = CMC_upwell_base)
+CMC_anov
+
+SACTN_anov <- sites_aov <- aov(intensity_mean ~ site * lubridate::year(date_start) * duration, data = SACTN_upwell_base)
+SACTN_anov
+```
+
+
 Create visualisation which compares the presence and absence of events
 If a event is found in a particular site at a particulate dat, is the same event present in the other datasets? Show how the events detected varies between site and dataset.
 
 ```{r}
 # To determine wether or not the same upwlling patterns are present at different distances from the coastline
 
+
 ```
-
-
-- Pvalues
-- plotting
-- ERA5
-- Plot wind data
-
-
 

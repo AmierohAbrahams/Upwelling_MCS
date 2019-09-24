@@ -7,11 +7,11 @@ plot.windrose <- function(data,
                           dir,
                           spdres = 2,
                           dirres = 30,
-                          spdmin = 2,
-                          spdmax = 22,
+                          spdmin = 0.00,
+                          spdmax = 12,
                           spdseq = NULL,
                           palette = "YlGnBu",
-                          countmax = NA,
+                          countmax = NA, #changed count max to 1000
                           debug = 0){
   
   
