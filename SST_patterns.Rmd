@@ -681,6 +681,7 @@ load("Data/UI_angle.RData")
 source("Functions/wind.rose.R") # This it may be related to the countmax = NA in the function
 
 wind_daily_renamed <- UI_angle %>% 
+  mutate(dir_circ = ifelse(dir_circ < 0, dir_circ+360, dir_circ)) %>% 
   dplyr::rename(spd = mean_speed) %>%
   dplyr::rename(dir = dir_circ) 
 
