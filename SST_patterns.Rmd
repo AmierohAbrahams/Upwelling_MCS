@@ -683,7 +683,8 @@ source("Functions/wind.rose.R") # This it may be related to the countmax = NA in
 wind_daily_renamed <- UI_angle %>% 
   mutate(dir_circ = ifelse(dir_circ < 0, dir_circ+360, dir_circ)) %>% 
   dplyr::rename(spd = mean_speed) %>%
-  dplyr::rename(dir = dir_circ) 
+  dplyr::rename(dir = dir_circ) %>% 
+  filter(spd > 0)
 
 p.wr2 <- plot.windrose(data = wind_daily_renamed,
               spd = "spd",
