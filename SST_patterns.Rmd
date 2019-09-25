@@ -620,7 +620,7 @@ CMC_trends_duration_func <- trends_duration_func(df = CMC_upwell_base)
 SACTN_trends_duration_func <- trends_duration_func(df = SACTN_upwell_base)
 
 
-### intensoty 
+### Intensity: Chnaged the family and link because of the negative values within the dataset 
 trends_intensity_func <- function(df){
   upwellmodel <- glm(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no] ~ seq(1:length(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no])), 
                      family = gaussian(link = "identity"))
@@ -721,12 +721,12 @@ return(sites_aov)
 }
 
 OISST_anov <- anova_func(df = OISST_upwell_base)
-OISST_anov
+summary(OISST_anov)
 CMC_anov <- anova_func(df = CMC_upwell_base)
-CMC_anov
+summary(CMC_anov)
 
 SACTN_anov <- sites_aov <- aov(intensity_mean ~ site * lubridate::year(date_start) * duration, data = SACTN_upwell_base)
-SACTN_anov
+summary(SACTN_anov)
 ```
 
 
