@@ -669,7 +669,7 @@ SACTN_metrics <- SACTN_upwell_base %>%
 
 # Wind plots
 
-```{r, fig.cap = "Windrose diagram representing the wind direction and speed for each of the sites", fig.height = 10, fig.width = 20}
+```{r, fig.cap = "Windrose diagram representing the wind direction and speed for each of the sites", fig.height = 10, fig.width = 15}
 library(ggradar)
 library(dplyr)
 library(scales)
@@ -690,26 +690,26 @@ p.wr2 <- plot.windrose(data = wind_daily_renamed,
               spd = "spd",
               dir = "dir")
 
-p.wr3 <- p.wr2 + facet_wrap(.~ site, ncol = 4, nrow = 5) +
+p.wr3 <- p.wr2 + facet_wrap(.~ site, ncol = 2, nrow = 2) +
   theme(strip.text.x = element_text(size = 25))
 p.wr3
 
 ################3
 
-load("Data/UI_angle.RData")
-
-wind_plot_prep <- UI_angle %>% 
-  select(-t, -ui.saws)
-
-wind_plot <- wind_plot_prep %>% 
-  as_tibble(rownames = "site") %>% 
-  group_by(site) %>% 
-  mutate_at(vars(-site), rescale) %>% 
-  tail(4) 
-
-ggradar(wind_plot)
-
-??countmax
+# load("Data/UI_angle.RData")
+# 
+# wind_plot_prep <- UI_angle %>% 
+#   select(-t, -ui.saws)
+# 
+# wind_plot <- wind_plot_prep %>% 
+#   as_tibble(rownames = "site") %>% 
+#   group_by(site) %>% 
+#   mutate_at(vars(-site), rescale) %>% 
+#   tail(4) 
+# 
+# ggradar(wind_plot)
+# 
+# ??countmax
 
 ```
 
