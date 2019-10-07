@@ -40,18 +40,23 @@ tables: yes
 bibliography: ../bib_master.bib
 ---
 
-# Paper 1
-## Chapter 2 Upwelling
-
+\newpage
 ## Abstract
 
 
+*Keywords*: Seawater temperature, climate change, coastal regions, code: R, variability, upwelling
 
+\newpage
+## Acknowledgments
+
+I would like to thank SAWS, DAFF, DEA, EKZNW and SAEON for the contribution of all the raw data used in this study. Without the collection of this data this article and the South African Coastal Temperature Network (SACTN) would not be possible. This research is funded by a South African National Research Foundation Grant (SFH180604339745). The data and analyses used in this paper may be found at [Add appendix link here]
+
+\newpage
 ## Introduction
 
-Upwelling is a physical oceanographic process in which cold, nutrient rich waters are pushed to the surface as a result of the motion caused by alongshore equatorial winds. These upwelling events are known to have a large influence on the abundance, diversity, and distribution of marine organisms, and moreover, critically affect marine ecosystem processes (Add in references). Occurring globally throughout the world's oceans, four major eastern boundary upwelling systems (EBUS) can be recognised; each significantly impacting associated coastal systems. These respective systems are characterized as vast regions of coastal ocean occurring along the western shores of continents bordering the Pacific and Atlantic Oceans [@bakun; @pauly]. There has been significant interest in major upwelling systems since the later 1960s, with major interest occuring off Peru [@walsh] and North-West Africa [@barber]. Research done by Copenhagen 1953, reported a number of sites along the west coast of southern Africa where upwelling was particularly intense. The two sites of intense upwelling activity were found off the Cape Peninsula and off Cape columbine [@copenhagen; @andrew]
+Upwelling is a physical oceanographic process in which cold, nutrient rich waters are pushed to the surface as a result of the motion caused by alongshore equatorial winds. These upwelling events are known to have a large influence on the abundance, diversity, and distribution of marine organisms, and moreover, critically affect marine ecosystem processes (Add in references). Occurring globally throughout the world's oceans, four major eastern boundary upwelling systems (EBUS) can be recognised; each significantly impacting associated coastal systems. These respective systems are characterized as vast regions of coastal ocean occurring along the western shores of continents bordering the Pacific and Atlantic Oceans [@bakun; @pauly]. There has been significant interest in major upwelling systems since the later 1960s, with major interest occuring off Peru [@walsh] and North-West Africa [@barber]. Research done by Copenhagen 1953, reported a number of sites along the west coast of southern Africa where upwelling was particularly intense. The two sites of intense upwelling activity were found off the Cape Peninsula and off Cape columbine [@copenhagen; @andrew]. Whilst upwelling plays a significant role in ecological processes, climate change largely influences this phenomenon.
 
-Over the past three decades, anthropogenic climate change has established global concern as it has been shown to have negatively affected marine and terrestrial ecosystems [@hoegh]. The consequences of these changes are also shown to have had direct effects on the behaviour and functioning of marine organisms, thus ultimately affecting species trophic levels and integration [@doney]. According to the Bakun hypothesis, an increase in greenhouse gases will result in an increase in day-time warming and night-time cooling and ultimately cause an increase in temperature gradients which will then form stronger pressure gradients [@bakun]. Pressure gradients are known to affect wind patterns which will subsequently affect the intensity and duration of upwelling events [@hsieh; @mote; @lima].
+Over the past three decades, anthropogenic climate change has established global concern as it has been shown to have negatively affected marine and terrestrial ecosystems [@hoegh]. The consequences of these changes are also shown to have had direct effects on the behaviour and functioning of marine organisms, thus ultimately affecting species trophic levels and integration [@doney]. According to the Bakun hypothesis, an increase in greenhouse gases will result in an increase in day-time warming and night-time cooling and ultimately cause an increase in temperature gradients which will then form stronger pressure gradients [@bakun]. Pressure gradients are known to affect wind patterns which will subsequently affect the intensity and duration of upwelling events [@hsieh; @mote; @lima]. Over the last few decades, climate change has resulted in drastic pressure and temperature gradients. 
 
 Several studies have provided significant evidence suggesting that there has been an increase in ocean surface temperatures over the last few decades (Add references; RWS: You can cite the IPCC for this). These temperatures have increased as a result of anthropogenically driven climate change [@gruber]. Warming is shown to slowly move down into the water column thus increasing thermal stratification (RWS: citation needed). This thermal stratification restricts the depth at which water is upwelled and therfore limits the amount of nutrients brought up to the surface with a decrease in oxygen and pH levels [@chhak; @jacox2011; @jocox2016]. Climate change impacting oceanic processes has major ecological consequences [@walther]. This is demonstrated in several regions increases in sea surface temperatures have been proven to greatly influence marine species survival, reproduction and abundance. Climate change has also been shown to largely influence coastal species such as corals, muscles and oysters [@hoegh]. Given the importance of primary production, it was determined that the Benguela upwelling system, the eastern boundary upwelling system in South Africa, should be the focus of this paper. Furthermore, it should be understood that increases in sea surface temperatures bear considerable economic impacts as well [@murawski2000; @murawski1993] therefore understanding the impact and cause of climate change has merit not only in mitigation efforts in limiting environmental degradation and maintaining ecosystem functioning, but in its negative affects to local and broader economies as well as human populations dependent on these coastal regions.
 
@@ -59,11 +64,9 @@ The 3000km South African coastline is bordered by the Agulhas current along the 
 
 The Benguela system is bounded by the equatorward and poleward ends by warm water regimes. These currents are known to be forced by local wind stress fields off southwest Africa [@nelson; @fennel]. This particular EBUS stretches along the south-western coast of Africa, from southern Angola to Cape Agulhas [@cole], with water temperatures coldest and most persistent off the Namibian coast at 25°S and weakest at 17°S [@Lutjeharms]. The upwelling period in the Benguela north of 25°C persists throughout the entire year but peaks during August. The Benguela upwelling region is split into northern and southern systems by a zone of intense perennial upwelling activity in the Luderitz region in Namibia [@shannon; @cole]. Several studies have shown that extreme warming and cooling periods occur in the northern and southern Benguela systems [@stander; @walker; @shannon1984; @boyd; @brainard]. Furthermore, Walter (1937) found that warm periods of global ocean temperatures may have resulted as a lack of upwelling or poor upwelling events. During the periods of warming, the equatorward wind stress over the northern region of the Benguela system was stronger than usual yet upwelling was suppressed by the southward movement of warm saline waters from the Angolan region. In the southern Benguela region, continental shelf bathymetry and strong upwelling favourable winds are known to result in more intense upwelling events. Upwelling occurring along the southern coastline of southern Africa are usually generated by local winds. 
 
-The Cape peninsula is influenced by south-east trade winds during summer and westerlies during winter, thus a pronounced seasonal cycle is evident within patterns of wind movement across the coastline. During spring, summer, and autumn seasons, the anticyclonic high-pressure cell periodically ridges eastwards south of the continent (RWS: Citation). During this process, south easterly winds predominate, with peak frequencies occurring during spring and summer months resulting in more upwelling events during summer and winter months (RWS: Citation). During the winter seasons, low pressure cells are driven from the west to the east as a result of the atmospheric circumpolar waves and so north-westerly winds dominate during winter. South easterly winds dominate during summer but are still present for short durations during winter [@andrews]. Within a range of kilometres off the shore, wind conditions vary due to the effects of mountain funnelling within the region (RWS: Citation).
+The Cape peninsula is influenced by south-east trade winds during summer and westerlies during winter, thus a pronounced seasonal cycle is evident within patterns of wind movement across the coastline. During spring, summer, and autumn seasons, the anticyclonic high-pressure cell periodically ridges eastwards south of the continent (RWS: Citation). During this process, south easterly winds predominate, with peak frequencies occurring during spring and summer months resulting in more upwelling events during summer and winter months (RWS: Citation). During the winter seasons, low pressure cells are driven from the west to the east as a result of the atmospheric circumpolar waves and so north-westerly winds dominate during winter. South easterly winds dominate during summer but are still present for short durations during winter [@andrews]. The dynamics of upwelling within the nearshore (<400m from the coastline) remains poorly understood, with Very few studies addressing the changes in the intensity of cold events at varying distances from the coast within the Benguela region. 
 
-The dynamics of upwelling within the nearshore (<400m from the coastline) remains poorly understood, with Very few studies addressing the changes in the intensity of cold events at varying distances from the coast within the Benguela region. Cold temperatures are important in describing species population distribution limits and are proven to set limits in the north or southwards higher latitudes (Firth et al., 2011). Upwelling metrics are often calculated far offshore because measurements are typically taken from large ships that cannot move close to the shore [@andrews]. There has not yet been any understanding of how the upwelling process varies at local versus broader scales. Within this study it is hypothesized that the upwelling metric may vary spatially across different distances, with more intense upwelling events occurring nearest to the coast.
-
-Strong temperature gradients existing between offshore and inshore oceanic waters may result in different upwelling event readings. Upwelling relatively close to the shore has been found to depend on the strength and direction of the wind and tend to vary based on seasonal wind variation [@andrews]. Inshore temperatures tend to be lower during summer months due to upwelling, but there is an increase in offshore temperatures in the later summer months as a result of warming of the South East Atlantic Surface waters [@andrews; @Shannon]. Due to the temperature gradients that exist inshore and offshore, this study focused on observing upwelling patterns from the coastal region to 50km from the coastline.
+Cold temperatures are important in describing species population distribution limits and are proven to set limits in the north or southwards higher latitudes (Firth et al., 2011). Upwelling metrics are often calculated far offshore because measurements are typically taken from large ships that cannot move close to the shore [@andrews]. There has not yet been any understanding of how the upwelling process varies at local versus broader scales. Within this study it is hypothesized that the upwelling metric may vary spatially across different distances, with more intense upwelling events occurring nearest to the coast. Strong temperature gradients existing between offshore and inshore oceanic waters may result in different upwelling event readings. Upwelling relatively close to the shore has been found to depend on the strength and direction of the wind and tend to vary based on seasonal wind variation [@andrews]. Inshore temperatures tend to be lower during summer months due to upwelling, but there is an increase in offshore temperatures in the later summer months as a result of warming of the South East Atlantic Surface waters [@andrews; @Shannon]. Due to the temperature gradients that exist inshore and offshore, this study focused on observing upwelling patterns from the coastal region to 50km from the coastline.
 
 The central assumption of this project was that remotely-sensed SST data and *in situ* seawater temperature data may be compared. Remotely sensed SST data and *in situ* seawater temperature data were obtained at different resolutions and so slight changes may be found within the different datasets. The primary aim of the first study was to make use of various remotely sensed SST and *in-situ* collected coastal seawater temperature data. The most appropriate dataset for the measurement of the nearshore temperatures within South Africa was the South African Coastal Temperature Network (SACTN) dataset [@smit]. It was useful to examine whether or not the same upwelling patterns exist at different distances from the coastline and if these patterns that exist are evident within the various datasets. This investigation examined recent trends and variation of upwelling events at different distances from the coastline.
 
@@ -107,9 +110,162 @@ differences occurred between upwelling at different sites and distances from the
 
 ## Results
 
-# Table
+Visualisations
 
 
+
+
+
+
+
+<!-- \def\tiny{\@setfontsize\tiny{10pt}{11pt}} -->
+\begin{tiny}
+\begin{center}
+\setlength\tabcolsep{3pt}
+\begin{longtable}{|r|r|p{2cm}|}
+\caption{OISST} \\
+
+% This is the header for the first page of the table...
+\toprule
+Site & distance & slope  \\
+\midrule
+\endfirsthead
+
+% This is the header for the second page of the table...
+\toprule
+Site & distance & slope  \\
+\midrule
+\endhead
+
+% This is the footer for all pages except the last page of the table...
+\midrule
+\multicolumn{5}{l}{{Continued on Next Page\ldots}} \\
+\endfoot
+
+% This is the footer for the last page of the table...
+\bottomrule
+\endlastfoot
+
+% Now the data...
+
+Lamberts Bay & 10000 & 5.47875 \\
+Lamberts Bay & 20000 & 5.47875 \\
+Lamberts Bay & 30000 & 7.67025 \\
+Lamberts Bay & 40000 & 1.09575 \\
+Lamberts Bay & 50000 & -8.76600 \\
+Port Nolloth & 10000 & 0.36525  \\
+Port Nolloth & 20000 & -3.28725 \\
+Port Nolloth & 30000 & -2.92200 \\
+Port Nolloth & 40000 & -3.65250 \\
+Port Nolloth & 50000 & -3.28725 \\
+Saldanha Bay & 10000 & -0.73050 \\
+Saldanha Bay & 20000 & -0.36525 \\
+Saldanha Bay & 30000 & -4.38300 \\
+Saldanha Bay & 40000 & -10.22700 \\
+Saldanha Bay & 50000 & -12.41850 \\
+Sea Point & 10000 & -8.76600  \\
+Sea Point & 20000 & -3.65250 \\
+Sea Point & 30000 & -1.46100 \\
+Sea Point & 40000 & -9.49650 \\
+Sea Point & 50000 & -18.62775 \\
+
+\end{longtable}
+\end{center}
+\end{tiny}
+
+<!-- \def\tiny{\@setfontsize\tiny{10pt}{11pt}} -->
+\begin{tiny}
+\begin{center}
+\setlength\tabcolsep{3pt}
+\begin{longtable}{|r|r|p{2cm}|}
+\caption{CMC} \\
+
+% This is the header for the first page of the table...
+\toprule
+Site & distance & slope  \\
+\midrule
+\endfirsthead
+
+% This is the header for the second page of the table...
+\toprule
+Site & distance & slope  \\
+\midrule
+\endhead
+
+% This is the footer for all pages except the last page of the table...
+\midrule
+\multicolumn{5}{l}{{Continued on Next Page\ldots}} \\
+\endfoot
+
+% This is the footer for the last page of the table...
+\bottomrule
+\endlastfoot
+
+% Now the data...
+
+Lamberts Bay & 10000 & -26.29800 \\
+Lamberts Bay & 20000 & -25.56750 \\
+Lamberts Bay & 30000 & -23.74125 \\
+Lamberts Bay & 40000 & -31.41150 \\
+Lamberts Bay & 50000 & -31.77675 \\
+Port Nolloth & 10000 & -15.34050 \\
+Port Nolloth & 20000 & -16.43625 \\
+Port Nolloth & 30000 & -15.70575 \\
+Port Nolloth & 40000 & -20.45400 \\
+Port Nolloth & 50000 & -24.83700 \\
+Saldanha Bay & 10000 & -29.58525 \\
+Saldanha Bay & 20000 & -36.52500 \\
+Saldanha Bay & 30000 & -42.73425 \\
+Saldanha Bay & 40000 & -46.38675 \\
+Saldanha Bay & 50000 & -45.29100 \\
+Sea Point & 10000 & -28.48950  \\
+Sea Point & 20000 & -30.31575 \\
+Sea Point & 30000 & -36.89025 \\
+Sea Point & 40000 & -38.35125 \\
+Sea Point & 50000 & -37.25550 \\
+
+\end{longtable}
+\end{center}
+\end{tiny}
+
+<!-- \def\tiny{\@setfontsize\tiny{10pt}{11pt}} -->
+\begin{tiny}
+\begin{center}
+\setlength\tabcolsep{3pt}
+\begin{longtable}{|r|r|p{2cm}|}
+\caption{SACTN} \\
+
+% This is the header for the first page of the table...
+\toprule
+Site & distance & slope  \\
+\midrule
+\endfirsthead
+
+% This is the header for the second page of the table...
+\toprule
+Site & distance & slope  \\
+\midrule
+\endhead
+
+% This is the footer for all pages except the last page of the table...
+\midrule
+\multicolumn{5}{l}{{Continued on Next Page\ldots}} \\
+\endfoot
+
+% This is the footer for the last page of the table...
+\bottomrule
+\endlastfoot
+
+% Now the data...
+
+Lamberts Bay & -1.46100 \\
+Port Nolloth & -3.65250 \\
+Saldanha Bay & -2.55675 \\
+Sea Point & -10.95750  \\
+
+\end{longtable}
+\end{center}
+\end{tiny}
 
 # Wind rose diagrams
 
@@ -123,15 +279,7 @@ Wind diagrams help visualise the patterns present at a particular site. Moving o
 
 # Average intensity between sites at the various distances
 
-Sites located within the OISST datasets shows no difference in duration of the events at different distances for each of the sites from the coastline. However, there is a difference in the mean intensity of events between sites (F=5.74, SS=5.2, p<0.0006). It is also evident that there is a significant difference in the mean intensity of the event at different distances from the coastline (F=260.17, SS=78.6, p<0.001), as well as differences in the duration in events (F=51.39, SS=15.53, p<0.001) and between sites . Similarly, the second dataset, the CMC dataset, results obtained from a  three-way ANOVA showed that there  was no a significant difference in the duration of events at different distances from the coastline for each of the sites (F=1.20, SS=0.41, p>0.05). However, there is a difference in the mean intensity of events at diferent distances (F=471.63, SS=162.0, p<0.05), as well as a signifcant difference in the duration of events (F=38.36, SS=13.2, p<0.006), and between sites (F=17.64, SS=18.2, p<0.002). It is also seen that there is no significant difference between the duration of upwelling between the various sites (F=0.22 SS=0.2, p<0.87). When looking at the in situ collected dataset, data collected at the coastline, we find no difference in the duration of events at the different sites (F=2.05, SS=1.84, p>0.11), however, we see a difference in the mean intensity of events at the different sites (F=2.05, SS=0.61, p>0.44).
-
-# Plotting images
-
-
-####TO do
-- Plots
-- Tables
-
+Sites compared within the OISST datasets showed no difference in the durations of the events at different distances for each of the sites from the coastline. However, there is a difference in the mean intensity of events between sites (*F*=5.74, *SS*=5.2, *p*<0.001). Additionally, there were also significant differences between the mean intensities of events at different distances from the coastline (*F*=260.17, *SS*=78.6, *p*<0.001), and between the durations in events (*F*=51.39, *SS*= 15.53, *p*<0.001) and between sites. Similar comparisons using the CMC dataset showed that there was no significant difference in the duration of events at different distances from the coastline for each of the sites (Three-Way ANOVA: *F*=1.20, *SS*=0.41, *p*>0.05). However, there were significant differences in the mean intensities of events at different distances (*F*=471.63, *SS*=162.0, *p*<0.05), between the durations of events (*F*= 38.36, *SS*=13.2, *p*<0.001), and between sites (*F*=17.64, *SS*=18.2, *p*<0.002). I also found that there was no significant difference between the durations of upwelling across all sites (*F*=0.22, *SS*=0.2, *p*<0.87). When looking at the in situ collected dataset, data collected at the coastline, we find no difference in the durations of events at across sites (*F*=2.05, *SS*=1.84, *p*=0.11) but there was a difference in the mean intensities of those events (*F*=2.05, *SS*=0.61, *p*=0.44).
 
 # Discussion
 
