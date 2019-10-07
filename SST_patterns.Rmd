@@ -691,7 +691,7 @@ p.wr2 <- plot.windrose(data = wind_daily_renamed,
               dir = "dir")
 
 p.wr3 <- p.wr2 + facet_wrap(.~ site, ncol = 2, nrow = 2) +
-  theme(strip.text.x = element_text(size = 25))
+  theme(strip.text.x = element_text(size = 25)) + theme(panel.spacing = unit(2, "lines"))
 p.wr3
 
 ################3
@@ -716,9 +716,10 @@ p.wr3
 # ANOVA
 - Relationship between duration, year and distance as a function of the mean intensity. 
 
+
 ```{r}
 anova_func <- function(df){
-  sites_aov <- aov(intensity_mean ~ site * lubridate::year(date_start) * duration * distance, data = df)
+  sites_aov <- aov(intensity_mean ~ site * duration * distance, data = df)
 return(sites_aov)
 }
 
@@ -727,7 +728,7 @@ summary(OISST_anov)
 CMC_anov <- anova_func(df = CMC_upwell_base)
 summary(CMC_anov)
 
-SACTN_anov <- sites_aov <- aov(intensity_mean ~ site * lubridate::year(date_start) * duration, data = SACTN_upwell_base)
+SACTN_anov <- sites_aov <- aov(intensity_mean ~ site * duration, data = SACTN_upwell_base)
 summary(SACTN_anov)
 ```
 
@@ -740,4 +741,6 @@ If a event is found in a particular site at a particulate dat, is the same event
 
 
 ```
+
+
 
