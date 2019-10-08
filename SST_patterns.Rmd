@@ -770,6 +770,15 @@ plot_scat_func <- function(df){
 (CMC_PN_plot <- plot_scat_func(df = CMC_PN))
 (CMC_LB_plot <- plot_scat_func(df = CMC_LB))
 
+CMC_SP_plot <- CMC_SP_plot +
+  ggtitle("Sea Point")
+CMC_SB_plot <- CMC_SB_plot +
+  ggtitle("Saldanha Bay")
+CMC_PN_plot <- CMC_PN_plot +
+  ggtitle("Port Nolloth")
+CMC_LB_plot <- CMC_LB_plot +
+  ggtitle("Lamberts Bay")
+
 combined_CMC <- ggarrange(CMC_SP_plot, CMC_SB_plot, CMC_PN_plot,CMC_LB_plot)
 ###################
 ## OISST
@@ -795,6 +804,16 @@ plot_scat_func <- function(df){
 (OISST_SB_plot <- plot_scat_func(df = OISST_SB))
 (OISST_PN_plot <- plot_scat_func(df = OISST_PN))
 (OISST_LB_plot <- plot_scat_func(df = OISST_LB))
+
+OISST_SP_plot <- OISST_SP_plot +
+  ggtitle("Sea Point")
+OISST_SB_plot <- OISST_SB_plot +
+  ggtitle("Saldanha Bay")
+OISST_PN_plot <- OISST_PN_plot +
+  ggtitle("Port Nolloth")
+OISST_LB_plot <- OISST_LB_plot +
+  ggtitle("Lamberts Bay")
+
 combined_OISST <- ggarrange(OISST_SP_plot, OISST_SB_plot, OISST_PN_plot,OISST_LB_plot)
 
 ############## 
@@ -827,6 +846,15 @@ plot_loli_func <- function(df){
 (OISST_SB_pl <- plot_loli_func(df = OISST_SB))
 (OISST_PN_pl <- plot_loli_func(df = OISST_PN))
 (OISST_LB_pl <- plot_loli_func(df = OISST_LB))
+OISST_SP_pl <- OISST_SP_pl +
+  ggtitle("Sea Point")
+OISST_SB_pl <- OISST_SB_pl +
+  ggtitle("Saldanha Bay")
+OISST_PN_pl <- OISST_PN_pl +
+  ggtitle("Port Nolloth")
+OISST_LB_pl <- OISST_LB_pl +
+  ggtitle("Lamberts Bay")
+
 combined_OISST_pl <- ggarrange(OISST_SP_pl, OISST_SB_pl, OISST_PN_pl,OISST_LB_pl)
 
 #######
@@ -836,6 +864,16 @@ combined_OISST_pl <- ggarrange(OISST_SP_pl, OISST_SB_pl, OISST_PN_pl,OISST_LB_pl
 (CMC_SB_pl <- plot_loli_func(df = CMC_SB))
 (CMC_PN_pl <- plot_loli_func(df = CMC_PN))
 (CMC_LB_pl <- plot_loli_func(df = CMC_LB))
+
+CMC_SP_pl <- CMC_SP_pl +
+  ggtitle("Sea Point")
+CMC_SB_pl <- CMC_SB_pl +
+  ggtitle("Saldanha Bay")
+CMC_PN_pl <- CMC_PN_pl +
+  ggtitle("Port Nolloth")
+CMC_LB_pl <- CMC_LB_pl +
+  ggtitle("Lamberts Bay")
+
 combined_CMC_pl <- ggarrange(CMC_SP_pl, CMC_SB_pl, CMC_PN_pl,CMC_LB_pl)
 
 plot_loli_func <- function(df){
