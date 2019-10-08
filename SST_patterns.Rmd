@@ -606,33 +606,33 @@ As a common date we will use a start date from 1992-01-31 and end date 16-12-31
 # Generalized Linear Models- Look at the difference in metrics of in situ upwelling and remotely sensed SST data upwelling 
 # Generalized linear models are fit using the glm( ) function. The form of the glm function is glm(formula, family=familytype(link=linkfunction), data=)
 
-trends_duration_func <- function(df){
-  upwellmodel <- glm(SACTN_upwell_base$duration[SACTN_upwell_base$event_no] ~ seq(1:length(SACTN_upwell_base$duration[SACTN_upwell_base$event_no])), 
-                     family = poisson(link = "log"))
-  upwellmodel0 <- glm(SACTN_upwell_base$duration[SACTN_upwell_base$event_no] ~ 1, family = poisson(link = "log")) # intercept only
-  dat2 <- data.frame(site = SACTN_upwell_base$site, upwelltrend = round(as.numeric(coef(upwellmodel)[2]*10),1),
-                       upwellR2 = round(1-logLik(upwellmodel)/logLik(upwellmodel0),2), # McFadden's pseudo-R2
-                       upwell.val = round(coef(summary(upwellmodel))[,4][2],2))
-}
-
-OISST_trends_duration_func <- trends_duration_func(df = OISST_upwell_base)
-CMC_trends_duration_func <- trends_duration_func(df = CMC_upwell_base)
-SACTN_trends_duration_func <- trends_duration_func(df = SACTN_upwell_base)
-
-
-### Intensity: Chnaged the family and link because of the negative values within the dataset 
-trends_intensity_func <- function(df){
-  upwellmodel <- glm(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no] ~ seq(1:length(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no])), 
-                     family = gaussian(link = "identity"))
-  upwellmodel0 <- glm(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no] ~ 1, family = gaussian(link = "identity")) # intercept only
-  dat2 <- data.frame(site = SACTN_upwell_base$site, upwelltrend = round(as.numeric(coef(upwellmodel)[2]*10),1),
-                       upwellR2 = round(1-logLik(upwellmodel)/logLik(upwellmodel0),2), # McFadden's psesudo-R2
-                       upwell.val = round(coef(summary(upwellmodel))[,4][2],2))
-}
-
-OISST_trends_intensity_func <- trends_intensity_func(df = OISST_upwell_base)
-CMC_trends_intensity_func <- trends_intensity_func(df = CMC_upwell_base)
-SACTN_trends_intensity_func <- trends_intensity_func(df = SACTN_upwell_base)
+# trends_duration_func <- function(df){
+#   upwellmodel <- glm(SACTN_upwell_base$duration[SACTN_upwell_base$event_no] ~ seq(1:length(SACTN_upwell_base$duration[SACTN_upwell_base$event_no])), 
+#                      family = poisson(link = "log"))
+#   upwellmodel0 <- glm(SACTN_upwell_base$duration[SACTN_upwell_base$event_no] ~ 1, family = poisson(link = "log")) # intercept only
+#   dat2 <- data.frame(site = SACTN_upwell_base$site, upwelltrend = round(as.numeric(coef(upwellmodel)[2]*10),1),
+#                        upwellR2 = round(1-logLik(upwellmodel)/logLik(upwellmodel0),2), # McFadden's pseudo-R2
+#                        upwell.val = round(coef(summary(upwellmodel))[,4][2],2))
+# }
+# 
+# OISST_trends_duration_func <- trends_duration_func(df = OISST_upwell_base)
+# CMC_trends_duration_func <- trends_duration_func(df = CMC_upwell_base)
+# SACTN_trends_duration_func <- trends_duration_func(df = SACTN_upwell_base)
+# 
+# 
+# ### Intensity: Chnaged the family and link because of the negative values within the dataset 
+# trends_intensity_func <- function(df){
+#   upwellmodel <- glm(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no] ~ seq(1:length(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no])), 
+#                      family = gaussian(link = "identity"))
+#   upwellmodel0 <- glm(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no] ~ 1, family = gaussian(link = "identity")) # intercept only
+#   dat2 <- data.frame(site = SACTN_upwell_base$site, upwelltrend = round(as.numeric(coef(upwellmodel)[2]*10),1),
+#                        upwellR2 = round(1-logLik(upwellmodel)/logLik(upwellmodel0),2), # McFadden's psesudo-R2
+#                        upwell.val = round(coef(summary(upwellmodel))[,4][2],2))
+# }
+# 
+# OISST_trends_intensity_func <- trends_intensity_func(df = OISST_upwell_base)
+# CMC_trends_intensity_func <- trends_intensity_func(df = CMC_upwell_base)
+# SACTN_trends_intensity_func <- trends_intensity_func(df = SACTN_upwell_base)
 ```
 
 # From the years 1992 - 2017
@@ -758,6 +758,17 @@ plot_scat_func <- function(df){
 (CMC_plot <- plot_scat_func(df = CMC_filtered))
 (OISST_plot <- plot_scat_func(df = OISST_filtered))
 
+plot_loli_func <- function(df){
+  ggplot(df, aes(x = date_peak, y = duration)) + 
+  geom_lolli(aes(colour = intensity_cumulative)) + 
+  scale_color_distiller(palette = "Spectral", name = "Cumulative \nintensity") + 
+  facet_wrap(~distance, ncol = 2) +
+  xlab("Date") + ylab("Event duration [days]") 
+}
+
+(CMC_plot <- plot_loli_func(df = CMC_filtered))
+(OISST_plot <- plot_loli_func(df = OISST_filtered))
+
 plot_scat_func <- function(df){
   ggplot(data = df, aes(x = date_start, y = intensity_mean)) +
   geom_point() +
@@ -767,4 +778,13 @@ plot_scat_func <- function(df){
   labs(y = "Mean Intensity", x = NULL)
 }
 (SACTN_plot <- plot_scat_func(df = SACTN_filtered))
+
+plot_loli_func <- function(df){
+  ggplot(df, aes(x = date_peak, y = duration)) + 
+  geom_lolli(aes(colour = intensity_cumulative)) + 
+  scale_color_distiller(palette = "Spectral", name = "Cumulative \nintensity") + 
+  facet_wrap(~site, ncol = 2) +
+  xlab("Date") + ylab("Event duration [days]") 
+}
+(SACTN_plot <- plot_loli_func(df = SACTN_filtered))
 ```
