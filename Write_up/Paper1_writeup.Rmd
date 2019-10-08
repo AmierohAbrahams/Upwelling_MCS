@@ -142,7 +142,7 @@ CMC observations of upwelling events at Sea Point detected durations of less tha
 \begin{center}
 \setlength\tabcolsep{3pt}
 \begin{longtable}{|r|r|p{2cm}|}
-\caption{The absolute cumulative intensity (°C.day) for the sites located within the Benguela upwelling system using the OISST dataset. The site column gives the name of the site. The distance column gives the distance from the coastline as seen in Fig 1. The cumulative intensity expects as absolute magnitudes rather than relative seasonal climatology} \\
+\caption{The cumulative intensity (°C x days) for the sites located within the Benguela upwelling system using the OISST dataset. The site column gives the name of the site. The distance column gives the distance from the coastline as seen in Fig 1.} \\
 
 % This is the header for the first page of the table...
 \toprule
@@ -167,26 +167,26 @@ Site & distance & regression slope  \\
 
 % Now the data...
 
-Lamberts Bay & 10000 & 5.47875 \\
-Lamberts Bay & 20000 & 5.47875 \\
-Lamberts Bay & 30000 & 7.67025 \\
-Lamberts Bay & 40000 & 1.09575 \\
-Lamberts Bay & 50000 & -8.76600 \\
-Port Nolloth & 10000 & 0.36525  \\
-Port Nolloth & 20000 & -3.28725 \\
-Port Nolloth & 30000 & -2.92200 \\
-Port Nolloth & 40000 & -3.65250 \\
-Port Nolloth & 50000 & -3.28725 \\
-Saldanha Bay & 10000 & -0.73050 \\
-Saldanha Bay & 20000 & -0.36525 \\
-Saldanha Bay & 30000 & -4.38300 \\
-Saldanha Bay & 40000 & -10.22700 \\
-Saldanha Bay & 50000 & -12.41850 \\
-Sea Point & 10000 & -8.76600  \\
-Sea Point & 20000 & -3.65250 \\
-Sea Point & 30000 & -1.46100 \\
-Sea Point & 40000 & -9.49650 \\
-Sea Point & 50000 & -18.62775 \\
+Lamberts Bay & 10000 & -1.83 \\
+Lamberts Bay & 20000 & -1.83 \\
+Lamberts Bay & 30000 & -1.83 \\
+Lamberts Bay & 40000 & -0.73 \\
+Lamberts Bay & 50000 & 0.73 \\
+Port Nolloth & 10000 & -1.10 \\
+Port Nolloth & 20000 & -0.37 \\
+Port Nolloth & 30000 & 0.00 \\
+Port Nolloth & 40000 & 0.37 \\
+Port Nolloth & 50000 & 0.37 \\
+Saldanha Bay & 10000 & -2.19 \\
+Saldanha Bay & 20000 & -1.83 \\
+Saldanha Bay & 30000 & -0.73 \\
+Saldanha Bay & 40000 & 0.73 \\
+Saldanha Bay & 50000 & 1.10\\
+Sea Point & 10000 & -2.56 \\
+Sea Point & 20000 & -3.29 \\
+Sea Point & 30000 & -2.56 \\
+Sea Point & 40000 & 0.00\\
+Sea Point & 50000 & 1.46 \\
 
 \end{longtable}
 \end{center}
@@ -197,7 +197,7 @@ Sea Point & 50000 & -18.62775 \\
 \begin{center}
 \setlength\tabcolsep{3pt}
 \begin{longtable}{|r|r|p{2cm}|}
-\caption{The absolute cumulative intensity (°C.day) for the sites located within the Benguela upwelling system using the CMC dataset. The site column gives the name of the site. The distance column gives the distance from the coastline as seen in Fig 1. The cumulative intensity expects as absolute magnitudes rather than relative seasonal climatology} \\
+\caption{The cumulative intensity (°C xday) for the sites located within the Benguela upwelling system using the CMC dataset. The site column gives the name of the site. The distance column gives the distance from the coastline as seen in Fig 1.} \\
 
 % This is the header for the first page of the table...
 \toprule
@@ -222,26 +222,26 @@ Site & distance & regression slope  \\
 
 % Now the data...
 
-Lamberts Bay & 10000 & -26.29800 \\
-Lamberts Bay & 20000 & -25.56750 \\
-Lamberts Bay & 30000 & -23.74125 \\
-Lamberts Bay & 40000 & -31.41150 \\
-Lamberts Bay & 50000 & -31.77675 \\
-Port Nolloth & 10000 & -15.34050 \\
-Port Nolloth & 20000 & -16.43625 \\
-Port Nolloth & 30000 & -15.70575 \\
-Port Nolloth & 40000 & -20.45400 \\
-Port Nolloth & 50000 & -24.83700 \\
-Saldanha Bay & 10000 & -29.58525 \\
-Saldanha Bay & 20000 & -36.52500 \\
-Saldanha Bay & 30000 & -42.73425 \\
-Saldanha Bay & 40000 & -46.38675 \\
-Saldanha Bay & 50000 & -45.29100 \\
-Sea Point & 10000 & -28.48950 \\
-Sea Point & 20000 & -30.31575 \\
-Sea Point & 30000 & -36.89025 \\
-Sea Point & 40000 & -38.35125 \\
-Sea Point & 50000 & -37.25550 \\
+Lamberts Bay & 10000 & 3.28725 \\
+Lamberts Bay & 20000 & 2.92200 \\
+Lamberts Bay & 30000 & 2.92200 \\
+Lamberts Bay & 40000 & 2.55675 \\
+Lamberts Bay & 50000 & 1.82625 \\
+Port Nolloth & 10000 & 2.55675 \\
+Port Nolloth & 20000 & 2.55675 \\
+Port Nolloth & 30000 & 1.46100 \\
+Port Nolloth & 40000 & 1.09575 \\
+Port Nolloth & 50000 & 1.09575 \\
+Saldanha Bay & 10000 & 3.28725 \\
+Saldanha Bay & 20000 & 4.38300 \\
+Saldanha Bay & 30000 & 4.01775 \\
+Saldanha Bay & 40000 & 2.92200 \\
+Saldanha Bay & 50000 & 2.92200 \\
+Sea Point & 10000 & 3.28725 \\
+Sea Point & 20000 & 3.65250 \\
+Sea Point & 30000 & 4.01775 \\
+Sea Point & 40000 & 3.28725 \\
+Sea Point & 50000 & 2.19150 \\
 
 \end{longtable}
 \end{center}
@@ -277,10 +277,10 @@ Site & distance & slope  \\
 
 % Now the data...
 
-Lamberts Bay & -1.46100 \\
-Port Nolloth & -3.65250 \\
-Saldanha Bay & -2.55675 \\
-Sea Point & -10.95750 \\
+Lamberts Bay & 1.09575 \\
+Port Nolloth & 1.09575 \\
+Saldanha Bay & 0.36525 \\
+Sea Point & 1.09575 \\
 
 \end{longtable}
 \end{center}
