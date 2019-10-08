@@ -718,6 +718,7 @@ p.wr3
 
 
 ```{r}
+options(scipen = 999)
 anova_func <- function(df){
   sites_aov <- aov(intensity_mean ~ site * duration * distance, data = df)
 return(sites_aov)
@@ -733,14 +734,37 @@ summary(SACTN_anov)
 ```
 
 
-Create visualisation which compares the presence and absence of events
-If a event is found in a particular site at a particulate dat, is the same event present in the other datasets? Show how the events detected varies between site and dataset.
+Plot showing upwelling at the different sites for each of the different distances
 
 ```{r}
-# To determine wether or not the same upwlling patterns are present at different distances from the coastline
 
+scatter_func <- function(df){
+  CMC_filtered <- df %>%
+filter(year(date_start) %in% seq(2010, 2016, 1))
+}
 
+CMC_filtered <- scatter_func(df = CMC_upwell_base)
+OISST_filtered <- scatter_func(df = OISST_upwell_base)
+SACTN_filtered <- scatter_func(df = SACTN_upwell_base)
+
+plot_scat_func <- function(df){
+  ggplot(data = df, aes(x = date_start, y = intensity_mean)) +
+  geom_point() +
+  scale_x_date(expand = c(0, 0)) +
+  facet_wrap(~distance, ncol = 2) +
+  theme_grey() +
+  labs(y = "Mean Intensity", x = NULL)
+}
+(CMC_plot <- plot_scat_func(df = CMC_filtered))
+(OISST_plot <- plot_scat_func(df = OISST_filtered))
+
+plot_scat_func <- function(df){
+  ggplot(data = df, aes(x = date_start, y = intensity_mean)) +
+  geom_point() +
+  scale_x_date(expand = c(0, 0)) +
+  facet_wrap(~site, ncol = 2) +
+  theme_grey() +
+  labs(y = "Mean Intensity", x = NULL)
+}
+(SACTN_plot <- plot_scat_func(df = SACTN_filtered))
 ```
-
-
-

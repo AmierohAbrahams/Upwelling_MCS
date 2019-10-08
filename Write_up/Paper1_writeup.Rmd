@@ -112,7 +112,7 @@ differences occurred between upwelling at different sites and distances from the
 
 ## Results
 
-
+## 
 
 
 
@@ -125,17 +125,17 @@ differences occurred between upwelling at different sites and distances from the
 \begin{center}
 \setlength\tabcolsep{3pt}
 \begin{longtable}{|r|r|p{2cm}|}
-\caption{OISST} \\
+\caption{The absolute cumulative intensity (°C.day) for the sites located within the Benguela upwelling system using the OISST dataset. The site column gives the name of the site. The distance column gives the distance from the coastline as seen in Fig 1. The cumulative intensity expects as absolute magnitudes rather than relative seasonal climatology} \\
 
 % This is the header for the first page of the table...
 \toprule
-Site & distance & slope  \\
+Site & distance & regression slope  \\
 \midrule
 \endfirsthead
 
 % This is the header for the second page of the table...
 \toprule
-Site & distance & slope  \\
+Site & distance & regression slope  \\
 \midrule
 \endhead
 
@@ -180,17 +180,17 @@ Sea Point & 50000 & -18.62775 \\
 \begin{center}
 \setlength\tabcolsep{3pt}
 \begin{longtable}{|r|r|p{2cm}|}
-\caption{CMC} \\
+\caption{The absolute cumulative intensity (°C.day) for the sites located within the Benguela upwelling system using the CMC dataset. The site column gives the name of the site. The distance column gives the distance from the coastline as seen in Fig 1. The cumulative intensity expects as absolute magnitudes rather than relative seasonal climatology} \\
 
 % This is the header for the first page of the table...
 \toprule
-Site & distance & slope  \\
+Site & distance & regression slope  \\
 \midrule
 \endfirsthead
 
 % This is the header for the second page of the table...
 \toprule
-Site & distance & slope  \\
+Site & distance & regression slope  \\
 \midrule
 \endhead
 
@@ -220,7 +220,7 @@ Saldanha Bay & 20000 & -36.52500 \\
 Saldanha Bay & 30000 & -42.73425 \\
 Saldanha Bay & 40000 & -46.38675 \\
 Saldanha Bay & 50000 & -45.29100 \\
-Sea Point & 10000 & -28.48950  \\
+Sea Point & 10000 & -28.48950 \\
 Sea Point & 20000 & -30.31575 \\
 Sea Point & 30000 & -36.89025 \\
 Sea Point & 40000 & -38.35125 \\
@@ -235,11 +235,11 @@ Sea Point & 50000 & -37.25550 \\
 \begin{center}
 \setlength\tabcolsep{3pt}
 \begin{longtable}{|r|r|p{2cm}|}
-\caption{SACTN} \\
+\caption{The absolute cumulative intensity (°C.day) for the sites located within the Benguela upwelling system using the SACTN dataset. The site column gives the name of the site. Tempertures were collected at the coastline and not at different distances from the coastline. The cumulative intensity expects as absolute magnitudes rather than relative seasonal climatology} \\
 
 % This is the header for the first page of the table...
 \toprule
-Site & distance & slope  \\
+Site & distance & regression slope  \\
 \midrule
 \endfirsthead
 
@@ -263,11 +263,17 @@ Site & distance & slope  \\
 Lamberts Bay & -1.46100 \\
 Port Nolloth & -3.65250 \\
 Saldanha Bay & -2.55675 \\
-Sea Point & -10.95750  \\
+Sea Point & -10.95750 \\
 
 \end{longtable}
 \end{center}
 \end{tiny}
+
+The linear regression analysis showed that the absolute cumulative intensity among all variables within each dataset showed the most variation. The cumulative intensity acts as absolute magnitude rather than relative seasonal climatology. When looking at the results for the data obtained from the OISST dataset it is evident that R^2 values are highest at greater distances from the coastline for each of the sites except for Port Nolloth. For examples, Lamberts Bay had an R^2 value of 5.47  at a distance of 10000km but only an R^2 value of -8.76 at 50000km. Similar trends were apparent for Saldanha Bay (R^2 -3.28 at 10000 km and -12.42 at 50000 km) and Sea Point (R^2  = -8.77 at 10000 km) 
+
+The CMC remotely sensed sea surface temperature dataset had higher R^2 values compared to the OISST dataset. Most of the sites within CMC dataset had greater R^2 values at distances furthest from the coastline. Here, Lamberts Bay had R^2 value of -26.30 for 10000km and -31.77 for 50000km respectively. Similarly, Port Nolloth had R^2 values of -15.34 at 10000km and -20.45 at 50000km. Saldanha Bay however presented its lowest value of -24.84 at 10000km and highest R^2 value of -46.39 at 40000km and also the highest value among all of the sites. Additionally, Sea Point displayed similar patterns with the lowest value occurring at a distance of 10000km from the coastline and its highest R^2 value of -38.35 occurring at a distance of 40000km from the coastline.
+
+Lastly, the SACTN in situ collected SST data collected directly at the coastline had variable R^2 values. Lamberts Bay had an R^2 value of -1.46. Port Nolloth, representing the second highest value of -3.65. Saldanha Bay representing an R^2 value of -2.56 and the highest R^2 value of -10.96 occurring at Sea Point.
 
 # Wind rose diagrams
 
@@ -283,12 +289,5 @@ Wind diagrams help visualise the patterns present at a particular site. Moving o
 
 Sites compared within the OISST datasets showed no difference in the durations of the events at different distances for each of the sites from the coastline. However, there is a difference in the mean intensity of events between sites (*F*=5.74, *SS*=5.2, *p*<0.001). Additionally, there were also significant differences between the mean intensities of events at different distances from the coastline (*F*=260.17, *SS*=78.6, *p*<0.001), and between the durations in events (*F*=51.39, *SS*= 15.53, *p*<0.001) and between sites. Similar comparisons using the CMC dataset showed that there was no significant difference in the duration of events at different distances from the coastline for each of the sites (Three-Way ANOVA: *F*=1.20, *SS*=0.41, *p*>0.05). However, there were significant differences in the mean intensities of events at different distances (*F*=471.63, *SS*=162.0, *p*<0.05), between the durations of events (*F*= 38.36, *SS*=13.2, *p*<0.001), and between sites (*F*=17.64, *SS*=18.2, *p*<0.002). I also found that there was no significant difference between the durations of upwelling across all sites (*F*=0.22, *SS*=0.2, *p*<0.87). When looking at the in situ collected dataset, data collected at the coastline, we find no difference in the durations of events at across sites (*F*=2.05, *SS*=1.84, *p*=0.11) but there was a difference in the mean intensities of those events (*F*=2.05, *SS*=0.61, *p*=0.44).
 
-# Plotting images
-
-
-####TO do
-- Plots
-
-
-# Discussion
+## Discussion
 
