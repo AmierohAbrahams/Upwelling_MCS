@@ -1,5 +1,5 @@
 ---
-title: "Upwelling variability across the Benguela upwelling systems"
+title: "Variability in upwelling patterns across the Benguela upwelling systems"
 author: "Amieroh Abrahams"
 date: "18 September 2019"
 output:
