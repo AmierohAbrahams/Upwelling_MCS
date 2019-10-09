@@ -117,11 +117,11 @@ differences occurred between upwelling at different sites and distances from the
 knitr::include_graphics("../Figures/OISST.png")
 ```
 
-Sea Point showcased the most intense upwelling event at 10000 km from the coastline during the year 2013, lasting for 21 days (Refer to figure, do this throughout). The majority of upwelling events in Sea Pont occurred around 10000 km away from the coastline lasted for less than five days, and had an approximate cumulative intensity ranging between of -10.00deg. C x days and 12.00 deg. C x days. Conversely, at shorter distances like 3000 km from the coastline several upwelling events lasted for longer than 15 days with a cumulative intensity ranging between -30deg. C x days and -20deg. C x days. At a distance of 30000 km both dominant events appear at a distance of 10000 km are present along with several other additional events (This doesn’t make sense). At a distance of 40000 km, less intense events occurred. At a distance of 50000 km from the coastline, several events appear to have lasted for approximately 2 – 3 days with the most intense events still occurring in 2015.Events within Saldanha Bay typically lasted for approximately three days but varying at different distances. At a distance of 10000 km one major event occurred that lasted for approximately 27 days with a cumulative intensity of -61.70deg. C x days. This event was also present at a distance of 20000 km from the coastline, albeit at a lesser intensity, but was not present at 30000km, 40000km and 50000 km respectively. Events occurring within 30000 km and 40000 km from the coastline lasting for approximately 10 days in most cases. However, the majority of events were observed at a distance of 10000 km and 20000 km from the coastline. Fewer events occurred at a distance of 50000 km, with most of the events occurring at this distance having lasted for less than five days.
+Sea Point showcased the most intense upwelling event at 10 km from the coastline during the year 2013, lasting for 21 days (Refer to figure, do this throughout). The majority of upwelling events in Sea Pont occurred around 10 km away from the coastline lasted for less than five days, and had an approximate cumulative intensity ranging between of -10.00deg. C x days and 12.00 deg. C x days. Conversely, at shorter distances like 30 km from the coastline several upwelling events lasted for longer than 15 days with a cumulative intensity ranging between -30deg. C x days and -20deg. C x days. At a distance of 30 km both dominant events appear at a distance of 10 km are present along with several other additional events (This doesn’t make sense). At a distance of 40 km, less intense events occurred. At a distance of 50000 km from the coastline, several events appear to have lasted for approximately 2 – 3 days with the most intense events still occurring in 2015.Events within Saldanha Bay typically lasted for approximately three days but varying at different distances. At a distance of 10 km one major event occurred that lasted for approximately 27 days with a cumulative intensity of -61.70deg. C x days. This event was also present at a distance of 20 km from the coastline, albeit at a lesser intensity, but was not present at 30km, 40km and 50km respectively. Events occurring within 30 km and 40 km from the coastline lasting for approximately 10 days in most cases. However, the majority of events were observed at a distance of 10 km and 20 km from the coastline. Fewer events occurred at a distance of 50 km, with most of the events occurring at this distance having lasted for less than five days.
 
-Throughout Port Nolloth, most of the events detected lasted less than five days. At a distance of 10000 km one obvious major event occurred during 2016 which had a cumulative intensity of -43.39deg. C x days. This event persisted at 20000 km and 30000 km with cumulative intensities of -21.09deg. C x days and -14.33 deg. C x days respectively. Here, most upwelling events were detected at 10000km and 20000km respectively. The least number of events were detected at 50 000 km. The least intense upwelling event lasted for only 3 days and had a cumulative intensity of -5.45deg. C x days during the year 2010.
+Throughout Port Nolloth, most of the events detected lasted less than five days. At a distance of 10000 km one obvious major event occurred during 2016 which had a cumulative intensity of -43.39deg. C x days. This event persisted at 20 km and 30000 km with cumulative intensities of -21.09deg. C x days and -14.33 deg. C x days respectively. Here, most upwelling events were detected at 10km and 20km respectively. The least number of events were detected at 50 km. The least intense upwelling event lasted for only 3 days and had a cumulative intensity of -5.45deg. C x days during the year 2010.
 
-Events occurring within Lamberts Bay lasted for approximately less than five days. Three major events were detected at 10000 km and 20000 km away from the coastline respectively. At 30000 km an event with a longer duration occurs in 2010, that was not present at a distance of 10000 km and 20000 km from the coastline. At a distance of 40000 km no major events were detected. However, at a distance of 50000 km a major upwelling event is detected lasting for longer than 20 days. Fewer events were however detected at a distance of 50000 km from the coastline.
+Events occurring within Lamberts Bay lasted for approximately less than five days. Three major events were detected at 10 km and 20 km away from the coastline respectively. At 30 km an event with a longer duration occurs in 2010, that was not present at a distance of 10 km and 20 km from the coastline. At a distance of 40 km no major events were detected. However, at a distance of 50 km a major upwelling event is detected lasting for longer than 20 days. Fewer events were however detected at a distance of 50 km from the coastline.
 
 ```{r  echo= FALSE, message=FALSE, warning=FALSE, fig.cap="Timeline of several event metrics. This graph shows the duration of events on the y-axis and the time variable on the x-axis for the SACTN dataset. The number of top events from the chosen metric may be highlighted in a brighter colour.", fig.height=8, fig.width=12, fig.pos="H"}
 
@@ -135,7 +135,7 @@ Within the SACTN dataset, the majority of upwelling events detected in Lamberts 
 knitr::include_graphics("../Figures/CMC.png")
 ```
 
-CMC observations of upwelling events at Sea Point detected durations of less than four days. The most intense event occurred in 2010, and I found that intensifies appeared to increase with distance from the coastline. The fewest number of events occurred 50000 km away from the coastline. At Saldanha Bay, the duration of upwelling events mostly ranged between three to four days. Similar intensity patterns occurred at 10000 km, 20000 km and 30000 km from the coastline respectively. At 40000 km an event representing a cumulative intensity of -28.64deg. C x days for was detected for 20 days within 2010. At Port Nolloth, most of the events are found to occur for duration of three days. Two major upwelling events were present at different distances within 2010 with a variation in their respective cumulative intensities. Those events both lasted for approximately seven days. Similar patterns were found within Lamberts Bay. At 30000 km a major event was detected that lasted for approximately 19 days, but most events here lasted for less than five days. At a distance of 40000 km and 50000 km from the coastline similar patterns were observed, with most events being detected at 40000 km and 50000 km respectively.
+CMC observations of upwelling events at Sea Point detected durations of less than four days. The most intense event occurred in 2010, and I found that intensifies appeared to increase with distance from the coastline. The fewest number of events occurred 50 km away from the coastline. At Saldanha Bay, the duration of upwelling events mostly ranged between three to four days. Similar intensity patterns occurred at 10 km, 20 km and 30km from the coastline respectively. At 40 km an event representing a cumulative intensity of -28.64deg. C x days for was detected for 20 days within 2010. At Port Nolloth, most of the events are found to occur for duration of three days. Two major upwelling events were present at different distances within 2010 with a variation in their respective cumulative intensities. Those events both lasted for approximately seven days. Similar patterns were found within Lamberts Bay. At 30 km a major event was detected that lasted for approximately 19 days, but most events here lasted for less than five days. At a distance of 40 km and 50 km from the coastline similar patterns were observed, with most events being detected at 40 km and 50 km respectively.
 
 <!-- \def\tiny{\@setfontsize\tiny{10pt}{11pt}} -->
 \begin{tiny}
@@ -152,7 +152,7 @@ Site & distance & regression slope  \\
 
 % This is the header for the second page of the table...
 \toprule
-Site & distance & regression slope  \\
+Site & distance (km) & regression slope  \\
 \midrule
 \endhead
 
@@ -167,26 +167,26 @@ Site & distance & regression slope  \\
 
 % Now the data...
 
-Lamberts Bay & 10000 & -1.83 \\
-Lamberts Bay & 20000 & -1.83 \\
-Lamberts Bay & 30000 & -1.83 \\
-Lamberts Bay & 40000 & -0.73 \\
-Lamberts Bay & 50000 & 0.73 \\
-Port Nolloth & 10000 & -1.10 \\
-Port Nolloth & 20000 & -0.37 \\
-Port Nolloth & 30000 & 0.00 \\
-Port Nolloth & 40000 & 0.37 \\
-Port Nolloth & 50000 & 0.37 \\
-Saldanha Bay & 10000 & -2.19 \\
-Saldanha Bay & 20000 & -1.83 \\
-Saldanha Bay & 30000 & -0.73 \\
-Saldanha Bay & 40000 & 0.73 \\
-Saldanha Bay & 50000 & 1.10\\
-Sea Point & 10000 & -2.56 \\
-Sea Point & 20000 & -3.29 \\
-Sea Point & 30000 & -2.56 \\
-Sea Point & 40000 & 0.00\\
-Sea Point & 50000 & 1.46 \\
+Lamberts Bay & 10 & -1.83 \\
+Lamberts Bay & 20 & -1.83 \\
+Lamberts Bay & 30 & -1.83 \\
+Lamberts Bay & 40 & -0.73 \\
+Lamberts Bay & 50 & 0.73 \\
+Port Nolloth & 10 & -1.10 \\
+Port Nolloth & 20 & -0.37 \\
+Port Nolloth & 30 & 0.00 \\
+Port Nolloth & 40 & 0.37 \\
+Port Nolloth & 50 & 0.37 \\
+Saldanha Bay & 10 & -2.19 \\
+Saldanha Bay & 20 & -1.83 \\
+Saldanha Bay & 30 & -0.73 \\
+Saldanha Bay & 40 & 0.73 \\
+Saldanha Bay & 50 & 1.10\\
+Sea Point & 10 & -2.56 \\
+Sea Point & 20 & -3.29 \\
+Sea Point & 30 & -2.56 \\
+Sea Point & 40 & 0.00\\
+Sea Point & 50 & 1.46 \\
 
 \end{longtable}
 \end{center}
@@ -222,26 +222,26 @@ Site & distance & regression slope  \\
 
 % Now the data...
 
-Lamberts Bay & 10000 & 3.29 \\
-Lamberts Bay & 20000 & 2.92 \\
-Lamberts Bay & 30000 & 2.92 \\
-Lamberts Bay & 40000 & 2.56 \\
-Lamberts Bay & 50000 & 1.83 \\
-Port Nolloth & 10000 & 2.56 \\
-Port Nolloth & 20000 & 2.56 \\
-Port Nolloth & 30000 & 1.46 \\
-Port Nolloth & 40000 & 1.10 \\
-Port Nolloth & 50000 & 1.10 \\
-Saldanha Bay & 10000 & 3.29 \\
-Saldanha Bay & 20000 & 4.38 \\
-Saldanha Bay & 30000 & 4.02 \\
-Saldanha Bay & 40000 & 2.92 \\
-Saldanha Bay & 50000 & 2.92\\
-Sea Point & 10000 & 3.29 \\
-Sea Point & 20000 & 3.65 \\
-Sea Point & 30000 & 4.02 \\
-Sea Point & 40000 & 3.29 \\
-Sea Point & 50000 & 2.19 \\
+Lamberts Bay & 10 & 3.29 \\
+Lamberts Bay & 20 & 2.92 \\
+Lamberts Bay & 30 & 2.92 \\
+Lamberts Bay & 40 & 2.56 \\
+Lamberts Bay & 50 & 1.83 \\
+Port Nolloth & 10 & 2.56 \\
+Port Nolloth & 20 & 2.56 \\
+Port Nolloth & 30 & 1.46 \\
+Port Nolloth & 40 & 1.10 \\
+Port Nolloth & 50 & 1.10 \\
+Saldanha Bay & 10 & 3.29 \\
+Saldanha Bay & 20 & 4.38 \\
+Saldanha Bay & 30 & 4.02 \\
+Saldanha Bay & 40 & 2.92 \\
+Saldanha Bay & 50 & 2.92\\
+Sea Point & 10 & 3.29 \\
+Sea Point & 20 & 3.65 \\
+Sea Point & 30 & 4.02 \\
+Sea Point & 40 & 3.29 \\
+Sea Point & 50 & 2.19 \\
 
 \end{longtable}
 \end{center}
