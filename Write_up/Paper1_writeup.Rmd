@@ -297,7 +297,7 @@ Lastly, the SACTN in situ collected SST data collected directly at the coastline
 
 ```{r , echo= FALSE, message=FALSE, warning=FALSE, fig.cap="Wind rose diagram representing the most predominant wind direction for each of the sites. Each spoke is divided by colour into wind speed ranges. The radial length of each spoke around the circle is the time that the wind comes from that direction", fig.height=8, fig.width=12, fig.pos="H"}
 
-knitr::include_graphics("../Figures/wind_roses.png")
+knitr::include_graphics("../Figures/wind_roses.pdf")
 
 ```
 
