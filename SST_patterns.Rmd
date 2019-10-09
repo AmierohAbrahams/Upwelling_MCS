@@ -771,7 +771,7 @@ plot_scat_func <- function(df){
 (CMC_LB_plot <- plot_scat_func(df = CMC_LB))
 
 CMC_SP_plot <- CMC_SP_plot +
-  ggtitle("Sea Point")
+  ggtitle("Sea Point") 
 CMC_SB_plot <- CMC_SB_plot +
   ggtitle("Saldanha Bay")
 CMC_PN_plot <- CMC_PN_plot +
@@ -839,7 +839,9 @@ plot_loli_func <- function(df){
   geom_lolli(aes(colour = intensity_cumulative)) + 
   scale_color_distiller(palette = "Spectral", name = "Cumulative \nintensity") + 
   facet_wrap(~distance, ncol = 2) +
-  xlab("Date") + ylab("Event duration [days]") 
+  scale_y_continuous(breaks = c(5,10,15,20,25,30),
+                     limits = c(1,30)) +
+  xlab("Date (years)") + ylab("Event duration [days]") 
 }
 
 (OISST_SP_pl <- plot_loli_func(df = OISST_SEAPOINT))
@@ -847,7 +849,8 @@ plot_loli_func <- function(df){
 (OISST_PN_pl <- plot_loli_func(df = OISST_PN))
 (OISST_LB_pl <- plot_loli_func(df = OISST_LB))
 OISST_SP_pl <- OISST_SP_pl +
-  ggtitle("Sea Point")
+  ggtitle("Sea Point") 
+
 OISST_SB_pl <- OISST_SB_pl +
   ggtitle("Saldanha Bay")
 OISST_PN_pl <- OISST_PN_pl +
@@ -881,7 +884,9 @@ plot_loli_func <- function(df){
   geom_lolli(aes(colour = intensity_cumulative)) + 
   scale_color_distiller(palette = "Spectral", name = "Cumulative \nintensity") + 
   facet_wrap(~site, ncol = 2) +
-  xlab("Date") + ylab("Event duration [days]") 
+  scale_y_continuous(breaks = c(5,10,15,20,25,30),
+                     limits = c(1,30)) +
+  xlab("Date (years)") + ylab("Event duration [days]") 
 }
 (SACTN_plot <- plot_loli_func(df = SACTN_filtered))
 ```
