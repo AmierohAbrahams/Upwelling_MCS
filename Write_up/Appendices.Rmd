@@ -1,9 +1,9 @@
 ---
-title: Quantifying the impact of wind and wave action on seawater temperature along the South African coastline (Appendices)
+title: Variability in upwelling patterns across the Benguela
 author:
 - affiliation: University of the Western Cape
   name: Amieroh Abrahams
-date: "19 November 2018"
+date: "18 September 2019"
 output:
   pdf_document:
     fig_caption: yes

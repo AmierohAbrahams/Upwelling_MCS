@@ -1,49 +1,47 @@
 ---
-title: "Variability in upwelling patterns across the Benguela region"
-author: "Amieroh Abrahams"
+title: Variability in upwelling patterns across the Benguela
+author:
+- affiliation: University of the Western Cape
+  name: Amieroh Abrahams
 date: "18 September 2019"
 output:
+  pdf_document:
+    fig_caption: yes
+    fig_height: 6.5
+    fig_width: 6.5
+    highlight: default
+    keep_tex: yes
+    latex_engine: xelatex
+    template: ../LaTeX/template-article_ajs.tex
+  html_document:
+    fig_caption: yes
+    fig_height: 7
+    fig_retina: 2
+    fig_width: 7
+    highlight: espresso
+    theme: cerulean
+    toc_float: no
+  md_document:
+    variant: markdown_github
   word_document:
     fig_caption: yes
     fig_height: 7
     fig_width: 7
     highlight: zenburn
-    toc: yes
-  html_document:
-    fig_caption: yes
-    fig_retina: 2
-    fig_width: 7
-    highlight: espresso
-    theme: sandstone
-    toc_float: no
-  bookdown::html_document2:
-    fig_caption: yes
-    fig_retina: 2
-    fig_width: 7
-    highlight: espresso
-    theme: sandstone
-    toc_float: no
-  pdf_document:
-    toc: yes
-    toc_depth: 4
-    highlight: default
-    keep_tex: yes
-    latex_engine: xelatex
+    toc: no
 fontsize: 10pt
 geometry: margin=1in
 language: Australian
-mainfont: Minion Pro
-monofont: Courier
+csl: ../LaTeX/frontiers.csl
 papersize: A4
-sansfont: Myriad Pro
 tables: yes
-bibliography: ../bib_master.bib
+bibliography: ../LaTeX/bib_masters.bib
 ---
 
 \newpage
 ## Abstract
 
-The South African coastline is comprised of three distinct coastal regions, each varying in average temperature due to the presence of two distinct ocean currents; namely the Agulhas and Benguela currents, the latter an eastern boundary upwelling system (EBUS). This study was designed to examine whether same upwelling patterns were discernible at varying distances from the coastline and if this was apparent from different datasets. Analyses of temperature time series data from 4 sites within the west coast of South Africa were conducted to examine the variation in intensity occurring at different upwelling events at different distances from the coastline. This study further made use of wind data to determine the upwelling index for each of the sites. By using the ANOVA analyses, it was possible to determine the relationship between intensity for each of the sites at variable distances. Results showed high intensity of upwelling events in the OISST dataset but less high intensities in the CMC dataset. Similar upwelling patterns are present in the in situ and OISST dataset at a distance of 10km from the coastline. However, it should be notes that at distances of 50km or more from the coastline, fewer upwelling events are detected in both remotely sensed datasets.
+The South African coastline is comprised of three distinct coastal regions, each varying in average temperature due to the presence of two distinct ocean currents; namely the Agulhas and Benguela currents, the latter an eastern boundary upwelling system (EBUS). This study was designed to examine whether same upwelling patterns were discernible at varying distances from the coastline and if this was apparent from different datasets. Analyses of temperature time series data from 4 sites within the west coast of South Africa were conducted to examine the variation in intensity occurring in different upwelling events at different distances from the coastline. This study further made use of wind data to determine the upwelling index for each of the sites. By using the ANOVA analyses, it was possible to determine the relationship between intensity for each of the sites at variable distances. Results showed high intensity of upwelling events in the OISST dataset but less high intensities in the CMC dataset. Similar upwelling patterns are present in the in situ and OISST dataset at a distance of 10km from the coastline. However, it should be notes that at distances of 50km or more from the coastline, fewer upwelling events are detected in both remotely sensed datasets.
 
 *Keywords*: Seawater temperature, climate change, coastal regions, code: R, variability, upwelling
 
@@ -287,7 +285,7 @@ Sea Point & 1.10 \\
 \end{center}
 \end{tiny}
 
-The regression slope shows the slope of the trend for each of the datasets used within this study. When looking at the OISST dataset, it is eveident that there is no contstant trend among sites. It is evident however that the strongest trends exist at 10km from the coastline, with the weakest trends occuring at a distance of 30 – 40km from the coastline. In the CMC dataset events occuring at a distance of 10km from the coastline shows the strongest trend compared to trends observed at a distance of 50km from the coasltine. In this dataset we see that at a distance of 10km, Lamberts Bay shows that every decade upwelling lasts for approximatly 3days longer. Similarly, Port Nolloth shows that upwelling lasts for approximately 2 days longer. Both Saldanha Bay and Sea Point shows a trend of upwelling lasting for approximately 3 days more. When looking at the in situ collected temperatur data the trend represents an increase of 1 additional day per decade for each of the sites expect Saldanha Bay. Here Saldanha Bay represent a trend value of 0.37 which largely varies with the trend values obtained from the OISST and CMC dataset.
+
 
 # Wind rose diagrams
 
