@@ -841,6 +841,7 @@ plot_loli_func <- function(df){
   facet_wrap(~distance, ncol = 2) +
   scale_y_continuous(breaks = c(5,10,15,20,25,30),
                      limits = c(1,30)) +
+  theme_bw() +
   xlab("Date (years)") + ylab("Event duration [days]") 
 }
 
@@ -858,7 +859,9 @@ OISST_PN_pl <- OISST_PN_pl +
 OISST_LB_pl <- OISST_LB_pl +
   ggtitle("Lamberts Bay")
 
-combined_OISST_pl <- ggarrange(OISST_SP_pl, OISST_SB_pl, OISST_PN_pl,OISST_LB_pl)
+combined_OISST_pl_1 <- ggarrange(OISST_SP_pl, OISST_SB_pl) 
+
+combined_OISST_pl_2 <- ggarrange(OISST_PN_pl,OISST_LB_pl)
 
 #######
 # CMC
@@ -877,7 +880,9 @@ CMC_PN_pl <- CMC_PN_pl +
 CMC_LB_pl <- CMC_LB_pl +
   ggtitle("Lamberts Bay")
 
-combined_CMC_pl <- ggarrange(CMC_SP_pl, CMC_SB_pl, CMC_PN_pl,CMC_LB_pl)
+combined_CMC_pl_1 <- ggarrange(CMC_SP_pl, CMC_SB_pl)
+
+combined_CMC_pl_1 <- ggarrange(CMC_PN_pl,CMC_LB_pl)
 
 plot_loli_func <- function(df){
   ggplot(df, aes(x = date_peak, y = duration)) + 
