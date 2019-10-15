@@ -882,7 +882,7 @@ CMC_LB_pl <- CMC_LB_pl +
 
 combined_CMC_pl_1 <- ggarrange(CMC_SP_pl, CMC_SB_pl)
 
-combined_CMC_pl_1 <- ggarrange(CMC_PN_pl,CMC_LB_pl)
+combined_CMC_pl_2 <- ggarrange(CMC_PN_pl,CMC_LB_pl)
 
 plot_loli_func <- function(df){
   ggplot(df, aes(x = date_peak, y = duration)) + 
