@@ -1,6 +1,12 @@
 # Script which converts netCDF to CSV
 # This script extracts MUR, CMC and OISST data
 
+# the most important of which is that it is self-describing, meaning that software packages can directly read the data and determine its structure
+# variable names and essential metadata such as the units
+# the information needed to ensure accurate work (reduce the incidence of errors) is available with the data itself
+# NetCDF (network Common Data Form) 
+# is a file format for storing multidimensional scientific data (variables) such as temperature, humidity, pressure, wind speed, and direction. 
+
 
 # Laoding Libraries
 library(stringr)
