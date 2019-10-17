@@ -740,7 +740,7 @@ Plot showing upwelling at the different sites for each of the different distance
 library(ggpubr)
 year_func <- function(df){
   Filtered <- df %>%
-filter(year(date_start) %in% seq(2010, 2016, 1)) 
+filter(year(date_start) %in% seq(2010, 2016, 1))
 }
 
 CMC_filtered <- year_func(df = CMC_upwell_base)
@@ -842,6 +842,9 @@ plot_loli_func <- function(df){
   scale_y_continuous(breaks = c(5,10,15,20,25,30),
                      limits = c(1,30)) +
   theme_bw() +
+  theme(axis.text=element_text(size=15),
+        axis.title=element_text(size=15)) +
+  theme(strip.text.x = element_text(size = 15))+
   xlab("Date (years)") + ylab("Event duration [days]") 
 }
 
@@ -891,6 +894,9 @@ plot_loli_func <- function(df){
   facet_wrap(~site, ncol = 2) +
   scale_y_continuous(breaks = c(5,10,15,20,25,30),
                      limits = c(1,30)) +
+  theme(axis.text=element_text(size=15),
+        axis.title=element_text(size=15)) +
+  theme(strip.text.x = element_text(size = 15))+
   xlab("Date (years)") + ylab("Event duration [days]") 
 }
 (SACTN_plot <- plot_loli_func(df = SACTN_filtered))
