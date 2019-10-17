@@ -842,10 +842,11 @@ plot_loli_func <- function(df){
   scale_y_continuous(breaks = c(5,10,15,20,25,30),
                      limits = c(1,30)) +
   theme_bw() +
-  theme(axis.text=element_text(size=15),
-        axis.title=element_text(size=15)) +
-  theme(strip.text.x = element_text(size = 15))+
-  xlab("Date (years)") + ylab("Event duration [days]") 
+  theme(axis.text=element_text(size=17),
+        axis.title=element_text(size=17)) +
+  theme(strip.text.x = element_text(size = 17))+
+  theme(panel.spacing = unit(2, "lines")) +
+  xlab("Date (years)") + ylab("Event duration (days)") 
 }
 
 (OISST_SP_pl <- plot_loli_func(df = OISST_SEAPOINT))
@@ -897,7 +898,7 @@ plot_loli_func <- function(df){
   theme(axis.text=element_text(size=15),
         axis.title=element_text(size=15)) +
   theme(strip.text.x = element_text(size = 15))+
-  xlab("Date (years)") + ylab("Event duration [days]") 
+  xlab("Date (years)") + ylab("Event duration (days)") 
 }
 (SACTN_plot <- plot_loli_func(df = SACTN_filtered))
 ```
