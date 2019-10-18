@@ -846,6 +846,7 @@ plot_loli_func <- function(df){
         axis.title=element_text(size=17)) +
   theme(strip.text.x = element_text(size = 17))+
   theme(panel.spacing = unit(2, "lines")) +
+  #strip=strip.custom(var.name=c("10km", "20km", "30km", "40km", "50km")) +
   xlab("Date (years)") + ylab("Event duration (days)") 
 }
 
@@ -897,7 +898,7 @@ plot_loli_func <- function(df){
                      limits = c(1,30)) +
   theme(axis.text=element_text(size=15),
         axis.title=element_text(size=15)) +
-  theme(strip.text.x = element_text(size = 15))+
+  theme(strip.text.x = element_text(size = 15)) +
   xlab("Date (years)") + ylab("Event duration (days)") 
 }
 (SACTN_plot <- plot_loli_func(df = SACTN_filtered))
