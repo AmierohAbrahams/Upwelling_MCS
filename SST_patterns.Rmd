@@ -836,8 +836,8 @@ plot_scat_func <- function(df){
 ```{r}
 plot_loli_func <- function(df){
   ggplot(df, aes(x = date_peak, y = duration)) + 
-  geom_lolli(aes(colour = intensity_cumulative)) + 
-  scale_color_distiller(palette = "Spectral", name = "Cumulative \nintensity") + 
+  geom_lolli() + 
+  #scale_color_distiller(palette = "Spectral", name = "Cumulative \nintensity") + 
   facet_wrap(~distance, ncol = 2) +
   scale_y_continuous(breaks = c(5,10,15,20,25,30),
                      limits = c(1,30)) +
