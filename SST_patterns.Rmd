@@ -798,7 +798,7 @@ Plot showing upwelling at the different sites for each of the different distance
 library(ggpubr)
 year_func <- function(df){
   Filtered <- df %>%
-filter(year(date_start) %in% seq(2010, 2015, 1))
+filter(year(date_start) %in% seq(2010, 2014, 1))
 }
 
 CMC_filtered <- year_func(df = CMC_upwell_base)
@@ -903,7 +903,7 @@ plot_loli_func <- function(df){
   theme(axis.text=element_text(size=17),
         axis.title=element_text(size=17)) +
   theme(strip.text.x = element_text(size = 17))+
-  theme(panel.spacing = unit(2, "lines")) +
+  theme(panel.spacing = unit(0.5, "lines")) +
   #strip=strip.custom(var.name=c("10km", "20km", "30km", "40km", "50km")) +
   xlab("Date (years)") + ylab("Event duration (days)") 
 }
@@ -913,19 +913,19 @@ plot_loli_func <- function(df){
 (OISST_SB_pl <- plot_loli_func(df = OISST_SB))
 (OISST_PN_pl <- plot_loli_func(df = OISST_PN))
 (OISST_LB_pl <- plot_loli_func(df = OISST_LB))
+
 OISST_SP_pl <- OISST_SP_pl +
-  ggtitle("Sea Point") 
-
+  ggtitle("D.") #Sea Point
 OISST_SB_pl <- OISST_SB_pl +
-  ggtitle("Saldanha Bay")
+  ggtitle("C.") # Saldanha Bay
 OISST_PN_pl <- OISST_PN_pl +
-  ggtitle("Port Nolloth")
+  ggtitle("B.")        # Port Nolloth
 OISST_LB_pl <- OISST_LB_pl +
-  ggtitle("Lamberts Bay")
+  ggtitle("A.")#Lamberts Bay
 
-combined_OISST_pl_1 <- ggarrange(OISST_SP_pl, OISST_SB_pl) 
+combined_OISST_pl_2 <- ggarrange(OISST_SB_pl, OISST_SP_pl) 
 
-combined_OISST_pl_2 <- ggarrange(OISST_PN_pl,OISST_LB_pl)
+combined_OISST_pl_1 <- ggarrange(OISST_LB_pl, OISST_PN_pl)
 
 #######
 # CMC
@@ -936,30 +936,34 @@ combined_OISST_pl_2 <- ggarrange(OISST_PN_pl,OISST_LB_pl)
 (CMC_LB_pl <- plot_loli_func(df = CMC_LB))
 
 CMC_SP_pl <- CMC_SP_pl +
-  ggtitle("Sea Point")
+  ggtitle("D.") #Sea Point
 CMC_SB_pl <- CMC_SB_pl +
-  ggtitle("Saldanha Bay")
+  ggtitle("C.") # Saldanha Bay
 CMC_PN_pl <- CMC_PN_pl +
-  ggtitle("Port Nolloth")
+  ggtitle("B.")        # Port Nolloth
 CMC_LB_pl <- CMC_LB_pl +
-  ggtitle("Lamberts Bay")
+  ggtitle("A.")#Lamberts Bay
 
-combined_CMC_pl_1 <- ggarrange(CMC_SP_pl, CMC_SB_pl)
+combined_CMC_pl_2 <- ggarrange(CMC_SB_pl, CMC_SP_pl) 
 
-combined_CMC_pl_2 <- ggarrange(CMC_PN_pl,CMC_LB_pl)
+combined_CMC_pl_1 <- ggarrange(CMC_LB_pl, CMC_PN_pl)
 
 plot_loli_func <- function(df){
   ggplot(df, aes(x = date_peak, y = duration)) + 
-  geom_lolli(aes(colour = intensity_cumulative)) + 
-  scale_color_distiller(palette = "Spectral", name = "Cumulative \nintensity") + 
-  facet_wrap(~site, ncol = 2) +
+  geom_lolli(colour = "steelblue3", colour_n = "navy", n = 3) + 
+  #scale_color_distiller(palette = "Spectral", name = "Cumulative \nintensity") + 
+   facet_wrap(~site, ncol = 2) +
   scale_y_continuous(breaks = c(5,10,15,20,25,30),
                      limits = c(1,30)) +
-  theme(axis.text=element_text(size=15),
-        axis.title=element_text(size=15)) +
-  theme(strip.text.x = element_text(size = 15)) +
+  theme_bw() +
+  theme(axis.text=element_text(size=17),
+        axis.title=element_text(size=17)) +
+  theme(strip.text.x = element_text(size = 17))+
+  theme(panel.spacing = unit(0.5, "lines")) +
+  #strip=strip.custom(var.name=c("10km", "20km", "30km", "40km", "50km")) +
   xlab("Date (years)") + ylab("Event duration (days)") 
 }
+
 (SACTN_plot <- plot_loli_func(df = SACTN_filtered))
 ```
 
