@@ -1,0 +1,167 @@
+---
+title: "G1SST and MUR"
+author: "Amieroh Abrahams"
+date: "26 October 2019"
+output: html_document
+---
+
+This scripts extracts the MUR and G1sst data
+
+
+```{r}
+bbox <- data.frame(BC = c(-35, -25, 15, 20)) # Benguela Current
+library(stringr)
+library(tidyverse)
+library(reshape2)
+library(ncdf4) # library for processing netCDFs
+library(plyr)
+library(lubridate)
+library(data.table)
+library(doMC); doMC::registerDoMC(cores = 7)
+ncDir <- "/home/amieroh/Documents/Data/Datasets/G1SST/daily/2010"
+csvDir <- "/home/amieroh/Documents/tester"
+
+# #          1         2         3         4
+# # 12345678901234567890123456789012345678901
+# # 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
+#          1         2         3         4         5         6
+# 1234567890123456789012345678901234567890123456789012345678901
+# 20100609-JPL_OUROCEAN-L4UHfnd-GLOB-v01-fv01_0-G1SST_subset.nc
+
+
+# ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020606-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
+  ncFun <- function(ncFile = ncFile, region = region, csvDir = csvDir) {
+    coords <- bbox[, region]
+    nc <- nc_open(ncFile)
+    pathLen <- nchar(paste0(ncDir, "/")) + 1
+    fNameStem <-
+      substr(basename(ncFile), 10, 58)
+    fDate <- substr(basename(ncFile), 1, 8)
+    LatIdx <- which(nc$dim$lat$vals > coords[1] & nc$dim$lat$vals < coords[2])
+    LonIdx <- which(nc$dim$lon$vals > coords[3] & nc$dim$lon$vals < coords[4])
+    sst <- ncvar_get(nc, varid = "analysed_sst") %>%
+      round(4)
+    dimnames(sst) <- list(lon = nc$dim$lon$vals,
+                          lat = nc$dim$lat$vals)
+    nc_close(nc)
+    sst <- as_tibble(melt(sst, value.name = "temp"))
+    sst$t <- ymd(fDate)
+    na.omit(sst)
+    fwrite(sst,
+           file = paste0(csvDir, "/", region, "-", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+           append = TRUE, col.names = FALSE)
+    rm(sst)
+  }
+
+
+  ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+  ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+  ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+  strtDate <- str_sub(ncFirst, start = 1, end = 8)
+  endDate <- str_sub(ncLast, start = 1, end = 8)
+
+llply(ncList, ncFun, region = "BC", csvDir = csvDir, .parallel = TRUE)
+```
+
+```{r}
+G1SST_prod <- G1SST %>%
+  select(lon, lat) %>%
+  unique() %>%
+  mutate(product = "G1SST")
+
+MUR_prod <- MUR %>%
+  select(lon, lat) %>%
+  mutate(product = "MUR")
+
+sat_pixels <- sat_data %>%
+select(product, lon, lat) %>%
+unique()
+
+match_func <- function(df){
+  df <- df %>%
+    dplyr::rename(lon_site = lon, lat_site = lat)
+  G1SST_index <- G1SST_prod[as.vector(knnx.index(as.matrix(G1SST_prod[,c("lon", "lat")]),
+                                                 as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>%
+    cbind(., df)
+  MUR_index <- MUR_prod[as.vector(knnx.index(as.matrix(MUR_prod[,c("lon", "lat")]),
+                                             as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>%
+    cbind(., df)
+  res <- rbind(G1SST_index, MUR_index)
+  return(res)
+}
+
+pixel_match <- site_pixels %>%
+  group_by(site) %>%
+  group_modify(~match_func(.x))
+
+G1SST_fill <- right_join(G1SST, filter(pixel_match, product == "G1SST"), by = c("lon", "lat"))
+MUR_fill <- right_join(MUR, filter(pixel_match, product == "MUR"), by = c("lon", "lat"))
+
+# Clean up some RAM space
+rm(MUR, G1SST); gc()
+
+selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
+
+G1SST_fill <- G1SST_fill %>%
+  filter(site %in% selected_sites)
+
+MUR_fill <- MUR_fill %>%
+  filter(site %in% selected_sites)
+
+load("Data/UI_angle.RData")
+upwelling <- UI_angle %>%
+  dplyr::rename(temp = ui.saws) %>%
+  group_by(site) %>%
+  # mutate(min_t = min(t),
+  #        max_t = max(t)) %>%
+  nest() %>% # apply the following functions to all of the variables in te dataset
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1997-01-01", "2015-12-31")), # creating a column of climatologies. Column will be named clim
+         # NB: A threshold of 3 appeared to be far to strict
+         # purr::map - apllies a function to each element of a vector
+         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  #Upwelling cannot be descrbed as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
+  # Detect consecutive days in exceedance of a given threshold.
+  # mutate() %>%
+  select(-data, -clim) %>%
+  unnest() %>%
+  filter(row_number() %% 2 == 1) %>%
+  unnest() %>% # creates a column for each variables
+  dplyr::rename(ui.saws = temp) %>% # rename upwelling index vale to temp so that it could work with the function
+  select(site, t, ui.saws, exceedance)
+
+
+detect_event_custom <- function(df){
+  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 3, coldSpells = T)$event
+  return(res)
+}
+
+ts2clm_custom <- function(df){
+  # The climatology base period used here is up for debate...
+  # The choice of the 25th percentile threshold also needs to be justified and sensitivty tested
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1992-01-01", "2016-12-31"))
+  return(res)
+}
+
+# Calculate the upwelling event metrics
+upwelling_detect_event <- function(df){
+  upwell_base <- df %>%
+    dplyr::rename(t = date) %>%
+    group_by(site, product, heading, distance, lon, lat) %>%
+    group_modify(~ts2clm_custom(.x)) %>%
+    left_join(upwelling, by = c("site", "t")) %>%
+    filter(!is.na(exceedance)) %>%
+    group_by(site, product, heading, distance, lon, lat) %>%
+    group_modify(~detect_event_custom(.x))
+  }
+
+G1SST_upwell_base <- upwelling_detect_event(df = G1SST_fill)
+save(G1SST_upwell_base, file = "Data/G1SST_upwell_base.RData")
+MUR_upwell_base <- upwelling_detect_event(df = MUR_fill)
+save(MUR_upwell_base, file = "Data/MUR_upwell_base.RData")
+```
+
+
+
+
+
+
+
