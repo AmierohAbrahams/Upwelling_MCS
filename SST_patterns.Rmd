@@ -794,10 +794,15 @@ summary(SACTN_anov)
 Plot showing upwelling at the different sites for each of the different distances. Scatter plot
 
 ```{r}
+
+load("Data/OISST_upwell_base.RData")
+load("Data/CMC_upwell_base.RData")
+load("Data/SACTN_upwell_base.RData")
+
 library(ggpubr)
 year_func <- function(df){
   Filtered <- df %>%
-filter(year(date_start) %in% seq(2010, 2014, 1))
+filter(year(date_start) %in% seq(2011, 2013, 1))
 }
 
 CMC_filtered <- year_func(df = CMC_upwell_base)
@@ -813,30 +818,6 @@ CMC_PN <- CMC_filtered %>%
 CMC_LB <- CMC_filtered %>% 
   filter(site == "Lamberts Bay")
 
-
-plot_scat_func <- function(df){
-  ggplot(data = df, aes(x = date_start, y = intensity_mean)) +
-  geom_point() +
-  scale_x_date(expand = c(0, 0)) +
-  facet_wrap(~distance, ncol = 2) +
-  theme_grey() +
-  labs(y = "Mean Intensity", x = NULL)
-}
-(CMC_SP_plot <- plot_scat_func(df = CMC_SEAPOINT))
-(CMC_SB_plot <- plot_scat_func(df = CMC_SB))
-(CMC_PN_plot <- plot_scat_func(df = CMC_PN))
-(CMC_LB_plot <- plot_scat_func(df = CMC_LB))
-
-CMC_SP_plot <- CMC_SP_plot +
-  ggtitle("Sea Point") 
-CMC_SB_plot <- CMC_SB_plot +
-  ggtitle("Saldanha Bay")
-CMC_PN_plot <- CMC_PN_plot +
-  ggtitle("Port Nolloth")
-CMC_LB_plot <- CMC_LB_plot +
-  ggtitle("Lamberts Bay")
-
-combined_CMC <- ggarrange(CMC_SP_plot, CMC_SB_plot, CMC_PN_plot,CMC_LB_plot)
 ###################
 ## OISST
 OISST_SEAPOINT <- OISST_filtered %>% 
@@ -847,44 +828,6 @@ OISST_PN <- OISST_filtered %>%
   filter(site == "Port Nolloth")
 OISST_LB <- OISST_filtered %>% 
   filter(site == "Lamberts Bay")
-
-
-plot_scat_func <- function(df){
-  ggplot(data = df, aes(x = date_start, y = intensity_mean)) +
-  geom_point() +
-  scale_x_date(expand = c(0, 0)) +
-  facet_wrap(~distance, ncol = 2) +
-  theme_grey() +
-  labs(y = "Mean Intensity", x = NULL)
-}
-(OISST_SP_plot <- plot_scat_func(df = OISST_SEAPOINT))
-(OISST_SB_plot <- plot_scat_func(df = OISST_SB))
-(OISST_PN_plot <- plot_scat_func(df = OISST_PN))
-(OISST_LB_plot <- plot_scat_func(df = OISST_LB))
-
-OISST_SP_plot <- OISST_SP_plot +
-  ggtitle("Sea Point")
-OISST_SB_plot <- OISST_SB_plot +
-  ggtitle("Saldanha Bay")
-OISST_PN_plot <- OISST_PN_plot +
-  ggtitle("Port Nolloth")
-OISST_LB_plot <- OISST_LB_plot +
-  ggtitle("Lamberts Bay")
-
-combined_OISST <- ggarrange(OISST_SP_plot, OISST_SB_plot, OISST_PN_plot,OISST_LB_plot)
-
-############## 
-# SACTN
-
-plot_scat_func <- function(df){
-  ggplot(data = df, aes(x = date_start, y = intensity_mean)) +
-  geom_point() +
-  scale_x_date(expand = c(0, 0)) +
-  facet_wrap(~site, ncol = 2) +
-  theme_grey() +
-  labs(y = "Mean Intensity", x = NULL)
-}
-(SACTN_plot <- plot_scat_func(df = SACTN_filtered))
 
 ```
 
@@ -899,10 +842,10 @@ plot_loli_func <- function(df){
   scale_y_continuous(breaks = c(5,10,15,20,25,30),
                      limits = c(1,30)) +
   theme_bw() +
-  theme(axis.text=element_text(size=17),
+  theme(axis.text=element_text(size=15),
         axis.title=element_text(size=17)) +
   theme(strip.text.x = element_text(size = 17))+
-  theme(panel.spacing = unit(0.5, "lines")) +
+  theme(panel.spacing = unit(1, "lines")) +
   #strip=strip.custom(var.name=c("10km", "20km", "30km", "40km", "50km")) +
   xlab("Date (years)") + ylab("Event duration (days)") 
 }
