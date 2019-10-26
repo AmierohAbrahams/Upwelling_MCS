@@ -799,6 +799,20 @@ load("Data/OISST_upwell_base.RData")
 load("Data/CMC_upwell_base.RData")
 load("Data/SACTN_upwell_base.RData")
 
+km_func <- function(df){
+  upwell_base <-  df%>% 
+      mutate(distance_km = case_when(distance == "10000" ~ "10",
+                                    distance == "20000" ~ "20",
+                                    distance  == "30000" ~"30",
+                                    distance  == "40000" ~ "40",
+                                    distance  == "50000" ~ "50"))
+}
+OISST_upwell_base <- km_func(df = OISST_upwell_base)
+OISST_upwell_base$distance_km <- as.numeric(OISST_upwell_base$distance_km)
+
+CMC_upwell_base <- km_func(df = CMC_upwell_base)
+CMC_upwell_base$distance_km <- as.numeric(CMC_upwell_base$distance_km)
+
 library(ggpubr)
 year_func <- function(df){
   Filtered <- df %>%
@@ -838,14 +852,16 @@ plot_loli_func <- function(df){
   ggplot(df, aes(x = date_peak, y = duration)) + 
   geom_lolli(colour = "steelblue3", colour_n = "navy", n = 3) + 
   #scale_color_distiller(palette = "Spectral", name = "Cumulative \nintensity") + 
-  facet_wrap(~distance, ncol = 2) +
+  facet_wrap(~distance_km, ncol = 2) +
   scale_y_continuous(breaks = c(5,10,15,20,25,30),
                      limits = c(1,30)) +
+    scale_x_date(limits = as.Date(c("2011-01-01","2014-01-01"))) +
   theme_bw() +
   theme(axis.text=element_text(size=15),
         axis.title=element_text(size=17)) +
   theme(strip.text.x = element_text(size = 17))+
   theme(panel.spacing = unit(1, "lines")) +
+    #theme(strip.text = c("10km", "20km", "30km", "40km", "50km")) +
   #strip=strip.custom(var.name=c("10km", "20km", "30km", "40km", "50km")) +
   xlab("Date (years)") + ylab("Event duration (days)") 
 }
