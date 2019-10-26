@@ -5,8 +5,7 @@ date: "26 October 2019"
 output: html_document
 ---
 
-This scripts extracts the MUR and G1sst data
-
+Extracting G1SST
 
 ```{r}
 bbox <- data.frame(BC = c(-35, -25, 15, 20)) # Benguela Current
@@ -18,7 +17,8 @@ library(plyr)
 library(lubridate)
 library(data.table)
 library(doMC); doMC::registerDoMC(cores = 7)
-ncDir <- "/home/amieroh/Documents/Data/Datasets/G1SST/daily/2010"
+library(heatwaveR)
+ncDir <- "/home/amieroh/Documents/Data/Datasets/G1SST/daily/2010_06-08"
 csvDir <- "/home/amieroh/Documents/tester"
 
 # #          1         2         3         4
@@ -63,6 +63,60 @@ csvDir <- "/home/amieroh/Documents/tester"
 llply(ncList, ncFun, region = "BC", csvDir = csvDir, .parallel = TRUE)
 ```
 
+# Extracting MUR
+
+```{r}
+# bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
+library(stringr)
+library(tidyverse)
+library(reshape2)
+library(ncdf4) # library for processing netCDFs
+library(plyr)
+library(lubridate)
+library(data.table)
+library(doMC); doMC::registerDoMC(cores = 7)
+ncDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily"
+csvDir <- "/home/amieroh/Documents/Data/Datasets/MUR/Extracted_MUR"
+#          1         2         3         4
+# 12345678901234567890123456789012345678901
+# 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
+
+# ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020606-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
+  ncFun <- function(ncFile = ncFile, region = region, csvDir = csvDir) {
+    coords <- bbox[, region]
+    nc <- nc_open(ncFile)
+    pathLen <- nchar(paste0(ncDir, "/")) + 1
+    fNameStem <-
+      substr(basename(ncFile), 10, 38)
+    fDate <- substr(basename(ncFile), 1, 8)
+    LatIdx <- which(nc$dim$lat$vals > coords[1] & nc$dim$lat$vals < coords[2])
+    LonIdx <- which(nc$dim$lon$vals > coords[3] & nc$dim$lon$vals < coords[4])
+    sst <- ncvar_get(nc, varid = "analysed_sst") %>%
+      round(4)
+    dimnames(sst) <- list(lon = nc$dim$lon$vals,
+                          lat = nc$dim$lat$vals)
+    nc_close(nc)
+    sst <- as_tibble(melt(sst, value.name = "temp"))
+    sst$t <- ymd(fDate)
+    na.omit(sst)
+    fwrite(sst,
+           file = paste0(csvDir, "/", region, "-", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+           append = TRUE, col.names = FALSE)
+    rm(sst)
+  }
+
+
+  ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+  ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+  ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+  strtDate <- str_sub(ncFirst, start = 1, end = 8)
+  endDate <- str_sub(ncLast, start = 1, end = 8)
+
+llply(ncList, ncFun, region = "BC", csvDir = csvDir, .parallel = TRUE)
+```
+
+Data analysis
+
 ```{r}
 G1SST_prod <- G1SST %>%
   select(lon, lat) %>%
@@ -90,6 +144,8 @@ match_func <- function(df){
   return(res)
 }
 
+
+load("Data/site_pixels.RData")
 pixel_match <- site_pixels %>%
   group_by(site) %>%
   group_modify(~match_func(.x))
@@ -108,26 +164,7 @@ G1SST_fill <- G1SST_fill %>%
 MUR_fill <- MUR_fill %>%
   filter(site %in% selected_sites)
 
-load("Data/UI_angle.RData")
-upwelling <- UI_angle %>%
-  dplyr::rename(temp = ui.saws) %>%
-  group_by(site) %>%
-  # mutate(min_t = min(t),
-  #        max_t = max(t)) %>%
-  nest() %>% # apply the following functions to all of the variables in te dataset
-  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1997-01-01", "2015-12-31")), # creating a column of climatologies. Column will be named clim
-         # NB: A threshold of 3 appeared to be far to strict
-         # purr::map - apllies a function to each element of a vector
-         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  #Upwelling cannot be descrbed as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
-  # Detect consecutive days in exceedance of a given threshold.
-  # mutate() %>%
-  select(-data, -clim) %>%
-  unnest() %>%
-  filter(row_number() %% 2 == 1) %>%
-  unnest() %>% # creates a column for each variables
-  dplyr::rename(ui.saws = temp) %>% # rename upwelling index vale to temp so that it could work with the function
-  select(site, t, ui.saws, exceedance)
-
+load("Data/upwelling.RData")
 
 detect_event_custom <- function(df){
   res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 3, coldSpells = T)$event
