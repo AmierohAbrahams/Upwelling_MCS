@@ -5,10 +5,9 @@ date: "26 October 2019"
 output: html_document
 ---
 
-Extracting G1SST
+Extracting MUR
 
 ```{r}
-bbox <- data.frame(BC = c(-35, -25, 15, 20)) # Benguela Current
 library(stringr)
 library(tidyverse)
 library(reshape2)
@@ -17,77 +16,70 @@ library(plyr)
 library(lubridate)
 library(data.table)
 library(doMC); doMC::registerDoMC(cores = 7)
-library(heatwaveR)
-ncDir <- "/home/amieroh/Documents/Data/Datasets/G1SST/daily/2010_06-08"
-csvDir <- "/home/amieroh/Documents/tester"
+```
 
-# #          1         2         3         4
-# # 12345678901234567890123456789012345678901
-# # 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
+
+
+```{r}
+
+# ncDir <- "/home/amieroh/Documents/Data/Datasets/G1SST/daily"
+# csvDir <- "/media/amieroh/Seagate Expansion Drive/Extracted G1SST"
+# 
+# #          1         2         3         4         5         6
+# # 1234567890123456789012345678901234567890123456789012345678901
+# # 20100609-JPL_OUROCEAN-L4UHfnd-GLOB-v01-fv01_0-G1SST_subset.nc
+# 
+# 
+#   ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+#   ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+#   ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+#   strtDate <- str_sub(ncFirst, start = 1, end = 8)
+#   endDate <- str_sub(ncLast, start = 1, end = 8)
+# 
+# # ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020606-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
+# 
+#   ncFun <- function(ncFile = ncFile, csvDir = csvDir) {
+#     nc <- nc_open(ncFile)
+#     pathLen <- nchar(paste0(ncDir, "/")) + 1
+# fNameStem <-
+#   substr(basename(ncFile), 10, 58)
+#     fDate <- substr(basename(ncFile), 1, 8)
+#     sst <- ncvar_get(nc, varid = "analysed_sst") %>%
+#       round(4)
+#     dimnames(sst) <- list(lon = nc$dim$lon$vals,
+#                           lat = nc$dim$lat$vals)
+#     nc_close(nc)
+#     sst <- as_tibble(melt(sst, value.name = "temp"))
+#     sst$t <- ymd(fDate)
+#     na.omit(sst)
+#     fwrite(sst,
+#            file = paste0(csvDir, "/", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+#            append = TRUE, col.names = FALSE)
+#     rm(sst)
+#   }
+# 
+# llply(ncList, ncFun, csvDir = csvDir, .parallel = TRUE)
+```
+
+# Extracting G1SST
+
+```{r}
+ncDir <- "/home/amieroh/Documents/Data/Datasets/G1SST/daily"
+csvDir <- "/media/amieroh/Seagate Expansion Drive/Extracted G1SST"
+
 #          1         2         3         4         5         6
 # 1234567890123456789012345678901234567890123456789012345678901
 # 20100609-JPL_OUROCEAN-L4UHfnd-GLOB-v01-fv01_0-G1SST_subset.nc
+ bbox <- data.frame(BC = c(-35, -25, 15, 20)) # Benguela Current
 
-
-# ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020606-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
+#
+# # ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020606-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
   ncFun <- function(ncFile = ncFile, region = region, csvDir = csvDir) {
     coords <- bbox[, region]
     nc <- nc_open(ncFile)
     pathLen <- nchar(paste0(ncDir, "/")) + 1
     fNameStem <-
       substr(basename(ncFile), 10, 58)
-    fDate <- substr(basename(ncFile), 1, 8)
-    LatIdx <- which(nc$dim$lat$vals > coords[1] & nc$dim$lat$vals < coords[2])
-    LonIdx <- which(nc$dim$lon$vals > coords[3] & nc$dim$lon$vals < coords[4])
-    sst <- ncvar_get(nc, varid = "analysed_sst") %>%
-      round(4)
-    dimnames(sst) <- list(lon = nc$dim$lon$vals,
-                          lat = nc$dim$lat$vals)
-    nc_close(nc)
-    sst <- as_tibble(melt(sst, value.name = "temp"))
-    sst$t <- ymd(fDate)
-    na.omit(sst)
-    fwrite(sst,
-           file = paste0(csvDir, "/", region, "-", fNameStem, "-", strtDate, "-", endDate, ".csv"),
-           append = TRUE, col.names = FALSE)
-    rm(sst)
-  }
-
-
-  ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
-  ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
-  ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
-  strtDate <- str_sub(ncFirst, start = 1, end = 8)
-  endDate <- str_sub(ncLast, start = 1, end = 8)
-
-llply(ncList, ncFun, region = "BC", csvDir = csvDir, .parallel = TRUE)
-```
-
-# Extracting MUR
-
-```{r}
-# bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
-library(stringr)
-library(tidyverse)
-library(reshape2)
-library(ncdf4) # library for processing netCDFs
-library(plyr)
-library(lubridate)
-library(data.table)
-library(doMC); doMC::registerDoMC(cores = 7)
-ncDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily"
-csvDir <- "/home/amieroh/Documents/Data/Datasets/MUR/Extracted_MUR"
-#          1         2         3         4
-# 12345678901234567890123456789012345678901
-# 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
-
-# ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020606-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
-  ncFun <- function(ncFile = ncFile, region = region, csvDir = csvDir) {
-    coords <- bbox[, region]
-    nc <- nc_open(ncFile)
-    pathLen <- nchar(paste0(ncDir, "/")) + 1
-    fNameStem <-
-      substr(basename(ncFile), 10, 38)
     fDate <- substr(basename(ncFile), 1, 8)
     LatIdx <- which(nc$dim$lat$vals > coords[1] & nc$dim$lat$vals < coords[2])
     LonIdx <- which(nc$dim$lon$vals > coords[3] & nc$dim$lon$vals < coords[4])
