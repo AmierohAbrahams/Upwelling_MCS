@@ -460,72 +460,72 @@ Determining the temperatures at the various distances from the coastline
 
 ```{r}
 # # These following three objects (MUR, OISST, CMC) need to be the complete set of lon/lat values for your satellite data
-# # MUR <- MUR %>% 
-# #   select(lon, lat) %>% 
-# #   mutate(product = "MUR")
+# MUR <- MUR %>%
+#   select(lon, lat) %>%
+#   mutate(product = "MUR")
 # 
 # # Decided to work with OISST and CMC as both has a time series of 30years
-# OISST_prod <- OISST %>% 
-#   select(lon, lat) %>% 
-#   unique() %>% 
-#   mutate(product = "OISST")
+OISST_prod <- OISST %>%
+  select(lon, lat) %>%
+  unique() %>%
+  mutate(product = "OISST")
 # 
-# CMC_prod <- CMC %>% 
-#   select(lon, lat) %>%
-#   unique() %>% 
-#   mutate(product = "CMC")
+CMC_prod <- CMC %>%
+  select(lon, lat) %>%
+  unique() %>%
+  mutate(product = "CMC")
 # 
-# # sat_data <- rbind(CMC_prod, OISST_prod) %>% 
+sat_data <- rbind(CMC_prod, OISST_prod) %>% 
 #   #rbind(., CMC) %>% 
-#   # select(product, lon, lat)
+select(product, lon, lat)
 # 
-# # sat_pixels <- sat_data %>% 
-#   # select(product, lon, lat) %>%
-#   # unique()
+sat_pixels <- sat_data %>%
+select(product, lon, lat) %>%
+unique()
 # 
 # ## For testing the nest/map pipeline
 # # df <- site_pixels %>%
 # #   filter(site == "Lamberts Bay") %>%
 # #   select(-site)
 # 
-# match_func <- function(df){
-#   df <- df %>%
-#     dplyr::rename(lon_site = lon, lat_site = lat)
-#   OISST_index <- OISST_prod[as.vector(knnx.index(as.matrix(OISST_prod[,c("lon", "lat")]),
-#                                                  as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>% 
-#     cbind(., df)
-#   CMC_index <- CMC_prod[as.vector(knnx.index(as.matrix(CMC_prod[,c("lon", "lat")]),
-#                                              as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>% 
-#     cbind(., df)
-#   res <- rbind(OISST_index, CMC_index)
-#   return(res)
-# }
+match_func <- function(df){
+  df <- df %>%
+    dplyr::rename(lon_site = lon, lat_site = lat)
+  OISST_index <- OISST_prod[as.vector(knnx.index(as.matrix(OISST_prod[,c("lon", "lat")]),
+                                                 as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>%
+    cbind(., df)
+  CMC_index <- CMC_prod[as.vector(knnx.index(as.matrix(CMC_prod[,c("lon", "lat")]),
+                                             as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>%
+    cbind(., df)
+  res <- rbind(OISST_index, CMC_index)
+  return(res)
+}
 # 
 # # Find the nearest pixels to each spot along the transect
 # # NB: SOme pixels are used more thanonce in a transect as the spacing isn't quite larger enough between transect
 # # points to not fall inside of the same 25 KM pixel
-# pixel_match <- site_pixels %>% 
-#   group_by(site) %>% 
-#   group_modify(~match_func(.x))
-# 
+pixel_match <- site_pixels %>%
+  group_by(site) %>%
+  group_modify(~match_func(.x))
+
 # # You may then use the 'pixel_match' object to filter out the desired pixels from the full satellite products
-# OISST_fill <- right_join(OISST, filter(pixel_match, product == "OISST"), by = c("lon", "lat"))
-# CMC_fill <- right_join(CMC, filter(pixel_match, product == "CMC"), by = c("lon", "lat"))
+OISST_fill <- right_join(OISST, filter(pixel_match, product == "OISST"), by = c("lon", "lat"))
+CMC_fill <- right_join(CMC, filter(pixel_match, product == "CMC"), by = c("lon", "lat"))
 # #SACTN_fill <- right_join(SACTN, filter(pixel_match, product == "SACTN"), by = c("lon", "lat"))
 # 
-# # Clean up some RAM space
-# rm(OISST, CMC); gc()
+# Clean up some RAM space
+rm(OISST, CMC); gc()
 # 
 # # sites <- c("Port Nolloth", "Lamberts Bay", "Saldanha Bay", "Sea Point")
 # # # In the SACTN dataset Hout Bay only has data until 2005. Hout Bay will now be removed from this study
 # # # Hout Bay will be ignored
-# selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
+selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
 # 
-# OISST_fill <- OISST_fill %>%
-#   filter(site %in% selected_sites)
-# 
-# CMC_fill <- CMC_fill %>%
-#   filter(site %in% selected_sites)
+OISST_fill <- OISST_fill %>%
+  filter(site %in% selected_sites)
+
+CMC_fill <- CMC_fill %>%
+  filter(site %in% selected_sites)
 # 
 # 
 # # All the code below can be viewed in upwell_IDX.Rmd
@@ -533,41 +533,41 @@ Determining the temperatures at the various distances from the coastline
 # # UI Created using SAWS wind data (Find in upwell_IDX_Rmd)
 # load("Data/UI_angle.RData")
 # 
-# upwelling <- UI_angle %>% 
-#   dplyr::rename(temp = ui.saws) %>%
-#   group_by(site) %>%
-#   # mutate(min_t = min(t), 
-#   #        max_t = max(t)) %>% 
-#   nest() %>% # apply the following functions to all of the variables in te dataset
-#   mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1997-01-01", "2015-12-31")), # creating a column of climatologies. Column will be named clim
-#          # NB: A threshold of 3 appeared to be far to strict
-#          # purr::map - apllies a function to each element of a vector
-#          exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  #Upwelling cannot be descrbed as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
-#   # Detect consecutive days in exceedance of a given threshold.
-#   # mutate() %>% 
-#   select(-data, -clim) %>% 
-#   unnest() %>%
-#   filter(row_number() %% 2 == 1) %>%
-#   unnest() %>% # creates a column for each variables
-#   dplyr::rename(ui.saws = temp) %>% # rename upwelling index vale to temp so that it could work with the function
-#   select(site, t, ui.saws, exceedance) 
+upwelling <- UI_angle %>%
+  dplyr::rename(temp = ui.saws) %>%
+  group_by(site) %>%
+  # mutate(min_t = min(t),
+  #        max_t = max(t)) %>%
+  nest() %>% # apply the following functions to all of the variables in te dataset
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1997-01-01", "2015-12-31")), # creating a column of climatologies. Column will be named clim
+         # NB: A threshold of 3 appeared to be far to strict
+         # purr::map - apllies a function to each element of a vector
+         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  #Upwelling cannot be descrbed as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
+  # Detect consecutive days in exceedance of a given threshold.
+  # mutate() %>%
+  select(-data, -clim) %>%
+  unnest() %>%
+  filter(row_number() %% 2 == 1) %>%
+  unnest() %>% # creates a column for each variables
+  dplyr::rename(ui.saws = temp) %>% # rename upwelling index vale to temp so that it could work with the function
+  select(site, t, ui.saws, exceedance)
+
+# Now applying the Upwelling func
+# NB: This only pulls out the event results and not the climatology results
+# This is done to keep the output tidy because group_modify() may only create data.frame type outputs
+# To create a list output one would use group_map(),
+# but this then loses the labels of which sites etc. the results belong to
+detect_event_custom <- function(df){
+  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 3, coldSpells = T)$event
+  return(res)
+}
 # 
-# # Now applying the Upwelling func
-# # NB: This only pulls out the event results and not the climatology results
-# # This is done to keep the output tidy because group_modify() may only create data.frame type outputs
-# # To create a list output one would use group_map(), 
-# # but this then loses the labels of which sites etc. the results belong to
-# detect_event_custom <- function(df){
-#   res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 3, coldSpells = T)$event
-#   return(res)
-# }
-# 
-# ts2clm_custom <- function(df){
-#   # The climatology base period used here is up for debate...
-#   # The choice of the 25th percentile threshold also needs to be justified and sensitivty tested
-#   res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1992-01-01", "2016-12-31"))
-#   return(res)
-# }
+ts2clm_custom <- function(df){
+  # The climatology base period used here is up for debate...
+  # The choice of the 25th percentile threshold also needs to be justified and sensitivty tested
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1992-01-01", "2016-12-31"))
+  return(res)
+}
 # 
 # # Calculate the upwelling event metrics
 # upwelling_detect_event <- function(df){
