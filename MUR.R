@@ -1,11 +1,20 @@
-library(stringr)
 library(tidyverse)
-library(reshape2)
-library(ncdf4) # library for processing netCDFs
-library(plyr)
 library(lubridate)
+library(ggpubr)
+library(zoo)
+library(FNN)
+library(scales)
+library(gridExtra)
+library(circular)
+library(fossil)
+library(mapproj)
+library(stringr)
+library(doMC); doMC::registerDoMC(cores = 4)
+library(fasttime)
+library(xtable)
+library(ncdf4) # library for processing netCDFs
 library(data.table)
-library(doMC); doMC::registerDoMC(cores = 7)
+library(heatwaveR)
 
 # ncDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily/Extract 9"
 # csvDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily/Extract 9"
