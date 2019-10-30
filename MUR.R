@@ -61,20 +61,30 @@ library(heatwaveR)
 # save(MUR, file = "/home/amieroh/Documents/Data/Datasets/MUR/daily/Extract 9/MUR_9.RData")
 # rm(MUR)
 
+
+# RWS: Both of these files load with the same onbject name
+# So the way you had it you were loading one over the other
+# And then assigning different names to the same object
 load("Data/MUR_1.RData")
+MUR_1 <- na.omit(MUR) # Half of this file is deadspace, why?
+
 load("Data/MUR_2.RData")
-MUR_1 <- MUR
-MUR_2 <- MUR
+MUR_2 <- na.omit(MUR)
+
+# Free up RAM
+rm(MUR); gc()
 
 MUR_prod <- MUR_1 %>%
   select(lon, lat) %>%
   unique() %>%
   mutate(product = "MUR")
+gc()
 
 MUR_prod2 <- MUR_2 %>%
   select(lon, lat) %>%
   unique() %>%
   mutate(product = "MUR")
+gc()
 
 sat_data <- rbind(MUR_prod, MUR_prod2) %>% 
   #   #rbind(., CMC) %>% 
