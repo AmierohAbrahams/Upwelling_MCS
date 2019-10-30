@@ -98,7 +98,7 @@ match_func <- function(df){
   return(res)
 }
 
-
+load("Data/site_pixels")
 pixel_match <- site_pixels %>%
   group_by(site) %>%
   group_modify(~match_func(.x))
