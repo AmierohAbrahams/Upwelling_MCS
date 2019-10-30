@@ -70,6 +70,7 @@ MUR_prod <- MUR_1 %>%
   select(lon, lat) %>%
   unique() %>%
   mutate(product = "MUR")
+
 MUR_prod2 <- MUR_2 %>%
   select(lon, lat) %>%
   unique() %>%
