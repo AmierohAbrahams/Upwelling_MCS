@@ -168,6 +168,7 @@ upwelling_detect_event <- function(df){
 # 
 MUR_upwell_base <- upwelling_detect_event(df = Final)
 # save(MUR_upwell_base, file = "Data/MUR_upwell_base.RData")
+load("Data/MUR_upwell_base.RData")
 km_func <- function(df){
   upwell_base <-  df%>% 
     mutate(distance_km = case_when(distance == "10000" ~ "10",

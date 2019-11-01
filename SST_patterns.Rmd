@@ -612,6 +612,7 @@ Loading the data
 load("Data/OISST_upwell_base.RData")
 load("Data/CMC_upwell_base.RData")
 load("Data/SACTN_upwell_base.RData")
+load("Data/MUR_upwell_base.RData")
 ```
 
 To accurately compare 
@@ -813,6 +814,9 @@ OISST_upwell_base$distance_km <- as.numeric(OISST_upwell_base$distance_km)
 CMC_upwell_base <- km_func(df = CMC_upwell_base)
 CMC_upwell_base$distance_km <- as.numeric(CMC_upwell_base$distance_km)
 
+MUR_upwell_base <- km_func(df = MUR_upwell_base)
+MUR_upwell_base$distance_km <- as.numeric(MUR_upwell_base$distance_km)
+
 library(ggpubr)
 year_func <- function(df){
   Filtered <- df %>%
@@ -843,6 +847,19 @@ OISST_PN <- OISST_filtered %>%
 OISST_LB <- OISST_filtered %>% 
   filter(site == "Lamberts Bay")
 
+############
+#####MUR
+
+MUR_filtered <- year_func(df = MUR_upwell_base)
+
+MUR_SEAPOINT <- MUR_filtered %>% 
+  filter(site == "Sea Point")
+MUR_SB <- MUR_filtered %>% 
+  filter(site == "Saldanha Bay")
+MUR_PN <- MUR_filtered %>% 
+  filter(site == "Port Nolloth")
+MUR_LB <- MUR_filtered %>% 
+  filter(site == "Lamberts Bay")
 ```
 
 # Lolli plot
@@ -905,6 +922,30 @@ CMC_LB_pl <- CMC_LB_pl +
 combined_CMC_pl_2 <- ggarrange(CMC_SB_pl, CMC_SP_pl) 
 
 combined_CMC_pl_1 <- ggarrange(CMC_LB_pl, CMC_PN_pl)
+
+##########
+### MUR
+(MUR_SP_pl <- plot_loli_func(df = MUR_SEAPOINT))
+(MUR_SB_pl <- plot_loli_func(df = MUR_SB))
+(MUR_PN_pl <- plot_loli_func(df = MUR_PN))
+(MUR_LB_pl <- plot_loli_func(df = MUR_LB))
+
+
+MUR_SP_pl <- MUR_SP_pl +
+  ggtitle("D.") #Sea Point
+MUR_SB_pl <- MUR_SB_pl +
+  ggtitle("C.") # Saldanha Bay
+MUR_PN_pl <- MUR_PN_pl +
+  ggtitle("B.")        # Port Nolloth
+MUR_LB_pl <- MUR_LB_pl +
+  ggtitle("A.")#Lamberts Bay
+
+
+combined_MUR_pl_2 <- ggarrange(MUR_SB_pl, MUR_SP_pl) 
+
+combined_MUR_pl_1 <- ggarrange(MUR_LB_pl, MUR_PN_pl)
+
+########
 
 plot_loli_func <- function(df){
   ggplot(df, aes(x = date_peak, y = duration)) + 
