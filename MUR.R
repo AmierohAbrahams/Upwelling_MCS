@@ -1,65 +1,73 @@
-library(tidyverse)
-library(lubridate)
-library(ggpubr)
-library(zoo)
-library(FNN)
-library(scales)
-library(gridExtra)
-library(circular)
-library(fossil)
-library(mapproj)
 library(stringr)
-library(doMC); doMC::registerDoMC(cores = 4)
-library(fasttime)
-library(xtable)
+library(tidyverse)
+library(reshape2)
 library(ncdf4) # library for processing netCDFs
+library(plyr)
+library(lubridate)
 library(data.table)
+library(doMC); doMC::registerDoMC(cores = 7)
+library(FNN)
 library(heatwaveR)
 
-# ncDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily/Extract 9"
-# csvDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily/Extract 9"
-# 
-# # #          1         2         3         4
-# # # 12345678901234567890123456789012345678901
-# # # 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
-# 
-#   ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
-#   ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
-#   ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
-#   strtDate <- str_sub(ncFirst, start = 1, end = 8)
-#   endDate <- str_sub(ncLast, start = 1, end = 8)
-# 
-# # # ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020606-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
-# 
-#   ncFun <- function(ncFile = ncFile, csvDir = csvDir) {
-#     nc <- nc_open(ncFile)
-#     pathLen <- nchar(paste0(ncDir, "/")) + 1
-# fNameStem <-
-#   substr(basename(ncFile), 10, 38)
-#     fDate <- substr(basename(ncFile), 1, 8)
-#     sst <- ncvar_get(nc, varid = "analysed_sst") %>%
-#       round(4)
-#     dimnames(sst) <- list(lon = nc$dim$lon$vals,
-#                           lat = nc$dim$lat$vals)
-#     nc_close(nc)
-#     sst <- as_tibble(melt(sst, value.name = "temp"))
-#     sst$t <- ymd(fDate)
-#     na.omit(sst)
-#     fwrite(sst,
-#            file = paste0(csvDir, "/", fNameStem, "-", strtDate, "-", endDate, ".csv"),
-#            append = TRUE, col.names = FALSE)
-#     rm(sst)
-#   }
-# 
-# llply(ncList, ncFun, csvDir = csvDir, .parallel = TRUE)
-# 
-# MUR <- read_csv("/home/amieroh/Documents/Data/Datasets/MUR/daily/Extract 9/JPL-L4UHfnd-GLOB-v01-fv04-MUR-20021016-20021031.csv")
-# names(MUR)<-c("lon","lat", "temp", "date")
-# MUR <- MUR %>%
-#   mutate(temp = temp - 273.15)
-# 
-# save(MUR, file = "/home/amieroh/Documents/Data/Datasets/MUR/daily/Extract 9/MUR_9.RData")
-# rm(MUR)
+ncDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily/Extract 296"
+csvDir <- "/media/amieroh/Seagate Expansion/Extract"
+
+# #          1         2         3         4
+# # 12345678901234567890123456789012345678901
+# # 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
+
+  ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+  ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+  ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+  strtDate <- str_sub(ncFirst, start = 1, end = 8)
+  endDate <- str_sub(ncLast, start = 1, end = 8)
+
+# # ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020606-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
+
+  ncFun <- function(ncFile = ncFile, csvDir = csvDir) {
+    nc <- nc_open(ncFile)
+    pathLen <- nchar(paste0(ncDir, "/")) + 1
+fNameStem <-
+  substr(basename(ncFile), 10, 38)
+    fDate <- substr(basename(ncFile), 1, 8)
+    sst <- ncvar_get(nc, varid = "analysed_sst") %>%
+      round(4)
+    dimnames(sst) <- list(lon = nc$dim$lon$vals,
+                          lat = nc$dim$lat$vals)
+    nc_close(nc)
+    sst <- as_tibble(melt(sst, value.name = "temp"))
+    sst$t <- ymd(fDate)
+    na.omit(sst)
+    fwrite(sst,
+           file = paste0(csvDir, "/", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+           append = TRUE, col.names = FALSE)
+    rm(sst)
+  }
+
+llply(ncList, ncFun, csvDir = csvDir, .parallel = TRUE)
+
+MUR <- read_csv("/media/amieroh/Seagate Expansion/Extract/JPL-L4UHfnd-GLOB-v01-fv04-MUR-20140701-20140715.csv")
+names(MUR)<-c("lon","lat", "temp", "date")
+MUR <- MUR %>%
+  mutate(temp = temp - 273.15)
+
+save(MUR, file = "/media/amieroh/Seagate Expansion/MUR/MUR_296.RData")
+
+rm(MUR)
+rm(MUR_1)
+rm(MUR_2)
+rm(MUR_prod)
+rm(MUR_prod2)
+rm(MUR_fill)
+rm(MUR2_fill)
+rm(MUR_combined)
+rm(MUR_combined_2)
+load("/media/amieroh/Seagate Expansion/MUR/MUR_294.RData")
+MUR_1 <- MUR %>% 
+  na.omit()
+load("/media/amieroh/Seagate Expansion/MUR/MUR_295.RData")
+MUR_2 <- MUR %>% 
+  na.omit()
 
 
 # RWS: Both of these files load with the same onbject name
@@ -75,7 +83,7 @@ MUR_2 <- na.omit(MUR)
 rm(MUR); gc()
 
 MUR_prod <- MUR_1 %>%
-  select(lon, lat) %>%
+  select(lon, lat) %>% 
   unique() %>%
   mutate(product = "MUR")
 gc()
@@ -108,28 +116,113 @@ match_func <- function(df){
   return(res)
 }
 
-load("Data/site_pixels")
+#load("Data/site_pixels.RData")
 pixel_match <- site_pixels %>%
   group_by(site) %>%
   group_modify(~match_func(.x))
 
-MUR_fill <- right_join(MUR1, filter(pixel_match, product == "MUR"), by = c("lon", "lat"))
-MUR2_fill <- right_join(MUR2, filter(pixel_match, product == "MUR"), by = c("lon", "lat"))
+MUR_fill <- right_join(MUR_1, filter(pixel_match, product == "MUR"), by = c("lon", "lat"))
+MUR2_fill <- right_join(MUR_2, filter(pixel_match, product == "MUR"), by = c("lon", "lat"))
 
 rm(MUR); gc()
 
 selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
-# 
+
 MUR_fill <- MUR_fill %>%
   filter(site %in% selected_sites)
 
 MUR2_fill <- MUR2_fill %>%
   filter(site %in% selected_sites)
 
+MUR_combined_2 <- rbind(MUR_fill, MUR2_fill)
+
+Final <- rbind(Final, MUR_combined_2)
+save(Final, file = "Data/Final.RData")
 
 
 
+detect_event_custom <- function(df){
+  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 3, coldSpells = T)$event
+  return(res)
+}
+# 
+ts2clm_custom <- function(df){
+  # The climatology base period used here is up for debate...
+  # The choice of the 25th percentile threshold also needs to be justified and sensitivty tested
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2002-06-01", "2012-12-15"))
+  return(res)
+}
+load("Data/upwelling.RData")
+
+# # Calculate the upwelling event metrics
+upwelling_detect_event <- function(df){
+  upwell_base <- df %>%
+    dplyr::rename(t = date) %>%
+    group_by(site, product, heading, distance, lon, lat) %>%
+    group_modify(~ts2clm_custom(.x)) %>%
+    left_join(upwelling, by = c("site", "t")) %>%
+    filter(!is.na(exceedance)) %>%
+    group_by(site, product, heading, distance, lon, lat) %>%
+    group_modify(~detect_event_custom(.x))
+  }
+# 
+MUR_upwell_base <- upwelling_detect_event(df = Final)
+# save(MUR_upwell_base, file = "Data/MUR_upwell_base.RData")
+km_func <- function(df){
+  upwell_base <-  df%>% 
+    mutate(distance_km = case_when(distance == "10000" ~ "10",
+                                   distance == "20000" ~ "20",
+                                   distance  == "30000" ~"30",
+                                   distance  == "40000" ~ "40",
+                                   distance  == "50000" ~ "50"))
+}
+MUR_upwell_base <- km_func(df = MUR_upwell_base)
+MUR_upwell_base$distance_km <- as.numeric(MUR_upwell_base$distance_km)
+
+library(ggpubr)
+year_func <- function(df){
+  Filtered <- df %>%
+    filter(year(date_start) %in% seq(2011, 2013, 1))
+}
+
+MUR_filtered <- year_func(df = MUR_upwell_base)
+
+MUR_SEAPOINT <- MUR_filtered %>% 
+  filter(site == "Sea Point")
+MUR_SB <- MUR_filtered %>% 
+  filter(site == "Saldanha Bay")
+MUR_PN <- MUR_filtered %>% 
+  filter(site == "Port Nolloth")
+MUR_LB <- MUR_filtered %>% 
+  filter(site == "Lamberts Bay")
+
+plot_loli_func <- function(df){
+  ggplot(df, aes(x = date_peak, y = duration)) + 
+    geom_lolli(colour = "steelblue3", colour_n = "navy", n = 3) + 
+    #scale_color_distiller(palette = "Spectral", name = "Cumulative \nintensity") + 
+    facet_wrap(~distance_km, ncol = 2) +
+    scale_y_continuous(breaks = c(5,10,15,20,25,30),
+                       limits = c(1,30)) +
+    scale_x_date(limits = as.Date(c("2011-01-01","2014-01-01"))) +
+    theme_bw() +
+    theme(axis.text=element_text(size=15),
+          axis.title=element_text(size=17)) +
+    theme(strip.text.x = element_text(size = 17))+
+    theme(panel.spacing = unit(1, "lines")) +
+    #theme(strip.text = c("10km", "20km", "30km", "40km", "50km")) +
+    #strip=strip.custom(var.name=c("10km", "20km", "30km", "40km", "50km")) +
+    xlab("Date (years)") + ylab("Event duration (days)") 
+}
+
+
+(MUR_SP_pl <- plot_loli_func(df = MUR_SEAPOINT))
+(MUR_SB_pl <- plot_loli_func(df = MUR_SB))
+(MUR_PN_pl <- plot_loli_func(df = MUR_PN))
+(MUR_LB_pl <- plot_loli_func(df = MUR_LB))
 
 
 
+combined_MUR_pl_2 <- ggarrange(MUR_SB_pl, MUR_SP_pl) 
+
+combined_MUR_pl_1 <- ggarrange(MUR_LB_pl, MUR_PN_pl)
 
