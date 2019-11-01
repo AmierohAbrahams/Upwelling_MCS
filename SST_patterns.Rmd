@@ -799,6 +799,7 @@ Plot showing upwelling at the different sites for each of the different distance
 load("Data/OISST_upwell_base.RData")
 load("Data/CMC_upwell_base.RData")
 load("Data/SACTN_upwell_base.RData")
+load("Data/MUR_upwell_base.RData")
 
 km_func <- function(df){
   upwell_base <-  df%>% 
