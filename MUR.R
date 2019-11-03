@@ -139,6 +139,7 @@ MUR_combined_2 <- rbind(MUR_fill, MUR2_fill)
 Final <- rbind(Final, MUR_combined_2)
 save(Final, file = "Data/Final.RData")
 
+load("Data/Final_RData")
 
 
 detect_event_custom <- function(df){
@@ -168,62 +169,3 @@ upwelling_detect_event <- function(df){
 # 
 MUR_upwell_base <- upwelling_detect_event(df = Final)
 # save(MUR_upwell_base, file = "Data/MUR_upwell_base.RData")
-load("Data/MUR_upwell_base.RData")
-km_func <- function(df){
-  upwell_base <-  df%>% 
-    mutate(distance_km = case_when(distance == "10000" ~ "10",
-                                   distance == "20000" ~ "20",
-                                   distance  == "30000" ~"30",
-                                   distance  == "40000" ~ "40",
-                                   distance  == "50000" ~ "50"))
-}
-MUR_upwell_base <- km_func(df = MUR_upwell_base)
-MUR_upwell_base$distance_km <- as.numeric(MUR_upwell_base$distance_km)
-
-library(ggpubr)
-year_func <- function(df){
-  Filtered <- df %>%
-    filter(year(date_start) %in% seq(2011, 2013, 1))
-}
-
-MUR_filtered <- year_func(df = MUR_upwell_base)
-
-MUR_SEAPOINT <- MUR_filtered %>% 
-  filter(site == "Sea Point")
-MUR_SB <- MUR_filtered %>% 
-  filter(site == "Saldanha Bay")
-MUR_PN <- MUR_filtered %>% 
-  filter(site == "Port Nolloth")
-MUR_LB <- MUR_filtered %>% 
-  filter(site == "Lamberts Bay")
-
-plot_loli_func <- function(df){
-  ggplot(df, aes(x = date_peak, y = duration)) + 
-    geom_lolli(colour = "steelblue3", colour_n = "navy", n = 3) + 
-    #scale_color_distiller(palette = "Spectral", name = "Cumulative \nintensity") + 
-    facet_wrap(~distance_km, ncol = 2) +
-    scale_y_continuous(breaks = c(5,10,15,20,25,30),
-                       limits = c(1,30)) +
-    scale_x_date(limits = as.Date(c("2011-01-01","2014-01-01"))) +
-    theme_bw() +
-    theme(axis.text=element_text(size=15),
-          axis.title=element_text(size=17)) +
-    theme(strip.text.x = element_text(size = 17))+
-    theme(panel.spacing = unit(1, "lines")) +
-    #theme(strip.text = c("10km", "20km", "30km", "40km", "50km")) +
-    #strip=strip.custom(var.name=c("10km", "20km", "30km", "40km", "50km")) +
-    xlab("Date (years)") + ylab("Event duration (days)") 
-}
-
-
-(MUR_SP_pl <- plot_loli_func(df = MUR_SEAPOINT))
-(MUR_SB_pl <- plot_loli_func(df = MUR_SB))
-(MUR_PN_pl <- plot_loli_func(df = MUR_PN))
-(MUR_LB_pl <- plot_loli_func(df = MUR_LB))
-
-
-
-combined_MUR_pl_2 <- ggarrange(MUR_SB_pl, MUR_SP_pl) 
-
-combined_MUR_pl_1 <- ggarrange(MUR_LB_pl, MUR_PN_pl)
-
