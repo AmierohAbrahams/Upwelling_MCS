@@ -165,7 +165,7 @@ upwelling_detect_event <- function(df){
     filter(!is.na(exceedance)) %>%
     group_by(site, product, heading, distance, lon, lat) %>%
     group_modify(~detect_event_custom(.x))
-  }
+}
 # 
 MUR_upwell_base <- upwelling_detect_event(df = Final)
 # save(MUR_upwell_base, file = "Data/MUR_upwell_base.RData")

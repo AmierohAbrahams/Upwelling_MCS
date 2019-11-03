@@ -773,7 +773,7 @@ p.wr3
 
 # ANOVA
 - Relationship between duration, year and site as a function of the distance 
-
+The number of events per distance and then compare this at each distance 
 
 ```{r}
 options(scipen = 999)
