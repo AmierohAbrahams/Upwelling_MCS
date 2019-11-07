@@ -622,6 +622,33 @@ To accurately compare
   Start date SACTN start date 1973 and end date 2017-12-16
   
 ```{r}
+#glm to determine if there is a difference in the number of events recorded at different at every distance
+
+load("Data/Count/OISST_count.RData")
+load("Data/Count/G1SST_count.RData")
+load("Data/Count/MUR_count.RData")
+load("Data/Count/CMC_count.RData")
+
+
+options(scipen = 999)
+anova_func <- function(df){
+  sites_aov <- aov(distance ~ duration * site * site, data = df)
+return(sites_aov)
+}
+
+OISST_anov <- anova_func(df = OISST_upwell_base)
+summary(OISST_anov)
+CMC_anov <- anova_func(df = CMC_upwell_base)
+summary(CMC_anov)
+
+MUR_anov <- anova_func(df = MUR_upwell_base)
+summary(MUR_anov)
+
+SACTN_anov <- aov(intensity_mean ~ site * duration, data = SACTN_upwell_base)
+summary(SACTN_anov)
+
+
+
 
 lm_coeff <- function(df){
   res <- lm(formula = val ~ date_peak, data = df)
@@ -968,23 +995,23 @@ combined_MUR_pl_1 <- ggarrange(MUR_LB_pl, MUR_PN_pl)
 #######
 #G1SST
 
-(OISST_SP_pl <- plot_loli_func(df = OISST_SEAPOINT))
-(OISST_SB_pl <- plot_loli_func(df = OISST_SB))
-(OISST_PN_pl <- plot_loli_func(df = OISST_PN))
-(OISST_LB_pl <- plot_loli_func(df = OISST_LB))
+(G1SST_SP_pl <- plot_loli_func(df = G1SST_SEAPOINT))
+(G1SST_SB_pl <- plot_loli_func(df = G1SST_SB))
+(G1SST_PN_pl <- plot_loli_func(df = G1SST_PN))
+(G1SST_LB_pl <- plot_loli_func(df = G1SST_LB))
 
-OISST_SP_pl <- OISST_SP_pl +
+G1SST_SP_pl <- G1SST_SP_pl +
   ggtitle("D.") #Sea Point
-OISST_SB_pl <- OISST_SB_pl +
+G1SST_SB_pl <- G1SST_SB_pl +
   ggtitle("C.") # Saldanha Bay
-OISST_PN_pl <- OISST_PN_pl +
+G1SST_PN_pl <- G1SST_PN_pl +
   ggtitle("B.")        # Port Nolloth
-OISST_LB_pl <- OISST_LB_pl +
+G1SST_LB_pl <- G1SST_LB_pl +
   ggtitle("A.")#Lamberts Bay
 
-combined_OISST_pl_2 <- ggarrange(OISST_SB_pl, OISST_SP_pl) 
+combined_G1SST_pl_2 <- ggarrange(G1SST_SB_pl, G1SST_SP_pl) 
 
-combined_OISST_pl_1 <- ggarrange(OISST_LB_pl, OISST_PN_pl)
+combined_G1SST_pl_1 <- ggarrange(G1SST_LB_pl, G1SST_PN_pl)
 
 ########
 
