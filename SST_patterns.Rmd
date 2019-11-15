@@ -1034,3 +1034,5 @@ plot_loli_func <- function(df){
 (SACTN_plot <- plot_loli_func(df = SACTN_filtered))
 ```
 
+# GLM - Determining if a change occur in the number of signals detected at different distancces from the coastline
+
