@@ -605,9 +605,9 @@ ts2clm_custom <- function(df){
 # save(SACTN_upwell_base, file = "Data/SACTN_upwell_base.RData")
 ```
 
-# PLotting events
-
 Loading the data
+    This is the data obtained once the upwelling signals were filtered out
+
 ```{r}
 load("Data/OISST_upwell_base.RData")
 load("Data/CMC_upwell_base.RData")
