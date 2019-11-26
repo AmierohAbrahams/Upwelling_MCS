@@ -7,7 +7,7 @@ output: html_document
 
 # Upwelling
 
-Upwelling is primarily caused by alongshore, equator ward winds. These winds are caused by cross-shore atmospheric pressure gradients, and these gradients occur predominantly during heating periods. Upwelling is defined as the process whereby cold, nutrient rich, high concentrated CO2, low pH, and low oxygenated waters are pushed to the surface as a result of alongshore winds interacting with the earth’s rotation.
+Upwelling is primarily caused by alongshore, equator ward winds. These winds are caused by cross-shore atmospheric pressure gradients, and these gradients occur predominantly during heating periods. Upwelling is defined as the process whereby cold, nutrient rich, high concentrated CO2, low pH, and low oxygenated waters are pushed to the surface as a result of alongshore winds interacting with the earth’s rotation
 
 # Upwelling indeces
   # Determining upwelling index from wind data (SAWS)
