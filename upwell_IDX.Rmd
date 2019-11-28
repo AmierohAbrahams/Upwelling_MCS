@@ -21,7 +21,7 @@ In this equation μ represents the wind speed (m/s) and θ represents the wind d
 
 ```{r}
 library(circular)
-# devtools::install_github("robwschlegel/coastR")
+devtools::install_github("robwschlegel/coastR")
 library(gridExtra)
 library(geosphere)
 library(tidyverse)
