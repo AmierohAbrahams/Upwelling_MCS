@@ -5,6 +5,24 @@ date: "01 August 2019"
 output: html_document
 ---
 
+loading libraries
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+library(zoo)
+library(lubridate)
+library(ggrepel)
+library(FNN)
+library(stringr)
+library(circular)
+library(broom)
+library(ggrepel)
+library(purrr)
+library(stlplus)
+```
+
+
 Loading the Wind data. The wind dataset was supplied by the SAWS in .text format. Wind data was provided for the sites closes to the requested site as wind data may not be available for the 6 study sites in this research.  The wind direction was collected every 2 hours and by using the circular function we calcuated the daily wind direction and mean speed. There is a numerically large gap between 360 and 2 where as in degrees its not as large. The circular mean function returns the mean direction of a vector of circular data. https://cran.r-project.org/web/packages/circular/circular.pdf (Pg 130). The circular function creates circular objects around the wind direction. 
 
 ```{r}
@@ -191,7 +209,19 @@ p.wr3 <- p.wr2 + facet_wrap(.~ site, ncol = 2, nrow = "") +
 p.wr3  # Change colours and remove the NA values
 ```
 
+## Seasonal wind patterns
 
+```{r}
+wind_months <- wind_daily %>% 
+  mutate(month = month(date, abbr = T, label = T),
+         year = year(date)) %>% 
+    mutate(season = ifelse(month %in% c("Jan", "Feb", "Mar"), "Summer",        
+                           ifelse(month %in% c("Apr", "May", "Jun"), "Autumn",
+                                ifelse(month %in% c("Jul", "Aug", "Sep"), "Winter",
+                                       ifelse(month %in% c("Oct", "Nov", "Dec"), "Spring","Error")))))
+
+save(wind_months, file = "Data/wind_months.RData")
+```
 
 
 
