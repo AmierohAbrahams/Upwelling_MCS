@@ -245,7 +245,7 @@ wind_months <- wind_months %>%
 wind_match <- match_func(df = wind_months) 
 ```
 
-# Visualisation - This does not show the changes per year but for all years
+# Visualisation - This does not show the changes per year but for all  also does not show any temps
 
 ```{r}
 source("Functions/wind.rose.R")
