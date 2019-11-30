@@ -223,6 +223,12 @@ wind_months <- wind_daily %>%
 save(wind_months, file = "Data/wind_months.RData")
 ```
 
+# Question:
+  # Are there more SE winds in summer but comes later in January each year?
+  
+```{r}
+
+```
 
 
 
