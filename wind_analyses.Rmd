@@ -220,14 +220,28 @@ wind_months <- wind_daily %>%
                                 ifelse(month %in% c("Jul", "Aug", "Sep"), "Winter",
                                        ifelse(month %in% c("Oct", "Nov", "Dec"), "Spring","Error")))))
 
-save(wind_months, file = "Data/wind_months.RData")
+# save(wind_months, file = "Data/wind_months.RData")
 ```
 
 # Question:
-  # Are there more SE winds in summer but comes later in January?
+  # Are there more SE winds in summer but comes later in January?I.e any changes in SE wind and changes in water temperature
   
 ```{r}
+load("Data/SACTN_US.RData")
+load("Data/wind_months.RData")
 
+
+match_func <- function(df){
+  match <- SACTN_US  %>%  
+  left_join(df, by = c("site", "date")) %>% 
+  na.trim()
+  return(match)
+}
+
+wind_months <- wind_months %>% 
+  dplyr::rename(site = temp_sites)
+
+wind_match <- match_func(df = wind_months) 
 ```
 
 
