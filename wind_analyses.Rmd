@@ -20,6 +20,7 @@ library(broom)
 library(ggrepel)
 library(purrr)
 library(stlplus)
+library(gridExtra)
 ```
 
 
@@ -242,6 +243,25 @@ wind_months <- wind_months %>%
   dplyr::rename(site = temp_sites)
 
 wind_match <- match_func(df = wind_months) 
+```
+
+# Visualisation - This does not show the changes per year but for all years
+
+```{r}
+source("Functions/wind.rose.R")
+
+wind_renamed <- wind_months %>% 
+  mutate(dir_circ = ifelse(dir_circ < 0, dir_circ+360, dir_circ)) %>%
+  dplyr::rename(spd = mean_speed) %>%
+  dplyr::rename(dir = dir_circ) %>% 
+  filter(spd > 0)
+
+p.wr2 <- plot.windrose(data = wind_renamed,
+              spd = "spd",
+              dir = "dir")
+p.wr3 <- p.wr2 + facet_wrap(.~ site) +
+  theme(strip.text.x = element_text(size = 25)) + theme(panel.spacing = unit(2, "lines"))
+p.wr3
 ```
 
 
