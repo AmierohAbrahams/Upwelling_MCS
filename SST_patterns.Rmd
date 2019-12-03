@@ -1037,5 +1037,8 @@ plot_loli_func <- function(df){
 
 # GLM - Determining if a change occur in the number of signals detected at different distances from the coastline
 # Included a table in the paper
-  Table discuss/count the number of upwelling signals detected at the different distancees
+  Table discuss/count the number of upwelling signals detected at the different distances
+  
+  - For some of the sites it is seen that fewer upwelling signals are visible at a further distance from the coastline
+  - When adding up all the signals observed at their respective distance it is seen that there are only slight differences in the amount of signals detected In some cases the signals detected at 10km from the coastline exceed that detected at 50km and visa versa
 
