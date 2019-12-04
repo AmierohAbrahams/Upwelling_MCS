@@ -309,7 +309,10 @@ ggplot(data = SE_monthly, aes(x = year, y = count)) +
 # March SE winds have been increasing in count in Hout Bay, Lamberts Bay, and Sea Point
 # Feb winds are increasing faster in count in Saldanha Bay
 # All SE summer winds are decreasing in Port Nolloth
+```
 
+
+```{r}
 ## Annual mean SST
 ggplot(data = SE_annual, aes(x = year, y = mean_temp)) +
   geom_line() +
@@ -331,38 +334,43 @@ ggplot(data = SE_monthly, aes(x = year, y = mean_temp)) +
 # The incrase in March temperatures is greater than the other months at Hout Bay
 # The decrease in temperatures per month at Saldanha Bay are similar per month
 # Sea Point shows a more intersting pattern with January temperatures decreasing, Feb nearly flat, and Mar increasing
+```
 
+```{r}
 # Now having had a look at the data it appears there may be some relationships between SE wind and temperature
 # at Sea Point, and perhaps a negative relationship atPort Nolloth
 
 # This outputs the slope of the relationship and the correlation between
 # annual count of SE winds mean temperature 
+slope_calc <- function(df){
+  df %>% 
+    mutate(row_num = 1:n()) %>% 
+    do(mod1 = lm(count ~ row_num, data = .),
+       mod2 = lm(mean_temp ~ row_num, data = .),
+       mod3 = lm(mean_temp ~ count, data = .),
+       mod4 = cor(.$mean_temp, .$count, method = "pearson", use = "complete.obs")[1]) %>% 
+    mutate(wind_slope = summary(mod1)$coeff[2],
+           temp_slope = summary(mod2)$coeff[2],
+           temp_wind_slope = summary(mod3)$coeff[2],
+           temp_wind_r = mod4[1],
+           temp_wind_r2 = glance(mod3)$adj.r.squared) %>%
+    select(-mod1, -mod2, -mod3, -mod4) %>% 
+    mutate_if(is.numeric, round, 2)
+}
+# glance(lm(mean_temp ~ count, data = SE_annual))
+
 SE_annual %>% 
   group_by(site) %>% 
-  do(mod = lm(mean_temp ~ count, data = .),
-     mod2 = cor(.$mean_temp, .$count, method = "pearson", use = "complete.obs")) %>%
-  mutate(Slope = summary(mod)$coeff[2],
-         Pearson = mod2[1]) %>%
-  select(-mod, -mod2)
+  slope_calc()
 # Summer stats
 SE_summer %>% 
   group_by(site, season) %>% 
-  do(mod = lm(mean_temp ~ count, data = .),
-     mod2 = cor(.$mean_temp, .$count, method = "pearson", use = "complete.obs")) %>%
-  mutate(Slope = summary(mod)$coeff[2],
-         Pearson = mod2[1]) %>%
-  select(-mod, -mod2)
+  slope_calc()
 # Monthly summer stats
 SE_monthly %>% 
   group_by(site, season, month) %>% 
-  do(mod = lm(mean_temp ~ count, data = .),
-     mod2 = cor(.$mean_temp, .$count, method = "pearson", use = "complete.obs")) %>%
-  mutate(Slope = summary(mod)$coeff[2],
-         Pearson = mod2[1]) %>%
-  select(-mod, -mod2)
+  slope_calc()
+
+# There's a little something at Hout Bay, not much otherwise
 ```
-
-It looks like there is generally a negative relationship between increasing summer winds and mean SST.
-
-
 
