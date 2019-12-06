@@ -374,3 +374,4 @@ SE_monthly %>%
 # There's a little something at Hout Bay, not much otherwise
 ```
 
+- Repeat for CMC/MUR/G1SST
