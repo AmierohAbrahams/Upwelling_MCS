@@ -447,6 +447,44 @@ CMC_final <- combined_CMC_sites %>%
 
 
 ```{r}
+match_funcs <- function(df){
+  unique_pixel <- df %>%
+    select(lon, lat) %>%
+    unique()
+}
+
+match_OISST <- match_funcs(df = OISST)
+match_CMC <- match_funcs(df = CMC)
+
+# # Select 1 nearest pixel (k = 1)
+# # here we ue knnx to find the closes pixel to the insitu sites
+match_index_func <- function(df){
+  match_index <- knnx.index(data = as.matrix(df[,1:2]),
+                            query = as.matrix(site_list_sub[,5:6]), k = 1)
+}
+
+match_index_OISST <- match_funcs(df = match_OISST)
+match_index_CMC <- match_funcs(df = match_CMC)
+
+# # Select SST pixels nearest to insitu sites
+
+pixel_match_OISST <- match_OISST[match_index_OISST,] %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>% 
+  mutate(site = site_list_sub$site)
+
+
+pixel_match_CMC <- match_OISST[match_index_CMC,] %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>% 
+  mutate(site = site_list_sub$site)
+
+combined_OISST_match <- OISST %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>%
+  filter(combi %in% pixel_match$combi)
+rm(combined_OISST)
+
+
+combined_OISST_sites <- combined_OISST_match %>%
+  left_join(pixel_match, by = c("combi", "lon", "lat"))
 
 ```
 
