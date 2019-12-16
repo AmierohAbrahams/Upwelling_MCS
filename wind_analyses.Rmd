@@ -221,12 +221,12 @@ wind_months <- wind_daily %>%
                                 ifelse(month %in% c("Jul", "Aug", "Sep"), "Winter",
                                        ifelse(month %in% c("Oct", "Nov", "Dec"), "Spring","Error")))))
 
-# save(wind_months, file = "Data/wind_months.RData")
+# save(wind_months, file = "Data/wind_m onths.RData")
 ```
 
 # Question:
   # Are there more SE winds in summer but comes later in January? i.e any changes in SE wind and changes in water temperature
-  
+
 ```{r}
 load("Data/SACTN_US.RData")
 load("Data/wind_months.RData")
@@ -234,14 +234,30 @@ load("Data/wind_months.RData")
 wind_months <- wind_months %>% 
   dplyr::rename(site = temp_sites)
 
+
+
 match_func <- function(df){
-  match <- SACTN_US  %>%  
-  left_join(df, by = c("site", "date")) %>% 
+  match <- df  %>%  
+  left_join(wind_months, by = c("site", "date")) %>% 
   na.trim()
   return(match)
 }
+wind_months <- site_list_sub %>% 
+  left_join(wind_months)
 
-wind_match <- match_func(df = wind_months) 
+wind_match_SACTN <- match_func(df = SACTN_US)
+
+load("Data/OISST.RData") # 2 decimal places
+OISST <- BC_avhrr_only_v2_Document_Document
+
+match_func <- function(df){
+  match <- df  %>%  
+  left_join(wind_months, by = c("lat", "date", "lon")) %>% 
+  na.trim()
+  return(match)
+}
+wind_match_OISST <- match_func(df = OISST)
+
 ```
 
 # Visualisation - This does not show the changes per year but for all  also does not show any temps
@@ -374,4 +390,68 @@ SE_monthly %>%
 # There's a little something at Hout Bay, not much otherwise
 ```
 
-- Repeat for CMC/MUR/G1SST
+Matching the OISST Data and CMC data to match the SACTN dataset
+
+```{r}
+unique_pixel <- OISST %>%
+  select(lon, lat) %>%
+  unique()
+
+# # Select 1 nearest pixel (k = 1)
+# # here we ue knnx to find the closes pixel to the insitu sites
+match_index <- knnx.index(data = as.matrix(unique_pixel[,1:2]),
+                          query = as.matrix(site_list_sub[,5:6]), k = 1)
+
+# # Select SST pixels nearest to insitu sites
+pixel_match <- unique_pixel[match_index,] %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>% 
+  mutate(site = site_list_sub$site)
+
+combined_OISST_match <- OISST %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>%
+  filter(combi %in% pixel_match$combi)
+rm(combined_OISST)
+
+combined_OISST_sites <- combined_OISST_match %>%
+  left_join(pixel_match, by = c("combi", "lon", "lat"))
+
+OISST_final <- combined_OISST_sites %>% 
+  select(site, date, temp, lat, lon)
+
+############
+unique_pixel <- CMC %>%
+  select(lon, lat) %>%
+  unique()
+
+# # Select 1 nearest pixel (k = 1)
+# # here we ue knnx to find the closes pixel to the insitu sites
+match_index <- knnx.index(data = as.matrix(unique_pixel[,1:2]),
+                          query = as.matrix(site_list_sub[,5:6]), k = 1)
+
+# # Select SST pixels nearest to insitu sites
+pixel_match <- unique_pixel[match_index,] %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>% 
+  mutate(site = site_list_sub$site)
+
+combined_CMC_match <- CMC %>%
+  unite(col = combi, lon, lat, sep = "/", remove = F) %>%
+  filter(combi %in% pixel_match$combi)
+# rm(combined_OISST)
+
+combined_CMC_sites <- combined_CMC_match %>%
+  left_join(pixel_match, by = c("combi", "lon", "lat"))
+
+CMC_final <- combined_CMC_sites %>% 
+  select(site, date, temp, lat, lon) 
+```
+
+
+```{r}
+
+```
+
+
+
+
+
+
