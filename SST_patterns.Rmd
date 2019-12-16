@@ -501,7 +501,7 @@ match_func <- function(df){
   res <- rbind(OISST_index, CMC_index)
   return(res)
 }
-# 
+
 # # Find the nearest pixels to each spot along the transect
 # # NB: SOme pixels are used more thanonce in a transect as the spacing isn't quite larger enough between transect
 # # points to not fall inside of the same 25 KM pixel
