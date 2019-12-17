@@ -188,208 +188,6 @@ with(wind_match,
 ?windRose
 # ?plot
 ```
-
-## Wind rose plots
-
-```{r}
-# Loading in the matched wind data
-load("Data/wind_match.RData")
-
-wind_match <- wind_match %>% 
-  drop_na()
-
-wave_daily_renamed <- wind_match %>% 
-  dplyr::rename(spd = mean_speed) %>%
-  dplyr::rename(dir = dir_circ) 
-source("Functions/wind.rose.R")
-p.wr2 <- plot.windrose(data = wave_daily_renamed,
-              spd = "spd",
-              dir = "dir")
-p.wr3 <- p.wr2 + facet_wrap(.~ site, ncol = 2, nrow = "") +
-  theme(strip.text.x = element_text(size = 25))
-p.wr3  # Change colours and remove the NA values
-```
-
-## Seasonal wind patterns
-
-```{r}
-wind_months <- wind_daily %>% 
-  mutate(month = month(date, abbr = T, label = T),
-         year = year(date)) %>% 
-    mutate(season = ifelse(month %in% c("Jan", "Feb", "Mar"), "Summer",        
-                           ifelse(month %in% c("Apr", "May", "Jun"), "Autumn",
-                                ifelse(month %in% c("Jul", "Aug", "Sep"), "Winter",
-                                       ifelse(month %in% c("Oct", "Nov", "Dec"), "Spring","Error")))))
-
-# save(wind_months, file = "Data/wind_m onths.RData")
-```
-
-# Question:
-  # Are there more SE winds in summer but comes later in January? i.e any changes in SE wind and changes in water temperature
-
-```{r}
-load("Data/SACTN_US.RData")
-load("Data/wind_months.RData")
-
-wind_months <- wind_months %>% 
-  dplyr::rename(site = temp_sites)
-
-
-
-match_func <- function(df){
-  match <- df  %>%  
-  left_join(wind_months, by = c("site", "date")) %>% 
-  na.trim()
-  return(match)
-}
-wind_months <- site_list_sub %>% 
-  left_join(wind_months)
-
-wind_match_SACTN <- match_func(df = SACTN_US)
-
-load("Data/OISST.RData") # 2 decimal places
-OISST <- BC_avhrr_only_v2_Document_Document
-
-match_func <- function(df){
-  match <- df  %>%  
-  left_join(wind_months, by = c("lat", "date", "lon")) %>% 
-  na.trim()
-  return(match)
-}
-wind_match_OISST <- match_func(df = OISST)
-
-```
-
-# Visualisation - This does not show the changes per year but for all  also does not show any temps
-
-```{r}
-source("Functions/wind.rose.R")
-
-wind_renamed <- wind_match %>% 
-  mutate(dir_circ = ifelse(dir_circ < 0, dir_circ+360, dir_circ)) %>%
-  dplyr::rename(spd = mean_speed) %>%
-  dplyr::rename(dir = dir_circ) %>% 
-  filter(spd > 0)
-
-p.wr2 <- plot.windrose(data = wind_renamed,
-              spd = "spd",
-              dir = "dir")
-p.wr3 <- p.wr2 + facet_wrap(.~ site) +
-  theme(strip.text.x = element_text(size = 25)) + theme(panel.spacing = unit(2, "lines"))
-p.wr3
-```
-
-Are there more SE winds in summer, but come later in January? i.e any changes in SE wind and changes in water temperature
-To answer this first question we will take total counts of SE winds (180 - 270 degrees) for each year and counts for just summer (Jan - Mar). We will also take counts of each Summer month individually to see what the long-term trends are. Once we've pinned down any trends we will look at the same temporal agregations for temperatures to see what those trends are. With all of that determined we can then see what the relationship between the two is.
-
-```{r}
-# First filter out only the SE data
-SE_renamed <- wind_renamed %>% 
-  filter(dir >= 180, dir <= 270)
-
-# Then create diifferent temporal results
-SE_annual <- SE_renamed %>% 
-  group_by(site, year) %>% 
-  summarise(count = n(),
-            mean_dir = mean(dir, na.rm = T),
-            mean_temp = mean(temp, na.rm = T))
-SE_summer <- SE_renamed %>% 
-  filter(season == "Summer") %>% 
-  group_by(site, year, season) %>% 
-  summarise(count = n(),
-            mean_dir = mean(dir, na.rm = T),
-            mean_temp = mean(temp, na.rm = T))
-SE_monthly <- SE_renamed %>% 
-  filter(season == "Summer") %>% 
-  group_by(site, year, season, month) %>% 
-  summarise(count = n(),
-            mean_dir = mean(dir, na.rm = T),
-            mean_temp = mean(temp, na.rm = T))
-# Plots
-## Annual count of SE wind
-ggplot(data = SE_annual, aes(x = year, y = count)) +
-  geom_line() +
-  geom_smooth(method = "lm") +
-  facet_wrap(~site)
-## Annual count of SE wind in Summer
-### The trends between annual and summer SE wind counts are remarkably similar
-ggplot(data = SE_summer, aes(x = year, y = count)) +
-  geom_line() +
-  geom_smooth(method = "lm") +
-  facet_wrap(~site)
-## Summer month count of SE winds
-ggplot(data = SE_monthly, aes(x = year, y = count)) +
-  geom_line(aes(colour = month)) +
-  geom_smooth(aes(colour = month), method = "lm") +
-  facet_wrap(~site)
-# March SE winds have been increasing in count in Hout Bay, Lamberts Bay, and Sea Point
-# Feb winds are increasing faster in count in Saldanha Bay
-# All SE summer winds are decreasing in Port Nolloth
-```
-
-
-```{r}
-## Annual mean SST
-ggplot(data = SE_annual, aes(x = year, y = mean_temp)) +
-  geom_line() +
-  geom_smooth(method = "lm") +
-  facet_wrap(~site)
-## Annual Summer mean SST
-ggplot(data = SE_summer, aes(x = year, y = mean_temp)) +
-  geom_line() +
-  geom_smooth(method = "lm") +
-  facet_wrap(~site)
-# The temperature trends for annual and summer means are very similar
-# THe annual mean increase at Port Nolloth is steeper than the Summer increase
-## Summer months mean SST
-ggplot(data = SE_monthly, aes(x = year, y = mean_temp)) +
-  geom_line(aes(colour = month)) +
-  geom_smooth(aes(colour = month), method = "lm") +
-  facet_wrap(~site)
-# The trends in increasing temperatures for each month are similar at Lamberts Bay and Port Nolloth
-# The incrase in March temperatures is greater than the other months at Hout Bay
-# The decrease in temperatures per month at Saldanha Bay are similar per month
-# Sea Point shows a more intersting pattern with January temperatures decreasing, Feb nearly flat, and Mar increasing
-```
-
-```{r}
-# Now having had a look at the data it appears there may be some relationships between SE wind and temperature
-# at Sea Point, and perhaps a negative relationship atPort Nolloth
-
-# This outputs the slope of the relationship and the correlation between
-# annual count of SE winds mean temperature 
-slope_calc <- function(df){
-  df %>% 
-    mutate(row_num = 1:n()) %>% 
-    do(mod1 = lm(count ~ row_num, data = .),
-       mod2 = lm(mean_temp ~ row_num, data = .),
-       mod3 = lm(mean_temp ~ count, data = .),
-       mod4 = cor(.$mean_temp, .$count, method = "pearson", use = "complete.obs")[1]) %>% 
-    mutate(wind_slope = summary(mod1)$coeff[2],
-           temp_slope = summary(mod2)$coeff[2],
-           temp_wind_slope = summary(mod3)$coeff[2],
-           temp_wind_r = mod4[1],
-           temp_wind_r2 = glance(mod3)$adj.r.squared) %>%
-    select(-mod1, -mod2, -mod3, -mod4) %>% 
-    mutate_if(is.numeric, round, 2)
-}
-# glance(lm(mean_temp ~ count, data = SE_annual))
-
-SE_annual %>% 
-  group_by(site) %>% 
-  slope_calc()
-# Summer stats
-SE_summer %>% 
-  group_by(site, season) %>% 
-  slope_calc()
-# Monthly summer stats
-SE_monthly %>% 
-  group_by(site, season, month) %>% 
-  slope_calc()
-
-# There's a little something at Hout Bay, not much otherwise
-```
-
 Matching the OISST Data and CMC data to match the SACTN dataset
 
 ```{r}
@@ -488,8 +286,195 @@ combined_OISST_sites <- combined_OISST_match %>%
 
 ```
 
+## Wind rose plots
+
+```{r}
+# Loading in the matched wind data
+load("Data/wind_match.RData")
+
+wind_match <- wind_match %>% 
+  drop_na()
+
+wave_daily_renamed <- wind_match %>% 
+  dplyr::rename(spd = mean_speed) %>%
+  dplyr::rename(dir = dir_circ) 
+source("Functions/wind.rose.R")
+p.wr2 <- plot.windrose(data = wave_daily_renamed,
+              spd = "spd",
+              dir = "dir")
+p.wr3 <- p.wr2 + facet_wrap(.~ site, ncol = 2, nrow = "") +
+  theme(strip.text.x = element_text(size = 25))
+p.wr3  # Change colours and remove the NA values
+```
+
+## Seasonal wind patterns
+
+```{r}
+wind_months <- wind_daily %>% 
+  mutate(month = month(date, abbr = T, label = T),
+         year = year(date)) %>% 
+    mutate(season = ifelse(month %in% c("Jan", "Feb", "Mar"), "Summer",        
+                           ifelse(month %in% c("Apr", "May", "Jun"), "Autumn",
+                                ifelse(month %in% c("Jul", "Aug", "Sep"), "Winter",
+                                       ifelse(month %in% c("Oct", "Nov", "Dec"), "Spring","Error")))))
+
+# save(wind_months, file = "Data/wind_m onths.RData")
+```
+
+# Question:
+  # Are there more SE winds in summer but comes later in January? i.e any changes in SE wind and changes in water temperature
+
+```{r}
+load("Data/SACTN_US.RData")
+load("Data/wind_months.RData")
+
+wind_months <- wind_months %>% 
+  dplyr::rename(site = temp_sites)
 
 
+
+match_func <- function(df){
+  match <- df  %>%  
+  left_join(wind_months, by = c("site", "date")) %>% 
+  na.trim()
+  return(match)
+}
+# wind_months <- site_list_sub %>% 
+#   left_join(wind_months)
+
+wind_match_SACTN <- match_func(df = SACTN_US)
+wind_match_OISST <- match_func(df = OISST_final)
+wind_match_CMC <- match_func(df = CMC_final)
+```
+
+# Visualisation - This does not show the changes per year but for all  also does not show any temps
+
+```{r}
+source("Functions/wind.rose.R")
+
+wind_renamed_func <- function(df){
+  wind_renamed <- df %>% 
+    mutate(dir_circ = ifelse(dir_circ < 0, dir_circ+360, dir_circ)) %>%
+    dplyr::rename(spd = mean_speed) %>%
+    dplyr::rename(dir = dir_circ) %>% 
+    filter(spd > 0)
+}
+
+wind_renamed_SACTN <- wind_renamed_func(df = wind_match_SACTN)
+wind_renmed_OISST <- wind_renamed_func(df = wind_match_OISST)
+wind_renamed_CMC <- wind_renamed_func(df = wind_match_CMC)
+
+p.wr2 <- plot.windrose(data = wind_renamed,
+              spd = "spd",
+              dir = "dir")
+p.wr3 <- p.wr2 + facet_wrap(.~ site) +
+  theme(strip.text.x = element_text(size = 25)) + theme(panel.spacing = unit(2, "lines"))
+p.wr3
+```
+
+```{r}
+# First filter out only the SE data
+SE_renamed <- wind_renamed %>% 
+  filter(dir >= 180, dir <= 270)
+# Then create diifferent temporal results
+SE_annual <- SE_renamed %>% 
+  group_by(site, year) %>% 
+  summarise(count = n(),
+            mean_dir = mean(dir, na.rm = T),
+            mean_temp = mean(temp, na.rm = T))
+SE_summer <- SE_renamed %>% 
+  filter(season == "Summer") %>% 
+  group_by(site, year, season) %>% 
+  summarise(count = n(),
+            mean_dir = mean(dir, na.rm = T),
+            mean_temp = mean(temp, na.rm = T))
+SE_monthly <- SE_renamed %>% 
+  filter(season == "Summer") %>% 
+  group_by(site, year, season, month) %>% 
+  summarise(count = n(),
+            mean_dir = mean(dir, na.rm = T),
+            mean_temp = mean(temp, na.rm = T))
+# Plots
+## Annual count of SE wind
+ggplot(data = SE_annual, aes(x = year, y = count)) +
+  geom_line() +
+  geom_smooth(method = "lm") +
+  facet_wrap(~site)
+## Annual count of SE wind in Summer
+### The trends between annual and summer SE wind counts are remarkably similar
+ggplot(data = SE_summer, aes(x = year, y = count)) +
+  geom_line() +
+  geom_smooth(method = "lm") +
+  facet_wrap(~site)
+## Summer month count of SE winds
+ggplot(data = SE_monthly, aes(x = year, y = count)) +
+  geom_line(aes(colour = month)) +
+  geom_smooth(aes(colour = month), method = "lm") +
+  facet_wrap(~site)
+# March SE winds have been increasing in count in Hout Bay, Lamberts Bay, and Sea Point
+# Feb winds are increasing faster in count in Saldanha Bay
+# All SE summer winds are decreasing in Port Nolloth
+```
+
+
+```{r}
+## Annual mean SST
+ggplot(data = SE_annual, aes(x = year, y = mean_temp)) +
+  geom_line() +
+  geom_smooth(method = "lm") +
+  facet_wrap(~site)
+## Annual Summer mean SST
+ggplot(data = SE_summer, aes(x = year, y = mean_temp)) +
+  geom_line() +
+  geom_smooth(method = "lm") +
+  facet_wrap(~site)
+# The temperature trends for annual and summer means are very similar
+# THe annual mean increase at Port Nolloth is steeper than the Summer increase
+## Summer months mean SST
+ggplot(data = SE_monthly, aes(x = year, y = mean_temp)) +
+  geom_line(aes(colour = month)) +
+  geom_smooth(aes(colour = month), method = "lm") +
+  facet_wrap(~site)
+# The trends in increasing temperatures for each month are similar at Lamberts Bay and Port Nolloth
+# The incrase in March temperatures is greater than the other months at Hout Bay
+# The decrease in temperatures per month at Saldanha Bay are similar per month
+# Sea Point shows a more intersting pattern with January temperatures decreasing, Feb nearly flat, and Mar increasing
+```
+
+```{r}
+# Now having had a look at the data it appears there may be some relationships between SE wind and temperature
+# at Sea Point, and perhaps a negative relationship atPort Nolloth
+# This outputs the slope of the relationship and the correlation between
+# annual count of SE winds mean temperature 
+slope_calc <- function(df){
+  df %>% 
+    mutate(row_num = 1:n()) %>% 
+    do(mod1 = lm(count ~ row_num, data = .),
+       mod2 = lm(mean_temp ~ row_num, data = .),
+       mod3 = lm(mean_temp ~ count, data = .),
+       mod4 = cor(.$mean_temp, .$count, method = "pearson", use = "complete.obs")[1]) %>% 
+    mutate(wind_slope = summary(mod1)$coeff[2],
+           temp_slope = summary(mod2)$coeff[2],
+           temp_wind_slope = summary(mod3)$coeff[2],
+           temp_wind_r = mod4[1],
+           temp_wind_r2 = glance(mod3)$adj.r.squared) %>%
+    select(-mod1, -mod2, -mod3, -mod4) %>% 
+    mutate_if(is.numeric, round, 2)
+}
+# glance(lm(mean_temp ~ count, data = SE_annual))
+SE_annual %>% 
+  group_by(site) %>% 
+  slope_calc()
+# Summer stats
+SE_summer %>% 
+  group_by(site, season) %>% 
+  slope_calc()
+# Monthly summer stats
+SE_monthly %>% 
+  group_by(site, season, month) %>% 
+  slope_calc()
+# There's a little something at Hout Bay, not much otherwise
+```
 
 
 
