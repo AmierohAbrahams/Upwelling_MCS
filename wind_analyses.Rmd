@@ -374,7 +374,7 @@ p.wr3
 
 ```{r}
 # First filter out only the SE data
-SE_renamed <-wind_renamed_SACTN %>% 
+SE_renamed <-wind_renamed_SACTN %>% # Chnaged the names with the data 
   filter(dir >= 180, dir <= 270)
 # Then create diifferent temporal results
 SE_annual <- SE_renamed %>% 
