@@ -476,5 +476,8 @@ SE_monthly %>%
 # There's a little something at Hout Bay, not much otherwise
 ```
 
-# Could be done for MUR
+# Data inspection
+    # Find overlapping time series for each of the data and then run analyses
+    # Length of OISST much longer than CMC etc.
+    # Allows for good comparison
 
