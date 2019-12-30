@@ -273,5 +273,3 @@ pdf("Figures/map_fixed.pdf", width = 10, height = 7, pointsize = 4) # Set PDF di
 # Site map
 # The insetting needs to be placed at appropriate location
 ```
-
-#useOISST?
