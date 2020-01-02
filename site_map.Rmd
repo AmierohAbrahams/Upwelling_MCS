@@ -269,7 +269,4 @@ print(site_map, vp = vp2)
 print(africa_map, vp = vp1)
 dev.off()
 pdf("Figures/map_fixed.pdf", width = 10, height = 7, pointsize = 4) # Set PDF dimensions
-
-# Site map
-# The insetting needs to be placed at appropriate location
 ```
