@@ -582,28 +582,28 @@ upwelling_detect_event <- function(df){
     group_modify(~detect_event_custom(.x))
   }
 # 
-# OISST_upwell_base <- upwelling_detect_event(df = OISST_fill)
-# save(OISST_upwell_base, file = "Data/OISST_upwell_base.RData")
-# CMC_upwell_base <- upwelling_detect_event(df = CMC_fill)
-# save(CMC_upwell_base, file = "Data/CMC_upwell_base.RData")
+OISST_upwell_base <- upwelling_detect_event(df = OISST_fill)
+save(OISST_upwell_base, file = "Data/OISST_upwell_base.RData")
+CMC_upwell_base <- upwelling_detect_event(df = CMC_fill)
+save(CMC_upwell_base, file = "Data/CMC_upwell_base.RData")
 # 
-# # Here we remove the site Hout Bay so that we have a long time series. The length of Hout Bay time series ends in 200. Many sites change from here
-# SACTN_US <- SACTN_US %>%
-#   filter(site %in% selected_sites)
-# 
-# load("Data/site_list_v4.2.RData")
-# 
-# SACTN_upwell_base <- SACTN_US %>%
-#   left_join(site_list[,c(4, 5, 6)], by = "index")%>% 
-#     dplyr::rename(t = date) %>% 
-#     group_by(site, lon, lat) %>% 
-#     group_modify(~ts2clm_custom(.x)) %>% 
-#     left_join(upwelling, by = c("site", "t")) %>%
-#     filter(!is.na(exceedance)) %>%
-#     group_by(site, lon, lat) %>% 
-#     group_modify(~detect_event_custom(.x))
-# 
-# save(SACTN_upwell_base, file = "Data/SACTN_upwell_base.RData")
+# Here we remove the site Hout Bay so that we have a long time series. The length of Hout Bay time series ends in 200. Many sites change from here
+SACTN_US <- SACTN_US %>%
+  filter(site %in% selected_sites)
+
+load("Data/site_list_v4.2.RData")
+
+SACTN_upwell_base <- SACTN_US %>%
+  left_join(site_list[,c(4, 5, 6)], by = "index")%>%
+    dplyr::rename(t = date) %>%
+    group_by(site, lon, lat) %>%
+    group_modify(~ts2clm_custom(.x)) %>%
+    left_join(upwelling, by = c("site", "t")) %>%
+    filter(!is.na(exceedance)) %>%
+    group_by(site, lon, lat) %>%
+    group_modify(~detect_event_custom(.x))
+
+save(SACTN_upwell_base, file = "Data/SACTN_upwell_base.RData")
 ```
 
 Loading the data
