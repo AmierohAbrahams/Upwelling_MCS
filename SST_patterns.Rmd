@@ -570,17 +570,17 @@ ts2clm_custom <- function(df){
   return(res)
 }
 # 
-# # Calculate the upwelling event metrics
-# upwelling_detect_event <- function(df){
-#   upwell_base <- df %>% 
-#     dplyr::rename(t = date) %>% 
-#     group_by(site, product, heading, distance, lon, lat) %>% 
-#     group_modify(~ts2clm_custom(.x)) %>% 
-#     left_join(upwelling, by = c("site", "t")) %>%
-#     filter(!is.na(exceedance)) %>%
-#     group_by(site, product, heading, distance, lon, lat) %>% 
-#     group_modify(~detect_event_custom(.x))
-#   }
+# Calculate the upwelling event metrics
+upwelling_detect_event <- function(df){
+  upwell_base <- df %>%
+    dplyr::rename(t = date) %>%
+    group_by(site, product, heading, distance, lon, lat) %>%
+    group_modify(~ts2clm_custom(.x)) %>%
+    left_join(upwelling, by = c("site", "t")) %>%
+    filter(!is.na(exceedance)) %>%
+    group_by(site, product, heading, distance, lon, lat) %>%
+    group_modify(~detect_event_custom(.x))
+  }
 # 
 # OISST_upwell_base <- upwelling_detect_event(df = OISST_fill)
 # save(OISST_upwell_base, file = "Data/OISST_upwell_base.RData")
