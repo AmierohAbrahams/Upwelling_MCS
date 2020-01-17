@@ -49,7 +49,7 @@ library(fasttime)
 library(xtable)
 library(ggpubr)
 library(ggpubr); theme_set(theme_pubr())# library(devtools)
-install_github("marchtaylor/sinkr")
+# install_github("marchtaylor/sinkr")
 
 ## Functions
 source("Functions/earthdist.R")
@@ -146,12 +146,16 @@ transect.pixel <- function(site, distances){
 site_pixels <- data.frame()
 for(i in 1:length(west$site)){
   site <- site_transects[i,]
-  site_pixel <- transect.pixel(site, c(10000, 20000, 30000, 40000, 50000)) # RWS: fixed error
+  # site_pixel <- transect.pixel(site, c(10000, 20000, 30000, 40000, 50000)) # RWS: fixed error
+  site_pixel <- transect.pixel(site, c(10000, 30000, 50000))
   site_pixels <- rbind(site_pixels, site_pixel)
 }
 
+# New site pixels
+save(site_pixels, file = "Data/site_pixels_new.RData")
+load("Data/site_pixels_new.RData")
 # save(site_pixels, file = "Data/site_pixels.RData")
-load("Data/site_pixels.RData")
+# load("Data/site_pixels.RData")
 
 # Bounding box
   # Only one is made in order to know how large the the geom_point() squares should be made to match
@@ -170,7 +174,8 @@ load("Data/south_africa_coast.RData")
 load("Data/africa_coast.RData")
 load("Data/sa_provinces_new.RData")
 load("Data/site_list_sub.Rdata")
-load("Data/site_pixels.RData")
+load("Data/site_pixels_new.RData")
+# load("Data/site_pixels.RData")
 load("MUR.RData")
 names(south_africa_coast)[1] <- "lon"
 
@@ -179,6 +184,8 @@ wc <- south_africa_coast[291:410,]
 
 site_list_sub <- site_list_sub[-5,]
 
+site_list_sub_map <- site_list_sub %>% 
+  select(site,lat,lon)
 
 # Setting up the theme
 theme_set(theme_bw())
@@ -189,12 +196,15 @@ limits <- c(12,28) # for colour bar
 sa_lats <- c(-37, -27); sa_lons <- c(14, 25)
 
 site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) + bw_update +
-  geom_raster(data = MUR, aes(x = lon, y = lat, fill = temp)) +
+  # geom_raster(data = MUR, aes(x = lon, y = lat, fill = temp)) +
    geom_polygon(data = south_africa_coast, aes(x = lon, y = lat, group = group),
                 fill = "grey", colour = "grey", size = 0.1, show.legend = FALSE) +
   geom_point(data = site_list_sub, aes(x = lon, y = lat), alpha = 0.8, size = 5) +
   geom_point(data = site_pixels, aes(x = lon, y = lat), colour = "white", shape = 0, alpha = 0.8, size = 2.1) +
-  coord_equal(xlim = c(15, 25), ylim = c(-36,-26), expand = 0) +
+  geom_label_repel(data =site_list_sub_map, aes(x = lon, y = lat, label = site), 
+                     size = 4, box.padding = 2, nudge_x = -0.5, nudge_y = 0.2, 
+                     segment.alpha = 0.4, force = 0.1) +
+  coord_equal(xlim = c(12, 23), ylim = c(-36,-26), expand = 0) +
   # geom_rect(data = bbox, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
   #           alpha = 0.4, colour = "red", size = 0.1, linetype = 1) +
   # scale_x_continuous(limits = sa_lons, expand = c(0, 0), breaks = seq(15, 35, 5)) +
@@ -208,7 +218,7 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) + bw_update
   #            size = 4, angle = 0, colour = "black") +
     annotate("text", label = "ATLANTIC\nOCEAN", x = 17.00, y = -35.0,
              size =6, angle = 0, colour = "black") +
-    annotate("text", label = "Benguela", x = 16.0, y = -31.7,
+    annotate("text", label = "Benguela", x = 14.0, y = -29.5,
              size = 6, angle = 302, colour = "black") +
     # annotate("text", label = "Agulhas", x = 31.7, y = -31.7,
     #          size = 5, angle = 50, colour = "black") +
@@ -242,31 +252,87 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) + bw_update
         axis.ticks = element_line(size = 0.5))
 site_map 
 
-pdf("Figures/site_map.pdf", width = 10, height = 7, pointsize = 4) # Set PDF dimensions
-
-
-africa_map <- ggplot(africa_coast, aes(x = lon, y = lat)) + 
-  theme_bw() + 
-  coord_equal() + 
-  geom_polygon(aes(group = group), colour = "black", fill = "grey80") + 
-  geom_polygon(data = sa_provinces_new, (aes(group = group))) +
-  annotate("text", label = "Africa", x = 16.0, y = 15.0, size = 3) + 
-  theme(panel.border = element_rect(colour = "black", size = 0.4), 
-        plot.background = element_blank(), 
-        axis.ticks = element_blank(), 
-        axis.text = element_blank(), 
-        axis.title = element_blank(), 
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank()) +
-  coord_map(xlim = c(-20, 53), ylim = c(-36, 38), projection = "mercator") 
-africa_map
-
-# More mapping - http://r-nold.blogspot.com/2014/06/creating-inset-map-with-ggplot2.html
-
-vp1 <- viewport(x = 0.70, y = 0.58, w = 0.25, h = 0.25) # Africa
-vp2 <- viewport(x = 1.0, y = 1.0, w = 1.00, h = 1.00, just = c("right", "top"))  # South Africa
-print(site_map, vp = vp2)
-print(africa_map, vp = vp1)
-dev.off()
-pdf("Figures/map_fixed.pdf", width = 10, height = 7, pointsize = 4) # Set PDF dimensions
+# pdf("Figures/site_map.pdf", width = 10, height = 7, pointsize = 4) # Set PDF dimensions
+# 
+# 
+# africa_map <- ggplot(africa_coast, aes(x = lon, y = lat)) + 
+#   theme_bw() + 
+#   coord_equal() + 
+#   geom_polygon(aes(group = group), colour = "black", fill = "grey80") + 
+#   geom_polygon(data = sa_provinces_new, (aes(group = group))) +
+#   annotate("text", label = "Africa", x = 16.0, y = 15.0, size = 3) + 
+#   theme(panel.border = element_rect(colour = "black", size = 0.4), 
+#         plot.background = element_blank(), 
+#         axis.ticks = element_blank(), 
+#         axis.text = element_blank(), 
+#         axis.title = element_blank(), 
+#         panel.grid.major = element_blank(), 
+#         panel.grid.minor = element_blank()) +
+#   coord_map(xlim = c(-20, 53), ylim = c(-36, 38), projection = "mercator") 
+# africa_map
+# 
+# # More mapping - http://r-nold.blogspot.com/2014/06/creating-inset-map-with-ggplot2.html
+# 
+# vp1 <- viewport(x = 0.70, y = 0.58, w = 0.25, h = 0.25) # Africa
+# vp2 <- viewport(x = 1.0, y = 1.0, w = 1.00, h = 1.00, just = c("right", "top"))  # South Africa
+# print(site_map, vp = vp2)
+# print(africa_map, vp = vp1)
+# dev.off()
+# pdf("Figures/map_fixed.pdf", width = 10, height = 7, pointsize = 4) # Set PDF dimensions
 ```
+
+# SIte map 2
+
+```{r}
+
+site_list_sub_map <- site_list_sub %>% 
+  select(site,lat,lon)
+
+mapping_plot <- function(df, xy = "salmon"){
+  mapping <- df %>% 
+    ggplot(aes(x = lon, y = lat)) +
+    geom_polygon(data = south_africa_coast, aes(group = group), fill = "white") +
+    coord_cartesian(xlim = c(12, 36), ylim = c(-32, -20)) +
+    geom_path(data = sa_provinces_new, aes(group = group)) +
+    geom_point(data = df, colour = xy, size = 4)  +
+    geom_label_repel(data =df, aes(x = lon, y = lat, label = site), 
+                     size = 6, box.padding = 2, nudge_x = -0.5, nudge_y = 0.2, 
+                     segment.alpha = 0.4, force = 0.1) +
+    coord_equal(xlim = c(15, 35), ylim = c(-37, -27)) +
+    annotate("text", label = "INDIAN\nOCEAN", x = 35.00, y = -34.0, size = 6.0, angle = 0, colour = "black") +
+    annotate("text", label = "ATLANTIC\nOCEAN", x = 16.00, y = -37.0, size = 6.0, angle = 0, colour = "black") +
+    # geom_segment(aes(x = 17.2, y = -32.6, xend = 15.2, yend = -29.5),
+    #               arrow = arrow(length = unit(0.3, "cm")), size = 0.1, colour = "black") +
+    #   annotate("text", label = "Benguela", x = 14.0, y = -31.8, size = 3.5, angle = 298, colour = "black") +
+    #   geom_segment(aes(x = 33, y = -29.5, xend = 29.8, yend = -33.0),
+    #               arrow = arrow(length = unit(0.3, "cm")), size = 0.1, colour = "black") +
+    annotate("text", label = "Agulhas", x = 31.7, y = -31.7, size = 7.5, angle = 53, colour = "black") +
+    scale_x_continuous(labels = scales::unit_format(unit = "°E", sep = "")) +
+    scale_y_continuous(labels = scales::unit_format(unit = "°S", sep = "")) +
+    labs(x = NULL, y = NULL) +
+    coord_cartesian(xlim = c(10.5, 39.5), ylim = c(-39.5, -25.5), expand = F) +
+    scaleBar(lon = 32.0, lat = -38.7, distanceLon = 200, distanceLat = 50, 
+             distanceLegend = 90, dist.unit = "km", arrow.length = 100,
+             arrow.distance = 130, arrow.North.size = 3) +  
+    coord_equal() +
+    theme(aspect.ratio = 1)  +
+    theme_bw() +
+    theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
+          axis.text = element_text(colour = "black", size = 22),
+          axis.title = element_text(colour = "black", size = 22))
+  return(mapping)
+}
+
+Map <- mapping_plot(df = site_list_sub_map, xy = "salmon")
+
+
+```
+
+
+
+
+
+
+
+
+
