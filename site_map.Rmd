@@ -286,45 +286,45 @@ site_map
 
 ```{r}
 
-site_list_sub_map <- site_list_sub %>% 
-  select(site,lat,lon)
-
-mapping_plot <- function(df, xy = "salmon"){
-  mapping <- df %>% 
-    ggplot(aes(x = lon, y = lat)) +
-    geom_polygon(data = south_africa_coast, aes(group = group), fill = "white") +
-    coord_cartesian(xlim = c(12, 36), ylim = c(-32, -20)) +
-    geom_path(data = sa_provinces_new, aes(group = group)) +
-    geom_point(data = df, colour = xy, size = 4)  +
-    geom_label_repel(data =df, aes(x = lon, y = lat, label = site), 
-                     size = 6, box.padding = 2, nudge_x = -0.5, nudge_y = 0.2, 
-                     segment.alpha = 0.4, force = 0.1) +
-    coord_equal(xlim = c(15, 35), ylim = c(-37, -27)) +
-    annotate("text", label = "INDIAN\nOCEAN", x = 35.00, y = -34.0, size = 6.0, angle = 0, colour = "black") +
-    annotate("text", label = "ATLANTIC\nOCEAN", x = 16.00, y = -37.0, size = 6.0, angle = 0, colour = "black") +
-    # geom_segment(aes(x = 17.2, y = -32.6, xend = 15.2, yend = -29.5),
-    #               arrow = arrow(length = unit(0.3, "cm")), size = 0.1, colour = "black") +
-    #   annotate("text", label = "Benguela", x = 14.0, y = -31.8, size = 3.5, angle = 298, colour = "black") +
-    #   geom_segment(aes(x = 33, y = -29.5, xend = 29.8, yend = -33.0),
-    #               arrow = arrow(length = unit(0.3, "cm")), size = 0.1, colour = "black") +
-    annotate("text", label = "Agulhas", x = 31.7, y = -31.7, size = 7.5, angle = 53, colour = "black") +
-    scale_x_continuous(labels = scales::unit_format(unit = "°E", sep = "")) +
-    scale_y_continuous(labels = scales::unit_format(unit = "°S", sep = "")) +
-    labs(x = NULL, y = NULL) +
-    coord_cartesian(xlim = c(10.5, 39.5), ylim = c(-39.5, -25.5), expand = F) +
-    scaleBar(lon = 32.0, lat = -38.7, distanceLon = 200, distanceLat = 50, 
-             distanceLegend = 90, dist.unit = "km", arrow.length = 100,
-             arrow.distance = 130, arrow.North.size = 3) +  
-    coord_equal() +
-    theme(aspect.ratio = 1)  +
-    theme_bw() +
-    theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
-          axis.text = element_text(colour = "black", size = 22),
-          axis.title = element_text(colour = "black", size = 22))
-  return(mapping)
-}
-
-Map <- mapping_plot(df = site_list_sub_map, xy = "salmon")
+# site_list_sub_map <- site_list_sub %>% 
+#   select(site,lat,lon)
+# 
+# mapping_plot <- function(df, xy = "salmon"){
+#   mapping <- df %>% 
+#     ggplot(aes(x = lon, y = lat)) +
+#     geom_polygon(data = south_africa_coast, aes(group = group), fill = "white") +
+#     coord_cartesian(xlim = c(12, 36), ylim = c(-32, -20)) +
+#     geom_path(data = sa_provinces_new, aes(group = group)) +
+#     geom_point(data = df, colour = xy, size = 4)  +
+#     geom_label_repel(data =df, aes(x = lon, y = lat, label = site), 
+#                      size = 6, box.padding = 2, nudge_x = -0.5, nudge_y = 0.2, 
+#                      segment.alpha = 0.4, force = 0.1) +
+#     coord_equal(xlim = c(15, 35), ylim = c(-37, -27)) +
+#     annotate("text", label = "INDIAN\nOCEAN", x = 35.00, y = -34.0, size = 6.0, angle = 0, colour = "black") +
+#     annotate("text", label = "ATLANTIC\nOCEAN", x = 16.00, y = -37.0, size = 6.0, angle = 0, colour = "black") +
+#     # geom_segment(aes(x = 17.2, y = -32.6, xend = 15.2, yend = -29.5),
+#     #               arrow = arrow(length = unit(0.3, "cm")), size = 0.1, colour = "black") +
+#     #   annotate("text", label = "Benguela", x = 14.0, y = -31.8, size = 3.5, angle = 298, colour = "black") +
+#     #   geom_segment(aes(x = 33, y = -29.5, xend = 29.8, yend = -33.0),
+#     #               arrow = arrow(length = unit(0.3, "cm")), size = 0.1, colour = "black") +
+#     annotate("text", label = "Agulhas", x = 31.7, y = -31.7, size = 7.5, angle = 53, colour = "black") +
+#     scale_x_continuous(labels = scales::unit_format(unit = "°E", sep = "")) +
+#     scale_y_continuous(labels = scales::unit_format(unit = "°S", sep = "")) +
+#     labs(x = NULL, y = NULL) +
+#     coord_cartesian(xlim = c(10.5, 39.5), ylim = c(-39.5, -25.5), expand = F) +
+#     scaleBar(lon = 32.0, lat = -38.7, distanceLon = 200, distanceLat = 50, 
+#              distanceLegend = 90, dist.unit = "km", arrow.length = 100,
+#              arrow.distance = 130, arrow.North.size = 3) +  
+#     coord_equal() +
+#     theme(aspect.ratio = 1)  +
+#     theme_bw() +
+#     theme(panel.border = element_rect(fill = NA, colour = "black", size = 1),
+#           axis.text = element_text(colour = "black", size = 22),
+#           axis.title = element_text(colour = "black", size = 22))
+#   return(mapping)
+# }
+# 
+# Map <- mapping_plot(df = site_list_sub_map, xy = "salmon")
 
 
 ```
