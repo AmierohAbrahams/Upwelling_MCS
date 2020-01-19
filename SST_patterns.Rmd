@@ -1093,8 +1093,85 @@ MUR_prep <- month_year_func(df = MUR_final)
 
 ```{r}
 load("Data/Combined_frequency.RData")
+
+# Does not accurately show the months
+# Ned to include distance and product
+
+ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals)) +
+  geom_line(aes(colour = product)) +
+  geom_smooth(aes(colour = product), method = "lm") +
+  facet_wrap(~site) +
+  theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
+
+ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals)) +
+  geom_point(aes(colour = distance)) +
+  geom_smooth(aes(colour = distance), method = "lm") +
+  facet_wrap(~site)+
+  theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
+
+####
+
+combined_frequency_split <- Combined_frequency %>% 
+  separate(date, into = c("month", "year"))
+
+# ggplot(data = combined_frequency_split, aes(x = year, y = number_of_signals)) +
+#   geom_line(aes(colour = month)) +
+#   geom_smooth(aes(colour = month), method = "lm") +
+#   facet_wrap(~site)
 ```
 
+#Pairwise correlations
+Comparing the relaionship of variables within the same sample
+
+  -Correlate the 1st pixel with the second pixel and the first pixel with the last pixel
+  -Correlation of the number of frequencies at different distances at each site
+  
+```{r}
+cor.test(x = Combined_frequency$distance, Combined_frequency$number_of_signals,
+    use = "everything", method = "pearson")
+
+
+slope_calc <- function(df){
+  df %>% 
+    mutate(row_num = 1:n()) %>% 
+    do(mod1 = lm(number_of_signals ~ row_num, data = .),
+       mod2 = lm(distance ~ row_num, data = .),
+       mod3 = lm(distance ~ number_of_signals, data = .),
+       mod4 = cor(.$distance, .$number_of_signals, method = "pearson", use = "complete.obs")[1]) %>% 
+    mutate(distance_slope = summary(mod1)$coeff[2],
+           signal_slope = summary(mod2)$coeff[2],
+           signal_distance_slope = summary(mod3)$coeff[2],
+           signal_distance_r = mod4[1],
+           signal_distance_r2 = glance(mod3)$adj.r.squared) %>%
+    select(-mod1, -mod2, -mod3, -mod4) %>% 
+    mutate_if(is.numeric, round, 2)
+}
+
+distance_corr <- Combined_frequency %>% 
+  group_by(site) %>% 
+  slope_calc()
+
+
+```
+
+#
+
+
+```{r}
+load("Data/OISST_upwell_base.RData")
+load("Data/CMC_upwell_base.RData")
+load("Data/SACTN_upwell_base.RData")
+load("Data/MUR_upwell_base.RData")
+load("Data/G1SST_upwell_base.RData")
+
+    #Why are there no signals in 2011 in the SACTN data?
+    # Why are some signals detected in the SACTN data? Is this because of the intensity of the signals?
+
+
+# Reasons why upwelling might be detected at 10km rather than 50km
+    # Dome in the isotherm blocking upwelling to reach the surface waters but does occur deeper down
+
+```
 
 
 
