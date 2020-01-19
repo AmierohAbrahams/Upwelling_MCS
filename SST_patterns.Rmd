@@ -1170,7 +1170,7 @@ load("Data/G1SST_upwell_base.RData")
 
 # Reasons why upwelling might be detected at 10km rather than 50km
     # Dome in the isotherm blocking upwelling to reach the surface waters but does occur deeper down
-
+# (Figures folder - ig 2 and figure 10)
 ```
 
 
