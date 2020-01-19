@@ -1059,3 +1059,52 @@ plot_loli_func <- function(df){
   - For some of the sites it is seen that fewer upwelling signals are visible at a further distance from the coastline
   - When adding up all the signals observed at their respective distance it is seen that there are only slight differences in the amount of signals detected In some cases the signals detected at 10km from the coastline exceed that detected at 50km and visa versa
 
+## Number of events detected
+
+Using the start date and getting the month and year into a column. The month and year will be on the xaxis
+Then count the number of times per month at different years signals are detected
+
+```{r}
+load("Data/OISST_final.RData")
+load("Data/CMC_final.RData")
+load("Data/SACTN_upwell_base.RData")
+load("Data/MUR_final.RData")
+load("Data/G1SST_final.RData")
+
+month_year_func <- function(df){
+  month_year_func<- df %>% 
+    mutate(month = month(date_start, abbr = T, label = T)) %>% 
+    separate(date_start, into = c("year", "month_no")) %>% 
+    unite(month_year, month,year)
+    # Now need to get the year into a seperate column from the start date. So now date_start is split in the dataset
+}
+
+OISST_prep <- month_year_func(df = OISST_final)
+CMC_prep <- month_year_func(df = CMC_final)
+G1SST_prep <- month_year_func(df = G1SST_final)
+MUR_prep <- month_year_func(df = MUR_final)
+
+# Combined dataset
+# Combined_frequency <- read_excel("Data/Combined_frequency.xlsx")
+# save(Combined_frequency, file = "Data/Combined_frequency.RData")
+```
+
+# Plotting
+
+```{r}
+load("Data/Combined_frequency.RData")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
