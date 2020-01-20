@@ -1104,15 +1104,17 @@ Combined_frequency <- Combined_frequency %>%
 ggplot(data = Combined_frequency, aes(x = t, y = number_of_signals)) +
   geom_line(aes(colour = product)) +
   geom_smooth(aes(colour = product), method = "lm") +
-  facet_wrap(~site) +
-  theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
+  labs(x = NULL) +
+  facet_wrap(~site) #+
+  # theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
 
 ggplot(data = Combined_frequency, aes(x = t, y = number_of_signals)) +
   geom_line(aes(colour = distance)) +
   geom_point(aes(colour = distance)) +
   geom_smooth(aes(colour = distance), method = "lm") +
-  facet_wrap(~site)+
-  theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
+  labs(x = NULL) +
+  facet_wrap(~site) #+
+  # theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
 
 
 ####
