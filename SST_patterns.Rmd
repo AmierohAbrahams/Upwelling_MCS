@@ -1125,12 +1125,11 @@ combined_frequency_split <- Combined_frequency %>%
 Comparing the relaionship of variables within the same sample
 
   -Correlate the 1st pixel with the second pixel and the first pixel with the last pixel
-  -Correlation of the number of frequencies at different distances at each site
+  -Correlation between satellite data and number of signals at the different distances from the coastline
   
 ```{r}
 cor.test(x = Combined_frequency$distance, Combined_frequency$number_of_signals,
     use = "everything", method = "pearson")
-
 
 slope_calc <- function(df){
   df %>% 
@@ -1151,8 +1150,6 @@ slope_calc <- function(df){
 distance_corr <- Combined_frequency %>% 
   group_by(site) %>% 
   slope_calc()
-
-
 ```
 
 #
