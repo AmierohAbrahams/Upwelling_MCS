@@ -1095,7 +1095,7 @@ MUR_prep <- month_year_func(df = MUR_final)
 load("Data/Combined_frequency.RData")
 
 # Does not accurately show the months
-# Ned to include distance and product
+# Plot need to include month_year, number of signals, distance and product ()
 
 ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals)) +
   geom_line(aes(colour = product)) +
