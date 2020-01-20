@@ -1113,8 +1113,6 @@ ggplot(data = Combined_frequency, aes(x = t, y = number_of_signals)) +
   geom_smooth(aes(colour = distance), method = "lm") +
   facet_wrap(~site)+
   theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
-
-
 ####
 
 combined_frequency_split <- Combined_frequency %>% 
