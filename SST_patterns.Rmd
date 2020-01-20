@@ -1096,8 +1096,8 @@ MUR_prep <- month_year_func(df = MUR_final)
 load("Data/Combined_frequency.RData")
 
 Combined_frequency <- Combined_frequency %>%
-mutate(t = parse_date(date, format = "%b_%Y"),
-distance = factor(distance))
+  mutate(t = parse_date(date, format = "%b_%Y"),
+         distance = factor(distance))
 
 # Does not accurately show the months
 # Plot need to include month_year, number of signals, distance and product ()
@@ -1138,25 +1138,36 @@ Comparing the relaionship of variables within the same sample
 
 # chi squared test
 
-combined_freq_spread <- spread(Combined_frequency, distance, number_of_signals)
+load("Data/Combined_frequency.RData")
+
+combined_freq_spread <- pivot_wider(Combined_frequency, names_prefix = "dist_",
+                                    names_from = distance, values_from = number_of_signals)
 
 slope_calc <- function(df){
   df %>% 
-    mutate(row_num = 1:n()) %>% 
-    do(mod1 = lm(number_of_signals ~ row_num, data = .),
-       mod2 = lm(distance ~ row_num, data = .),
-       mod3 = lm(distance ~ number_of_signals, data = .),
-       mod4 = cor(.$distance, .$number_of_signals, method = "pearson", use = "complete.obs")[1]) %>% 
-    mutate(distance_slope = summary(mod1)$coeff[2],
-           signal_slope = summary(mod2)$coeff[2],
-           signal_distance_slope = summary(mod3)$coeff[2],
-           signal_distance_r = mod4[1],
-           signal_distance_r2 = glance(mod3)$adj.r.squared) %>%
-    select(-mod1, -mod2, -mod3, -mod4) %>% 
+    # mutate(row_num = 1:n()) %>% 
+    # do(mod1 = lm(number_of_signals ~ row_num, data = .),
+       # mod2 = lm(distance ~ row_num, data = .),
+       # mod3 = lm(distance ~ number_of_signals, data = .),
+       # mod4 = cor(.$distance, .$number_of_signals, method = "pearson", use = "complete.obs")[1]) %>% 
+        # mutate(distance_slope = summary(mod1)$coeff[2],
+        #    signal_slope = summary(mod2)$coeff[2],
+        #    signal_distance_slope = summary(mod3)$coeff[2],
+        #    signal_distance_r = mod4[1],
+        #    signal_distance_r2 = glance(mod3)$adj.r.squared) %>%
+        # select(-mod1, -mod2, -mod3, -mod4) %>% 
+    do(mod1 = cor(.$dist_10, .$dist_30, method = "pearson", use = "complete.obs"),
+       mod2 = cor(.$dist_10, .$dist_50, method = "pearson", use = "complete.obs")) %>%
+    mutate(dist_10_vs_30_r = mod1[1],
+           dist_10_vs_50_r = mod2[1]) %>% 
+    # select(dist_10_vs_30_r, dist_10_vs_50_r) %>% 
+    select(-mod1, -mod2) %>% 
     mutate_if(is.numeric, round, 2)
 }
 
-distance_corr <- Combined_frequency %>% 
+# test <- cor(combined_freq_spread$`10`, combined_freq_spread$`30`)
+
+distance_corr <- combined_freq_spread %>% 
   group_by(site, product) %>% 
   slope_calc()
 ```
