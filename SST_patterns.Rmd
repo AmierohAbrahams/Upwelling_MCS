@@ -25,6 +25,7 @@ library(gridExtra)
 library(circular)
 library(fossil)
 library(mapproj)
+library(broom)
 # library(ncdf4) # This was used to process NetCDF files in an earlier version
 library(stringr)
 library(doMC); doMC::registerDoMC(cores = 4)
@@ -1094,9 +1095,9 @@ MUR_prep <- month_year_func(df = MUR_final)
 ```{r}
 load("Data/Combined_frequency.RData")
 
-Combined_frequency <- Combined_frequency %>% 
-  mutate(t = parse_date(date, format = "%b_%Y"),
-         distance = factor(distance))
+# Combined_frequency <- Combined_frequency %>% 
+  # mutate(t = parse_date(date, format = "%b_%Y"),
+         # distance = factor(distance))
 
 # Does not accurately show the months
 # Plot need to include month_year, number of signals, distance and product ()
@@ -1155,7 +1156,7 @@ slope_calc <- function(df){
 }
 
 distance_corr <- Combined_frequency %>% 
-  group_by(site) %>% 
+  group_by(site, product) %>% 
   slope_calc()
 ```
 
