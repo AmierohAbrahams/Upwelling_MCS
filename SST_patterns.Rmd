@@ -1094,16 +1094,21 @@ MUR_prep <- month_year_func(df = MUR_final)
 ```{r}
 load("Data/Combined_frequency.RData")
 
+Combined_frequency <- Combined_frequency %>% 
+  mutate(t = parse_date(date, format = "%b_%Y"),
+         distance = factor(distance))
+
 # Does not accurately show the months
 # Plot need to include month_year, number of signals, distance and product ()
 
-ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals)) +
+ggplot(data = Combined_frequency, aes(x = t, y = number_of_signals)) +
   geom_line(aes(colour = product)) +
   geom_smooth(aes(colour = product), method = "lm") +
   facet_wrap(~site) +
   theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
 
-ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals)) +
+ggplot(data = Combined_frequency, aes(x = t, y = number_of_signals)) +
+  geom_line(aes(colour = distance)) +
   geom_point(aes(colour = distance)) +
   geom_smooth(aes(colour = distance), method = "lm") +
   facet_wrap(~site)+
