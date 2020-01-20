@@ -1099,6 +1099,14 @@ Combined_frequency <- Combined_frequency %>%
   mutate(t = parse_date(date, format = "%b_%Y"),
          distance = factor(distance))
 
+ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals)) +
+  geom_boxplot(aes(colour = product)) +
+  theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))+
+  #geom_smooth(aes(colour = product), method = "lm") +
+  #labs(x = NULL) +
+  facet_wrap(~site) 
+
+
 # Does not accurately show the months
 # Plot need to include month_year, number of signals, distance and product ()
 
@@ -1171,27 +1179,6 @@ distance_corr <- combined_freq_spread %>%
   group_by(site, product) %>% 
   slope_calc()
 ```
-
-#
-
-
-```{r}
-load("Data/OISST_upwell_base.RData")
-load("Data/CMC_upwell_base.RData")
-load("Data/SACTN_upwell_base.RData")
-load("Data/MUR_upwell_base.RData")
-load("Data/G1SST_upwell_base.RData")
-
-    #Why are there no signals in 2011 in the SACTN data?
-    # Why are some signals detected in the SACTN data? Is this because of the intensity of the signals?
-
-
-# Reasons why upwelling might be detected at 10km rather than 50km
-    # Dome in the isotherm blocking upwelling to reach the surface waters but does occur deeper down
-# (Figures folder - ig 2 and figure 10)
-```
-
-
 
 
 
