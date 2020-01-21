@@ -1099,13 +1099,22 @@ Combined_frequency <- Combined_frequency %>%
   mutate(t = parse_date(date, format = "%b_%Y"),
          distance = factor(distance))
 
-ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals)) +
+ggplot(data = Combined_frequency, aes(x = distance, y = number_of_signals)) +
   geom_boxplot(aes(colour = product)) +
   theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))+
   #geom_smooth(aes(colour = product), method = "lm") +
   #labs(x = NULL) +
   facet_wrap(~site) 
 
+
+ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals, colour = product)) +
+geom_point(aes(size = distance)) +
+geom_smooth(method = "lm", size = 1.2)
+
+
+ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals, colour = product)) +
+geom_bubble(aes(size = distance)) +
+geom_smooth(method = "lm", size = 1.2)
 
 # Does not accurately show the months
 # Plot need to include month_year, number of signals, distance and product ()
@@ -1116,6 +1125,7 @@ ggplot(data = Combined_frequency, aes(x = t, y = number_of_signals)) +
   labs(x = NULL) +
   facet_wrap(~site) #+
   # theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
+
 
 ggplot(data = Combined_frequency, aes(x = t, y = number_of_signals)) +
   geom_line(aes(colour = distance)) +
@@ -1183,6 +1193,28 @@ distance_corr <- combined_freq_spread %>%
 
 
 
+```{r}
+library(hrbrthemes)
+library(viridis)
+
+Combined_frequency <- Combined_frequency %>%
+  mutate(t = parse_date(date, format = "%b_%Y"),
+         distance = factor(distance))
+ 
+
+ggplot(Combined_frequency, aes(x=t, y=number_of_signals, size=distance, color=product)) +
+  geom_point(alpha=0.5) +
+  facet_wrap(~site) +
+  theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
+
+### Without time
+
+ggplot(Combined_frequency, aes(x=distance, y= number_of_signals, color=product)) +
+  geom_point(alpha=0.5) +
+  facet_wrap(~site) +
+  theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
+
+```
 
 
 
