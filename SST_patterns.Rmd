@@ -1107,14 +1107,10 @@ ggplot(data = Combined_frequency, aes(x = distance, y = number_of_signals)) +
   facet_wrap(~site) 
 
 
-ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals, colour = product)) +
+ggplot(data = Combined_frequency, aes(x = t, y = number_of_signals, colour = product)) +
 geom_point(aes(size = distance)) +
-geom_smooth(method = "lm", size = 1.2)
-
-
-ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals, colour = product)) +
-geom_bubble(aes(size = distance)) +
-geom_smooth(method = "lm", size = 1.2)
+geom_smooth(method = "lm", size = 1.2)+
+theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
 
 # Does not accurately show the months
 # Plot need to include month_year, number of signals, distance and product ()
@@ -1128,6 +1124,14 @@ ggplot(data = Combined_frequency, aes(x = t, y = number_of_signals)) +
 
 
 ggplot(data = Combined_frequency, aes(x = t, y = number_of_signals)) +
+  geom_line(aes(colour = distance)) +
+  geom_point(aes(colour = distance)) +
+  geom_smooth(aes(colour = distance), method = "lm") +
+  # labs(x = NULL) +
+  facet_wrap(~site) #+
+  theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
+  
+  ggplot(data = Combined_frequency, aes(x = date, y = number_of_signals)) +
   geom_line(aes(colour = distance)) +
   geom_point(aes(colour = distance)) +
   geom_smooth(aes(colour = distance), method = "lm") +
@@ -1191,8 +1195,6 @@ distance_corr <- combined_freq_spread %>%
 ```
 
 
-
-
 ```{r}
 library(hrbrthemes)
 library(viridis)
@@ -1207,12 +1209,39 @@ ggplot(Combined_frequency, aes(x=t, y=number_of_signals, size=distance, color=pr
   facet_wrap(~site) +
   theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
 
+ggplot(Combined_frequency, aes(x=date, y=number_of_signals, size=distance, color=product)) +
+  geom_point(alpha=0.5) +
+  facet_wrap(~site) +
+  theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
+
 ### Without time
 
 ggplot(Combined_frequency, aes(x=distance, y= number_of_signals, color=product)) +
   geom_point(alpha=0.5) +
   facet_wrap(~site) +
   theme(axis.text.x = element_text(angle = 90, hjust =1, vjust = 0.5))
+
+```
+
+# Histogram
+
+```{r}
+
+
+combined_frequency_season <- Combined_frequency %>% 
+  mutate(month = month(date, abbr = T, label = T),
+         year = year(date)) %>% 
+  mutate(season = ifelse(month %in% c("Jan", "Feb", "Mar"), "Summer",        
+                           ifelse(month %in% c("Apr", "May", "Jun"), "Autumn",
+                                ifelse(month %in% c("Jul", "Aug", "Sep"), "Winter",
+                                       ifelse(month %in% c("Oct", "Nov", "Dec"), "Spring","Error")))))
+
+
+CMC_dur <- read_excel("Data/CMC_dur.xlsx")
+
+ggplot(data = CMC_dur, aes(x = duration)) +
+  geom_histogram(aes(fill = product)) +
+  facet_wrap(~site)
 
 ```
 
