@@ -1241,9 +1241,11 @@ CMC_dur <- read_excel("Data/CMC_dur.xlsx")
 
 ggplot(data = CMC_dur, aes(x = duration)) +
   geom_histogram(aes(fill = product),  
-                       position="identity", alpha=0.6) +
+                       position = "dodge", alpha=0.6) +
+   labs(x = "Duration (Days)", y = "Number of upwelling signals", colour = "Temperature products") +
   facet_wrap(~site) +
 theme_bw() 
+
 
 
 ggplot(CMC_dur, aes(duration, colour = product)) +
