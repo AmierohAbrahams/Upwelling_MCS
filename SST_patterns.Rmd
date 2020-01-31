@@ -2596,25 +2596,21 @@ CMC_filt_func2 <- filt_func2(CMC_final)
 CMC_binding <- rbind(CMC_filt_func,CMC_filt_func2) #%>% 
  # select(site, product, intensity_mean)
 
+SACTN_upwell_base_ <- read_csv("Data/SACTN_upwell_base .csv") # The SACTN product column was added in 
+
 SACTN_filt_func <- filt_func(SACTN_upwell_base_)
 SACTN_filt_func2 <- filt_func2(SACTN_upwell_base_)
 SACTN_binding <- rbind(SACTN_filt_func,SACTN_filt_func2)# %>% 
 # write.csv(SACTN_binding,'SACTNfinal_data.csv')
 
-Complete_mean_intensity <- rbind(CMC_binding,OISST_binding, G1SST_binding, MUR_binding) #%>% 
-  #select(-heading, - distance, - lat, -lon)
+Complete_mean_intensity <- rbind(CMC_binding,OISST_binding, G1SST_binding, MUR_binding) %>% 
+  ungroup() %>% 
+  select(-heading, - distance, -distance_km)
 
-# write.csv(Complete_mean_intensity ,'Complete_mean_intensity.csv') # Copied this and then removedsome columnss
+#write.csv(Complete_mean_intensity ,'Complete_mean_intensity.csv') # Copied this and then removedsome columnss
 
-Complete_mean_intensity2 <- Complete_mean_intensity2 %>% 
-  select(-distance_km)
-
-final_data <- rbind(Complete_mean_intensity2, SACTN_binding)
-#write.csv(final_data,'final_data.csv')
-
-
-final_intensity <- rbind(SACTN_mean_intensity, Complete_mean_intensity_)
-
+final_data <- rbind(Complete_mean_intensity, SACTN_binding)
+# write.csv(final_data,'final_data.csv')
 
 ```
 
