@@ -2638,5 +2638,14 @@ ggplot(data =final_intensity, aes(x = intensity_mean)) +
 theme_bw() 
 ```
 
+# Linear model
 
+```{r}
+remotes::install_github("moderndive/moderndive")
+
+library(moderndive)
+ Regression <- read_csv("Data/Regression.csv")
+score_model <- lm(intensity_mean ~ no_of_signals, data = Regression)
+final_regression <- get_regression_table(score_model)
+```
 
