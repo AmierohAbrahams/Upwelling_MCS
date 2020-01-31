@@ -1,0 +1,21 @@
+site,product,no_of_signals,intensity_mean
+Lamberts Bay,CMC,41,-2.491
+Port Nolloth,CMC,19,-1.956
+Saldanha Bay,CMC,35,-2.349
+Sea point,CMC,34,-2.74
+Lamberts Bay,OISST,99,-2.598
+Port Nolloth,OISST,79,-2.36
+Saldanha Bay,OISST,101,-2.957
+Sea point,OISST,88,-3.447
+Lamberts Bay,G1SST,138,-2.293
+Port Nolloth,G1SST,123,-1.994
+Saldanha Bay,G1SST,140,-2.139
+Sea point,G1SST,103,-2.313
+Lamberts Bay,MUR,139,-2.294
+Port Nolloth,MUR,94,-1.985
+Saldanha Bay,MUR,130,-2.271
+Sea point,MUR,78,-2.566
+Lamberts Bay,SACTN,14,-2.221
+Port Nolloth,SACTN,6,-2.593
+Saldanha Bay,SACTN,33,-2.397
+Sea point,SACTN,18,-3.982

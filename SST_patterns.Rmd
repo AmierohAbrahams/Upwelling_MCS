@@ -35,6 +35,8 @@ library(ncdf4) # library for processing netCDFs
 library(data.table)
 # library(plyr) # RWS: Never load the plyr package as it interferes with the tidyverse
 library(heatwaveR)
+library(grid)
+library(ggthemes)
 ```
 
 # Loading in all the data created using the code bellow
@@ -48,6 +50,54 @@ OISST <- BC_avhrr_only_v2_Document_Document
 rm(BC_avhrr_only_v2_Document_Document ); gc()
 load("Data/CMC.RData") # 1decimal places
 ```
+
+# PLotting theme
+
+```{r}
+theme_Publication <- function(base_size=14, base_family="helvetica") {
+      library(grid)
+      library(ggthemes)
+      (theme_foundation(base_size=base_size, base_family=base_family)
+       + theme(plot.title = element_text(face = "bold",
+                                         size = rel(1.2), hjust = 0.5),
+               text = element_text(),
+               panel.background = element_rect(colour = NA),
+               plot.background = element_rect(colour = NA),
+               panel.border = element_rect(colour = NA),
+               axis.title = element_text(face = "bold",size = rel(1)),
+               axis.title.y = element_text(angle=90,vjust =2),
+               axis.title.x = element_text(vjust = -0.2),
+               axis.text = element_text(), 
+               axis.line = element_line(colour="black"),
+               axis.ticks = element_line(),
+               panel.grid.major = element_line(colour="#f0f0f0"),
+               panel.grid.minor = element_blank(),
+               legend.key = element_rect(colour = NA),
+               legend.position = "bottom",
+               legend.direction = "horizontal",
+               legend.key.size= unit(0.2, "cm"),
+               legend.margin = unit(0, "cm"),
+               #legend.title = element_text(face="italic"),
+               plot.margin=unit(c(10,5,5,5),"mm"),
+               strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+               strip.text = element_text(face="bold")
+          ))
+      
+}
+
+scale_fill_Publication <- function(...){
+      library(scales)
+      discrete_scale("fill","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33")), ...)
+
+}
+
+scale_colour_Publication <- function(...){
+      library(scales)
+      discrete_scale("colour","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33")), ...)
+
+}
+```
+
 
 ```{r}
 # SACTN_US <- SACTN_US %>% 
@@ -2489,14 +2539,16 @@ combined_frequency_season <- Combined_frequency %>%
                                        ifelse(month %in% c("Oct", "Nov", "Dec"), "Spring","Error")))))
 
 
-CMC_dur <- read_excel("Data/CMC_dur.xlsx")
+CMC_dur <- read_csv("Data/CMC_dur.csv")
 
 ggplot(data = CMC_dur, aes(x = duration)) +
   geom_histogram(aes(fill = product),  
                        position = "dodge", alpha=0.6) +
    labs(x = "Duration (Days)", y = "Number of upwelling signals", colour = "Temperature products") +
   facet_wrap(~site) +
-theme_bw() 
+  scale_colour_Publication()+
+  theme_Publication()
+
 
 
 
@@ -2524,41 +2576,62 @@ filt_func2 <- function(df){
 
 OISST_filt_func <- filt_func(OISST_final)
 OISST_filt_func2 <- filt_func2(OISST_final)
-OISST_binding <- rbind(OISST_filt_func,OISST_filt_func2) %>% 
-  select(site, product, intensity_mean)
+OISST_binding <- rbind(OISST_filt_func,OISST_filt_func2)# %>% 
+ # select(site, product, intensity_mean)
 
 
 MUR_filt_func <- filt_func(MUR_final)
 MUR_filt_func2 <- filt_func2(MUR_final)
-MUR_binding <- rbind(MUR_filt_func,MUR_filt_func2) %>% 
-  select(site, product, intensity_mean)
+MUR_binding <- rbind(MUR_filt_func,MUR_filt_func2)# %>% 
+ # select(site, product, intensity_mean)
 
 G1SST_filt_func <- filt_func(G1SST_final)
 G1SST_filt_func2 <- filt_func2(G1SST_final)
-G1SST_binding <- rbind(G1SST_filt_func,G1SST_filt_func2) %>% 
-  select(site, product, intensity_mean)
+G1SST_binding <- rbind(G1SST_filt_func,G1SST_filt_func2) #%>% 
+  #select(site, product, intensity_mean)
 
 
 CMC_filt_func <- filt_func(CMC_final)
 CMC_filt_func2 <- filt_func2(CMC_final)
-CMC_binding <- rbind(CMC_filt_func,CMC_filt_func2) %>% 
-  select(site, product, intensity_mean)
+CMC_binding <- rbind(CMC_filt_func,CMC_filt_func2) #%>% 
+ # select(site, product, intensity_mean)
 
-#write.csv(SACTN_upwell_base ,'SACTN_upwell_base .csv') # Copied this and then added in a product
-rm(SACTN_upwell_base)
-SACTN_mean_intensity <- SACTN_upwell_base_ %>% 
-  select(site, product, intensity_mean)
+SACTN_filt_func <- filt_func(SACTN_upwell_base_)
+SACTN_filt_func2 <- filt_func2(SACTN_upwell_base_)
+SACTN_binding <- rbind(SACTN_filt_func,SACTN_filt_func2)# %>% 
+# write.csv(SACTN_binding,'SACTNfinal_data.csv')
 
-Complete_mean_intensity <- rbind(CMC_binding,OISST_binding, G1SST_binding, MUR_binding) %>% 
-  select(-heading, - distance, - lat, -lon)
-# write.csv(Complete_mean_intensity ,'Complete_mean_intensity .csv') # Copied this and then removedsome columnss
+Complete_mean_intensity <- rbind(CMC_binding,OISST_binding, G1SST_binding, MUR_binding) #%>% 
+  #select(-heading, - distance, - lat, -lon)
+
+# write.csv(Complete_mean_intensity ,'Complete_mean_intensity.csv') # Copied this and then removedsome columnss
+
+Complete_mean_intensity2 <- Complete_mean_intensity2 %>% 
+  select(-distance_km)
+
+final_data <- rbind(Complete_mean_intensity2, SACTN_binding)
+#write.csv(final_data,'final_data.csv')
+
 
 final_intensity <- rbind(SACTN_mean_intensity, Complete_mean_intensity_)
 
-ggplot(data = final_intensity, aes(x = product, y = intensity_mean)) +
-  geom_point() +
+
+```
+
+# PLotting
+
+```{r}
+
+signals_average <- read_csv("Data/signals_average.csv")
+
+ggplot(data = signals_average, aes(x = no_of_signals, y = intensity_mean)) +
+  geom_point(aes(colour = product), size = 3) +
   geom_smooth(method = "lm") +
-  facet_wrap(~site)
+  facet_wrap(~site) + 
+  labs(x = "Number of signals", y = "Average intensity") +
+  scale_colour_Publication()+
+  theme_Publication()
+
 
 
 ggplot(data =final_intensity, aes(x = intensity_mean)) +
@@ -2568,9 +2641,6 @@ ggplot(data =final_intensity, aes(x = intensity_mean)) +
   facet_wrap(~site) +
 theme_bw() 
 ```
-
-
-
 
 
 
