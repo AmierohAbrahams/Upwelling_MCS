@@ -2605,7 +2605,7 @@ SACTN_binding <- rbind(SACTN_filt_func,SACTN_filt_func2)# %>%
 
 Complete_mean_intensity <- rbind(CMC_binding,OISST_binding, G1SST_binding, MUR_binding) %>% 
   ungroup() %>% 
-  select(-heading, - distance, -distance_km)
+  select(-heading, - distance, -distance_km) # Here I remove distance, Keep if distance is needed
 
 #write.csv(Complete_mean_intensity ,'Complete_mean_intensity.csv') # Copied this and then removedsome columnss
 
