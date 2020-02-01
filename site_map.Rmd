@@ -228,29 +228,31 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
                        labels = scales::unit_format(unit = "°E", sep = "")) +
     scale_y_continuous(expand = c(0, 0),
                        labels = scales::unit_format(unit = "°S", sep = "")) +
-  theme(panel.background = element_rect(fill = "ivory", colour = NA),
-        panel.border = element_rect(colour = "black", size = 0.5),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 12),
-        legend.key = element_blank(),
-        legend.background = element_blank(),
-        axis.ticks = element_line(size = 0.5),
-        axis.text = element_text(size = 12)) +
-    guides(fill = guide_colourbar(barheight = 1.00, barwidth = 10)) +
-  theme(panel.background = element_rect(fill = "ivory", colour = NA),
-        panel.border = element_rect(colour = "black", size = 0.5),
-        panel.grid.minor = element_line(colour = "NA"),
-        panel.grid.major = element_line(colour = "ivory", size = 0.2, linetype = "dotted"),
-        legend.direction = "horizontal",
-        legend.justification = c(1,0),
-        legend.position = c(0.85, 0.70),
-        legend.text = element_text(size = 8),
-        legend.title = element_text(size = 8),
-        legend.key = element_blank(),
-        legend.background = element_blank(),
-        axis.ticks = element_line(size = 0.5))
+  scale_colour_Publication()+
+  theme_Publication() # R publication theme
+  # theme(panel.background = element_rect(fill = "ivory", colour = NA),
+  #       panel.border = element_rect(colour = "black", size = 0.5),
+  #       panel.grid.major = element_blank(),
+  #       panel.grid.minor = element_blank(),
+  #       legend.text = element_text(size = 12),
+  #       legend.title = element_text(size = 12),
+  #       legend.key = element_blank(),
+  #       legend.background = element_blank(),
+  #       axis.ticks = element_line(size = 0.5),
+  #       axis.text = element_text(size = 12)) +
+  #   guides(fill = guide_colourbar(barheight = 1.00, barwidth = 10)) +
+  # theme(panel.background = element_rect(fill = "ivory", colour = NA),
+  #       panel.border = element_rect(colour = "black", size = 0.5),
+  #       panel.grid.minor = element_line(colour = "NA"),
+  #       panel.grid.major = element_line(colour = "ivory", size = 0.2, linetype = "dotted"),
+  #       legend.direction = "horizontal",
+  #       legend.justification = c(1,0),
+  #       legend.position = c(0.85, 0.70),
+  #       legend.text = element_text(size = 8),
+  #       legend.title = element_text(size = 8),
+  #       legend.key = element_blank(),
+  #       legend.background = element_blank(),
+  #       axis.ticks = element_line(size = 0.5))
 site_map 
 
 # pdf("Figures/site_map.pdf", width = 10, height = 7, pointsize = 4) # Set PDF dimensions

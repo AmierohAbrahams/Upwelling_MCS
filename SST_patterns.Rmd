@@ -2624,7 +2624,7 @@ ggplot(data = signals_average, aes(x = no_of_signals, y = intensity_mean)) +
   geom_point(aes(colour = product), size = 3) +
   geom_smooth(method = "lm") +
   facet_wrap(~site) + 
-  labs(x = "Number of signals", y = "Average intensity") +
+  labs(x = "Number of signals ", y = "Average intensity (°C)") +
   scale_colour_Publication()+
   theme_Publication()
 
@@ -2647,5 +2647,22 @@ library(moderndive)
  Regression <- read_csv("Data/Regression.csv")
 score_model <- lm(intensity_mean ~ no_of_signals, data = Regression)
 final_regression <- get_regression_table(score_model)
+
+
+
+  linear_regression <- Regression %>% 
+    gather(key = variable, 
+           value = value,
+           -site) %>%
+    group_by(site, variable) %>%
+    na.omit() %>% 
+    nest() %>%
+    mutate(model = purrr::map(data, ~lm(variable ~ value, data = .))) %>%
+    unnest(model %>% purrr::map(glance)) %>%
+    select(cluster:variable, adj.r.squared, p.value) %>% 
+    arrange(site) %>% 
+    mutate(adj.r.squared = round(adj.r.squared, 2),
+           p.value = round(p.value, 4))
+
 ```
 
