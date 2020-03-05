@@ -480,6 +480,3 @@ SE_monthly %>%
     # Find overlapping time series for each of the data and then run analyses
     # Length of OISST much longer than CMC etc.
     # Allows for good comparison
-    
-# Create a powerpoint for PSSSA -Find in PDF form on Github
-
