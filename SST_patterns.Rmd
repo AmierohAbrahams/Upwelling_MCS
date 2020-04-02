@@ -1121,17 +1121,7 @@ load("Data/CMC_final.RData")
 load("Data/SACTN_upwell_base.RData")
 load("Data/MUR_final.RData")
 load("Data/G1SST_final.RData")
----
-title: "SST_patterns"
-author: "Amieroh Abrahams"
-date: "19 August 2019"
-output: html_document
----
-# This script is for all the various datasets
 
-# Are the same upwelling signals present at different distances from the coastline and throughout the different datasets
-
-```{r}
 knitr::opts_chunk$set(
   comment = "R>",
   warning = FALSE,
@@ -2288,6 +2278,8 @@ load("Data/Combined_frequency.RData")
 combined_freq_spread <- pivot_wider(Combined_frequency, names_prefix = "dist_",
                                     names_from = distance, values_from = number_of_signals)
 
+save(combined_freq_spread, )
+
 slope_calc <- function(df){
   df %>% 
     # mutate(row_num = 1:n()) %>% 
@@ -2315,6 +2307,10 @@ slope_calc <- function(df){
 distance_corr <- combined_freq_spread %>% 
   group_by(site, product) %>% 
   slope_calc()
+
+
+
+
 ```
 
 
@@ -2373,7 +2369,8 @@ theme_bw()
 
 ggplot(CMC_dur, aes(duration, colour = product)) +
   geom_freqpoly() +
-  facet_wrap(~
+  facet_wrap(~ site)
+             
 month_year_func <- function(df){
   month_year_func<- df %>% 
     mutate(month = month(date_start, abbr = T, label = T)) %>% 
@@ -2635,34 +2632,848 @@ ggplot(data =final_intensity, aes(x = intensity_mean)) +
                        position = "dodge", alpha=0.6) +
   # labs(x = "Duration (Days)", y = "Number of upwelling signals", colour = "Temperature products") +
   facet_wrap(~site) +
-theme_bw() 
-```
+theme_bw() ---
+title: "SST_patterns"
+author: "Amieroh Abrahams"
+date: "19 August 2019"
+output: html_document
+---
+# This script is for all the various datasets
 
-# Linear model
+# Are the same upwelling signals present at different distances from the coastline and throughout the different datasets
 
 ```{r}
-remotes::install_github("moderndive/moderndive")
+knitr::opts_chunk$set(
+  comment = "R>",
+  warning = FALSE,
+  message = FALSE 
+)
+#update.packages() 
+library(tidyverse)
+library(lubridate)
+library(ggpubr)
+library(zoo)
+library(FNN)
+library(scales)
+library(gridExtra)
+library(circular)
+library(fossil)
+library(mapproj)
+library(broom)
+# library(ncdf4) # This was used to process NetCDF files in an earlier version
+library(stringr)
+library(doMC); doMC::registerDoMC(cores = 4)
+library(fasttime)
+library(xtable)
+library(ncdf4) # library for processing netCDFs
+library(data.table)
+# library(plyr) # RWS: Never load the plyr package as it interferes with the tidyverse
+library(heatwaveR)
+library(grid)
+library(ggthemes)
+```
 
-library(moderndive)
- Regression <- read_csv("Data/Regression.csv")
-score_model <- lm(intensity_mean ~ no_of_signals, data = Regression)
-final_regression <- get_regression_table(score_model)
+# Loading in all the data created using the code bellow
+
+```{r}
+load("Data/site_list_sub.Rdata")
+load("Data/SACTN_US.RData")
+load("Data/site_pixels.RData") # 5 decimal places
+load("Data/OISST.RData") # 2 decimal places
+OISST <- BC_avhrr_only_v2_Document_Document 
+rm(BC_avhrr_only_v2_Document_Document ); gc()
+load("Data/CMC.RData") # 1decimal places
+```
+
+# PLotting theme
+
+```{r}
+theme_Publication <- function(base_size=14, base_family="helvetica") {
+      library(grid)
+      library(ggthemes)
+      (theme_foundation(base_size=base_size, base_family=base_family)
+       + theme(plot.title = element_text(face = "bold",
+                                         size = rel(1.2), hjust = 0.5),
+               text = element_text(),
+               panel.background = element_rect(colour = NA),
+               plot.background = element_rect(colour = NA),
+               panel.border = element_rect(colour = NA),
+               axis.title = element_text(face = "bold",size = rel(1)),
+               axis.title.y = element_text(angle=90,vjust =2),
+               axis.title.x = element_text(vjust = -0.2),
+               axis.text = element_text(), 
+               axis.line = element_line(colour="black"),
+               axis.ticks = element_line(),
+               panel.grid.major = element_line(colour="#f0f0f0"),
+               panel.grid.minor = element_blank(),
+               legend.key = element_rect(colour = NA),
+               legend.position = "bottom",
+               legend.direction = "horizontal",
+               legend.key.size= unit(0.2, "cm"),
+               legend.margin = unit(0, "cm"),
+               #legend.title = element_text(face="italic"),
+               plot.margin=unit(c(10,5,5,5),"mm"),
+               strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+               strip.text = element_text(face="bold")
+          ))
+      
+}
+
+scale_fill_Publication <- function(...){
+      library(scales)
+      discrete_scale("fill","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33")), ...)
+
+}
+
+scale_colour_Publication <- function(...){
+      library(scales)
+      discrete_scale("colour","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33")), ...)
+
+}
+```
 
 
+```{r}
+# SACTN_US <- SACTN_US %>% 
+#   dplyr::rename(in_situ_temp = temp)
+# 
+# # Visualising the data
+# temp_plot <- function(df){
+#   plot <- ggplot(data = df, aes(x = date, y = in_situ_temp, colour = site)) +
+#     geom_line(aes(group = site)) +
+#     labs(x = "", y = "Temperature (°C)") +
+#     theme(axis.text.x = element_text(angle = 45)) +
+#     theme(legend.position = "top")
+# }
+# 
+# SACTN_plot <- temp_plot(df = SACTN_US)
+# SACTN_plot
 
-  linear_regression <- Regression %>% 
-    gather(key = variable, 
-           value = value,
-           -site) %>%
-    group_by(site, variable) %>%
-    na.omit() %>% 
-    nest() %>%
-    mutate(model = purrr::map(data, ~lm(variable ~ value, data = .))) %>%
-    unnest(model %>% purrr::map(glance)) %>%
-    select(cluster:variable, adj.r.squared, p.value) %>% 
-    arrange(site) %>% 
-    mutate(adj.r.squared = round(adj.r.squared, 2),
-           p.value = round(p.value, 4))
+
+# 25th quantile
+```
+
+Different distances from the coastline
+
+```{r}
+# load("Data/site_list_sub.Rdata")
+# # xtable(site_list_sub, auto = TRUE)
+# west <- site_list_sub
+# west$coast <- "west" # Chnages wc to west
+# 
+# load("Data/africa_coast.RData")
+# 
+# ## Downloading the bathy data from NOAA
+# # Download mid-res bathymetry data
+# # sa_lat <- c(-38, -24.5); sa_lon <- c(11.5, 35.5)
+# # sa_bathy <- as.xyz(getNOAA.bathy(lon1 = sa_lon[1], lon2 = sa_lon[2], lat1 = sa_lat[1], lat2 = sa_lat[2], resolution = 4))
+# # colnames(sa_bathy) <- c("lon", "lat", "depth")
+# # sa_bathy <- sa_bathy[sa_bathy$depth <= 0,]
+# # save(sa_bathy, file = "Data_P1/bathy/sa_bathy.RData")
+# 
+# # Loading in the newly downloaded bathymetry data               
+# load("Data/bathy/sa_bathy.RData")
+
+# # This function takes one site (e.g. one set of lon/lats) and calculates a shore normal transect
+# shore.normal.transect <- function(site, width = 2){
+#   # Find the site on the coastline and it's nearest neighbour points
+#   coords <- data.frame(lon = site$lon, lat = site$lat)
+#   coords2 <- knnx.index(africa_coast[,1:2], as.matrix(coords), k = 1)
+#   coords3 <- data.frame(site = site$site, africa_coast[c(coords2-width, coords2+width),]) 
+#   coords3 <- coords3[2:1,1:3]
+#   # Define the shore normal transect bearing
+#   heading <- earth.bear(coords3[1,2], coords3[1,3], coords3[2,2], coords3[2,3]) + 90
+#   if(heading >= 360){
+#     heading <- heading-360
+#   } else {
+#     heading <- heading
+#   }
+#   heading2 <- data.frame(site = site$site, lon = site$lon, lat = site$lat, heading)
+#   return(heading2)
+# }
+# 
+# # Creating the transects
+# site_transects <- data.frame()
+# for(i in 1:length(west$site)){
+#  site <- west[i,]
+#  site_transect <- shore.normal.transect(site, 2)
+#  site_transects <- rbind(site_transects, site_transect)
+# }
+# 
+# # Manually correcting Sea Point and Kommetjie
+# site_transects$heading[4:5] <- 290 
+# # save(site_transects, file = "Data/site_transects.RData")
+# load("Data/site_transects.RData")
+# 
+# # This function takes one site (e.g. one set of lon/lats) and calculates a shore norm./subal transect
+# # It then extracts a lat/ lon point every X kilometres until reaching a specified isobath
+# 
+# transect.pixel <- function(site, distances){
+#   # Extract coordinates
+#   coords <- data.frame(lon = site$lon, lat = site$lat)
+#   # Find lon/ lats every X metres 
+#   pixels <- data.frame()
+#   # deep <- 999
+#   # distance_multiplier <- 1
+#   # while(deep > isobath){
+#   for(i in 1:length(distances)){
+#     coords2 <- as.data.frame(destPoint(p = coords, b = site$heading, d = distances[i]))
+#     sitesIdx <- knnx.index(sa_bathy[,1:2], as.matrix(coords2), k = 1)
+#     bathy2 <- sa_bathy[sitesIdx,]
+#     bathy2 <- bathy2[complete.cases(bathy2$depth),]
+#     bathy3 <- data.frame(site = site$site, lon = bathy2$lon, lat = bathy2$lat, 
+#                          heading = site$heading, 
+#                          distance = distances[i])
+#     pixels <- rbind(pixels, bathy3)
+#     coords <- coords2
+#   }
+#   if(nrow(pixels) < 1){
+#     pixels <- data.frame(site, depth = NA)
+#   }else{
+#     pixels <- pixels
+#   }+
+
+#   return(pixels)
+# }
+# 
+# # Pixel points
+# site_pixels <- data.frame()
+# for(i in 1:length(west$site)){
+#   site <- site_transects[i,]
+#   site_pixel <- transect.pixel(site, c(10000, 20000, 30000, 40000, 50000)) # RWS: fixed error
+#   site_pixels <- rbind(site_pixels, site_pixel)
+# }
+# 
+# # Bounding box
+#   # Only one is made in order to know how large the the geom_point() squares should be made to match
+# bbox <- data.frame(xmin = destPoint(p = site_pixels[1,2:3], b = 270, d = 12500)[1],
+#                    xmax = destPoint(p = site_pixels[1,2:3], b = 90, d = 12500)[1],
+#                    ymin = destPoint(p = site_pixels[1,2:3], b = 180, d = 12500)[2],
+#                    ymax = destPoint(p = site_pixels[1,2:3], b = 0, d = 12500)[2])
+# 
+# # Determining the temperature at the various distances from the coast
+# 
+# # save(site_pixels, file = "Data/site_pixels.RData")
+# load("Data/site_pixels.RData")
+
 
 ```
+
+# Extrcting the MUR data
+
+```{r}
+# library(stringr)
+# library(tidyverse)
+# library(reshape2)
+# library(ncdf4) # library for processing netCDFs
+# library(plyr)
+# library(lubridate)
+# library(data.table)
+# library(doMC); doMC::registerDoMC(cores = 7)
+# 
+# ncDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily"
+# csvDir <- "/media/amieroh/Seagate Expansion Drive/Extracted G1SST/MUR_extracted"
+# 
+# #          1         2         3         4
+# # 12345678901234567890123456789012345678901
+# # 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
+# 
+# read_nc <- function(ncDir = ncDir, csvDir = csvDir)
+#   ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+#   ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+#   ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+#   strtDate <- str_sub(ncFirst, start = 1, end = 8)
+#   endDate <- str_sub(ncLast, start = 1, end = 8)
+# 
+# # ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020606-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
+# 
+#   ncFun <- function(ncFile = ncFile, csvDir = csvDir) {
+#     nc <- nc_open(ncFile)
+#     pathLen <- nchar(paste0(ncDir, "/")) + 1
+# fNameStem <-
+#   substr(basename(ncFile), 10, 38)
+#     fDate <- substr(basename(ncFile), 1, 8)
+#     sst <- ncvar_get(nc, varid = "analysed_sst") %>%
+#       round(4)
+#     dimnames(sst) <- list(lon = nc$dim$lon$vals,
+#                           lat = nc$dim$lat$vals)
+#     nc_close(nc)
+#     sst <- as_tibble(melt(sst, value.name = "temp"))
+#     sst$t <- ymd(fDate)
+#     na.omit(sst)
+#     fwrite(sst,
+#            file = paste0(csvDir, "/", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+#            append = TRUE, col.names = FALSE)
+#     rm(sst)
+#   }
+# 
+# llply(ncList, ncFun, csvDir = csvDir, .parallel = TRUE)
+
+# MUR <- read_csv("/home/amieroh/Documents/Data/Datasets/MUR/Extracted_MUR/BC-JPL-L4UHfnd-GLOB-v01-fv04-MUR-20020601-20140727.csv")
+# names(MUR)<-c("lon","lat", "temp", "date")
+# MUR <- MUR %>% 
+#   mutate(temp = temp - 273.15)
+# 
+# JPL_L4UHfnd_GLOB_v01_fv04_MUR_20020601_20140727 <- read_csv("~/Documents/JPL-L4UHfnd-GLOB-v01-fv04-MUR-20020601-20140727.csv")
+# 
+# ######################################### SUBSET VIA REGION #################
+# 
+# # bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
+# library(stringr)
+# library(tidyverse)
+# library(reshape2)
+# library(ncdf4) # library for processing netCDFs
+# library(plyr)
+# library(lubridate)
+# library(data.table)
+# library(doMC); doMC::registerDoMC(cores = 7)
+# ncDir <- "/home/amieroh/Documents/Data/Datasets/MUR/daily"
+# csvDir <- "/home/amieroh/Documents/Data/Datasets/MUR/Extracted_MUR"
+# #          1         2         3         4
+# # 12345678901234567890123456789012345678901
+# # 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
+# 
+# # ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020606-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
+#   ncFun <- function(ncFile = ncFile, region = region, csvDir = csvDir) {
+#     coords <- bbox[, region]
+#     nc <- nc_open(ncFile)
+#     pathLen <- nchar(paste0(ncDir, "/")) + 1
+#     fNameStem <-
+#       substr(basename(ncFile), 10, 38)
+#     fDate <- substr(basename(ncFile), 1, 8)
+#     LatIdx <- which(nc$dim$lat$vals > coords[1] & nc$dim$lat$vals < coords[2])
+#     LonIdx <- which(nc$dim$lon$vals > coords[3] & nc$dim$lon$vals < coords[4])
+#     sst <- ncvar_get(nc, varid = "analysed_sst") %>%
+#       round(4)
+#     dimnames(sst) <- list(lon = nc$dim$lon$vals,
+#                           lat = nc$dim$lat$vals)
+#     nc_close(nc)
+#     sst <- as_tibble(melt(sst, value.name = "temp"))
+#     sst$t <- ymd(fDate)
+#     na.omit(sst)
+#     fwrite(sst,
+#            file = paste0(csvDir, "/", region, "-", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+#            append = TRUE, col.names = FALSE)
+#     rm(sst)
+#   }
+#   
+#   
+#   ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+#   ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+#   ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+#   strtDate <- str_sub(ncFirst, start = 1, end = 8)
+#   endDate <- str_sub(ncLast, start = 1, end = 8)  
+#   
+# llply(ncList, ncFun, region = "BC", csvDir = csvDir, .parallel = TRUE)
+```
+
+# Extracting the CMC data
+
+```{r}
+# ncDir <- "/home/amieroh/Documents/Data/Datasets/CMC/CMC_BC"
+# csvDir <- "/home/amieroh/Documents/Data/Datasets/CMC/CMC_extracted"
+# 
+# #          1         2         3         4         5         6
+# # 123456789012345678901234567890123456789012345678901234567890
+# # 20100609-JPL_OUROCEAN-L4UHfnd-GLOB-v01-fv01_0-G1SST_subset.nc
+# read_nc <- function(ncDir = ncDir, csvDir = csvDir) 
+#   ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+#   ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+#   ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+#   strtDate <- str_sub(ncFirst, start = 1, end = 8)
+#   endDate <- str_sub(ncLast, start = 1, end = 8)
+# 
+# # ncFile <- '/home/amieroh/Documents/Data/Datasets/CMC/CMC_BC/20100609-JPL_OUROCEAN-L4UHfnd-GLOB-v01-fv01_0-G1SST_subset.nc'
+# 
+#   ncFun <- function(ncFile = ncFile, csvDir = csvDir) {
+#     nc <- nc_open(ncFile)
+#     pathLen <- nchar(paste0(ncDir, "/")) + 1
+#     fNameStem <-
+#       substr(basename(ncFile), 10, 58)
+#     fDate <- substr(basename(ncFile), 1, 8)
+#     sst <- ncvar_get(nc, varid = "analysed_sst") %>%
+#       round(4)
+#     dimnames(sst) <- list(lon = nc$dim$lon$vals,
+#                           lat = nc$dim$lat$vals)
+#     nc_close(nc)
+#     sst <- as_tibble(melt(sst, value.name = "temp"))
+#     sst$t <- ymd(fDate)
+#     na.omit(sst)
+#     fwrite(sst,
+#            file = paste0(csvDir, "/", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+#            append = TRUE, col.names = FALSE)
+#     rm(sst)
+#   }
+# 
+# llply(ncList, ncFun, csvDir = csvDir, .parallel = TRUE)
+# 
+# 
+# CMC <- read_csv("/home/amieroh/Documents/Data/Datasets/CMC/CMC_extracted/Benguela_current/20000-CMC-L4_GHRSST-SSTfnd-CMC0.2deg-GLOB-v02.0-f-19910901-20170317.csv")
+# names(CMC)<-c("lon","lat", "temp", "date")
+# CMC <- CMC %>% 
+#   mutate(temp = temp - 273.15)
+# 
+# # save(CMC, file = "Data/CMC.RData")
+```
+
+# Extracting the OISST data
+
+```{r}
+# bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
+#                    CC = c(25, 35, 340, 355), # Canary Current
+#                    CalC = c(35, 45, 225, 240), # California Current
+#                    HC = c(-17.5, -7.5, 275, 290), # Humboldt Current
+#                    row.names = c("latmin", "latmax", "lonmin", "lonmax"))
+# 
+# OISST.dir <- "/home/amieroh/Documents/Data/Datasets/OISSTv2/daily/netCDF/avhrr-only"
+# OISST.csv.dir <- "/home/amieroh/Documents/Data/Datasets/OISST_subset"
+# 
+# #          1         2
+# # 1234567890123456789012345
+# # avhrr-only-v2.19810901.nc
+# 
+# # function to extract the dims and data from OISST netCDFs
+# read_nc <- function(ncFile, region = region, csvDir = csvDir) {
+#   coords <- bbox[, region]
+#   nc <- nc_open(ncFile)
+#   pathLen <- nchar(OISST.dir) + 1 # to account for the "/" that needs to be inserted
+#   fNameStem <-
+#     substr(ncFile, pathLen + 1, pathLen + 13)
+#   fDate <- substr(ncFile, pathLen + 15, pathLen + 22)
+#   LatIdx <- which(nc$dim$lat$vals > coords[1] & nc$dim$lat$vals < coords[2])
+#   LonIdx <- which(nc$dim$lon$vals > coords[3] & nc$dim$lon$vals < coords[4])
+#   sst <- ncvar_get(nc,
+#                    varid = "sst",
+#                    start = c(LonIdx[1], LatIdx[1], 1, 1),
+#                    count = c(length(LonIdx), length(LatIdx), 1, 1)) %>%
+#     round(4)
+#   dimnames(sst) <- list(lon = nc$dim$lon$vals[LonIdx],
+#                         lat = nc$dim$lat$vals[LatIdx])
+#   nc_close(nc)
+#   sst <-
+#     as.data.table(melt(sst, value.name = "temp"), row.names = NULL) %>%
+#     mutate(t = ymd(fDate)) %>%
+#     na.omit()
+#   fwrite(sst,
+#          file = paste(csvDir, "/", region, "-", fNameStem, ".", strtDate, "-", endDate, ".csv", sep = ""),
+#          append = TRUE, col.names = FALSE)
+#   rm(sst)
+# }
+# 
+# # the list of files
+# ncList <- list.files(path = OISST.dir, pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+# strtDate <- str_sub(ncList[1], start = 15, end = 22)
+# endDate <- str_sub(ncList[length(ncList)], start = 15, end = 22)
+# 
+# # apply the function
+# system.time(llply(ncList, read_nc, region = "BC", csvDir = OISST.csv.dir, .parallel = TRUE))
+# # system.time(llply(ncList, read_nc, region = "CC", csvDir = OISST.csv.dir, .parallel = TRUE))
+# # system.time(llply(ncList, read_nc, region = "CalC", csvDir = OISST.csv.dir, .parallel = TRUE))
+# # system.time(llply(ncList, read_nc, region = "HC", csvDir = OISST.csv.dir, .parallel = TRUE))
+# 
+# # Loading the data
+# BC_avhrr_only_v2_Document_Document <- read_csv("~/Documents/OISST_subset/BC-avhrr-only-v2.Document-Document.csv" )
+# names(BC_avhrr_only_v2_Document_Document)<-c("lon","lat", "temp", "date")
+# 
+# # Saving the data
+# save(BC_avhrr_only_v2_Document_Document, file = "Data/OISST.RData")
+```
+
+# Extracting G1SST
+
+```{r}
+# bbox <- data.frame(BC = c(-35, -25, 15, 20)) # Benguela Current
+# library(stringr)
+# library(tidyverse)
+# library(reshape2)
+# library(ncdf4) # library for processing netCDFs
+# library(plyr)
+# library(lubridate)
+# library(data.table)
+# library(doMC); doMC::registerDoMC(cores = 7)
+# ncDir <- "/home/amieroh/Documents/Data/Datasets/G1SST/daily"
+# csvDir <- "/media/amieroh/Seagate Expansion Drive/Extracted G1SST"
+# 
+# # #          1         2         3         4
+# # # 12345678901234567890123456789012345678901
+# # # 20020601-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc
+# #          1         2         3         4         5         6
+# # 1234567890123456789012345678901234567890123456789012345678901
+# # 20100609-JPL_OUROCEAN-L4UHfnd-GLOB-v01-fv01_0-G1SST_subset.nc
+# 
+# 
+# # ncFile <- '/home/amieroh/Documents/Data/Datasets/MUR/daily/20020606-JPL-L4UHfnd-GLOB-v01-fv04-MUR.nc'
+#   ncFun <- function(ncFile = ncFile, region = region, csvDir = csvDir) {
+#     coords <- bbox[, region]
+#     nc <- nc_open(ncFile)
+#     pathLen <- nchar(paste0(ncDir, "/")) + 1
+#     fNameStem <-
+#       substr(basename(ncFile), 10, 58)
+#     fDate <- substr(basename(ncFile), 1, 8)
+#     LatIdx <- which(nc$dim$lat$vals > coords[1] & nc$dim$lat$vals < coords[2])
+#     LonIdx <- which(nc$dim$lon$vals > coords[3] & nc$dim$lon$vals < coords[4])
+#     sst <- ncvar_get(nc, varid = "analysed_sst") %>%
+#       round(4)
+#     dimnames(sst) <- list(lon = nc$dim$lon$vals,
+#                           lat = nc$dim$lat$vals)
+#     nc_close(nc)
+#     sst <- as_tibble(melt(sst, value.name = "temp"))
+#     sst$t <- ymd(fDate)
+#     na.omit(sst)
+#     fwrite(sst,
+#            file = paste0(csvDir, "/", region, "-", fNameStem, "-", strtDate, "-", endDate, ".csv"),
+#            append = TRUE, col.names = FALSE)
+#     rm(sst)
+#   }
+# 
+# 
+#   ncList <- list.files(path = paste0(ncDir), pattern = "*.nc", full.names = TRUE, include.dirs = TRUE)
+#   ncFirst <- head(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+#   ncLast <- tail(list.files(path = paste0(ncDir, "/"), pattern = "*.nc", full.names = FALSE), 1)
+#   strtDate <- str_sub(ncFirst, start = 1, end = 8)
+#   endDate <- str_sub(ncLast, start = 1, end = 8)
+# 
+# llply(ncList, ncFun, region = "BC", csvDir = csvDir, .parallel = TRUE)
+
+```
+
+# Using the upwelling metrics created in `upwell.IDX.Rmd` Identify when upwelling occurs at the particular site. 
+# Is this upwelling event seen throughout the different distances from the coastline
+# Using CMC, MUR, OISST and SACTN_US to determine wether the upwelling events detected are present in each of the datasets
+
+## Function
+Determining the temperatures at the various distances from the coastline
+
+```{r}
+# # These following three objects (MUR, OISST, CMC) need to be the complete set of lon/lat values for your satellite data
+# MUR <- MUR %>%
+#   select(lon, lat) %>%
+#   mutate(product = "MUR")
+# 
+# # Decided to work with OISST and CMC as both has a time series of 30years
+OISST_prod <- OISST %>%
+  select(lon, lat) %>%
+  unique() %>%
+  mutate(product = "OISST")
+# 
+CMC_prod <- CMC %>%
+  select(lon, lat) %>%
+  unique() %>%
+  mutate(product = "CMC")
+# 
+sat_data <- rbind(CMC_prod, OISST_prod) %>% 
+#   #rbind(., CMC) %>% 
+select(product, lon, lat)
+# 
+sat_pixels <- sat_data %>%
+select(product, lon, lat) %>%
+unique()
+# 
+# ## For testing the nest/map pipeline
+# # df <- site_pixels %>%
+# #   filter(site == "Lamberts Bay") %>%
+# #   select(-site)
+# 
+match_func <- function(df){
+  df <- df %>%
+    dplyr::rename(lon_site = lon, lat_site = lat)
+  OISST_index <- OISST_prod[as.vector(knnx.index(as.matrix(OISST_prod[,c("lon", "lat")]),
+                                                 as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>%
+    cbind(., df)
+  CMC_index <- CMC_prod[as.vector(knnx.index(as.matrix(CMC_prod[,c("lon", "lat")]),
+                                             as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>%
+    cbind(., df)
+  res <- rbind(OISST_index, CMC_index)
+  return(res)
+}
+
+# # Find the nearest pixels to each spot along the transect
+# # NB: SOme pixels are used more thanonce in a transect as the spacing isn't quite larger enough between transect
+# # points to not fall inside of the same 25 KM pixel
+pixel_match <- site_pixels %>%
+  group_by(site) %>%
+  group_modify(~match_func(.x))
+
+# # You may then use the 'pixel_match' object to filter out the desired pixels from the full satellite products
+OISST_fill <- right_join(OISST, filter(pixel_match, product == "OISST"), by = c("lon", "lat"))
+CMC_fill <- right_join(CMC, filter(pixel_match, product == "CMC"), by = c("lon", "lat"))
+# #SACTN_fill <- right_join(SACTN, filter(pixel_match, product == "SACTN"), by = c("lon", "lat"))
+# 
+# Clean up some RAM space
+rm(OISST, CMC); gc()
+# 
+# # sites <- c("Port Nolloth", "Lamberts Bay", "Saldanha Bay", "Sea Point")
+# # # In the SACTN dataset Hout Bay only has data until 2005. Hout Bay will now be removed from this study
+# # # Hout Bay will be ignored
+selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
+# 
+OISST_fill <- OISST_fill %>%
+  filter(site %in% selected_sites)
+
+CMC_fill <- CMC_fill %>%
+  filter(site %in% selected_sites)
+# 
+# 
+# # All the code below can be viewed in upwell_IDX.Rmd
+# # Next to run upwelling index
+# # UI Created using SAWS wind data (Find in upwell_IDX_Rmd)
+# load("Data/UI_angle.RData")
+# 
+upwelling <- UI_angle %>%
+  dplyr::rename(temp = ui.saws) %>%
+  group_by(site) %>%
+  # mutate(min_t = min(t),
+  #        max_t = max(t)) %>%
+  nest() %>% # apply the following functions to all of the variables in te dataset
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1997-01-01", "2015-12-31")), # creating a column of climatologies. Column will be named clim
+         # NB: A threshold of 3 appeared to be far to strict
+         # purr::map - apllies a function to each element of a vector
+         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  #Upwelling cannot be descrbed as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
+  # Detect consecutive days in exceedance of a given threshold.
+  # mutate() %>%
+  select(-data, -clim) %>%
+  unnest() %>%
+  filter(row_number() %% 2 == 1) %>%
+  unnest() %>% # creates a column for each variables
+  dplyr::rename(ui.saws = temp) %>% # rename upwelling index vale to temp so that it could work with the function
+  select(site, t, ui.saws, exceedance)
+
+# Now applying the Upwelling func
+# NB: This only pulls out the event results and not the climatology results
+# This is done to keep the output tidy because group_modify() may only create data.frame type outputs
+# To create a list output one would use group_map(),
+# but this then loses the labels of which sites etc. the results belong to
+detect_event_custom <- function(df){
+  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 1, coldSpells = T)$event # 1 or 3?
+  return(res)
+}
+# 
+ts2clm_custom <- function(df){
+  # The climatology base period used here is up for debate...
+  # The choice of the 25th percentile threshold also needs to be justified and sensitivty tested
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1992-01-01", "2016-12-31"))
+  return(res)
+}
+# 
+# Calculate the upwelling event metrics
+upwelling_detect_event <- function(df){
+  upwell_base <- df %>%
+    dplyr::rename(t = date) %>%
+    group_by(site, product, heading, distance, lon, lat) %>%
+    group_modify(~ts2clm_custom(.x)) %>%
+    left_join(upwelling, by = c("site", "t")) %>%
+    filter(!is.na(exceedance)) %>%
+    group_by(site, product, heading, distance, lon, lat) %>%
+    group_modify(~detect_event_custom(.x))
+  }
+# 
+OISST_upwell_base <- upwelling_detect_event(df = OISST_fill)
+save(OISST_upwell_base, file = "Data/OISST_upwell_base.RData")
+CMC_upwell_base <- upwelling_detect_event(df = CMC_fill)
+save(CMC_upwell_base, file = "Data/CMC_upwell_base.RData")
+# 
+# Here we remove the site Hout Bay so that we have a long time series. The length of Hout Bay time series ends in 200. Many sites change from here
+SACTN_US <- SACTN_US %>%
+  filter(site %in% selected_sites)
+
+load("Data/site_list_v4.2.RData")
+
+SACTN_upwell_base <- SACTN_US %>%
+  left_join(site_list[,c(4, 5, 6)], by = "index")%>%
+    dplyr::rename(t = date) %>%
+    group_by(site, lon, lat) %>%
+    group_modify(~ts2clm_custom(.x)) %>%
+    left_join(upwelling, by = c("site", "t")) %>%
+    filter(!is.na(exceedance)) %>%
+    group_by(site, lon, lat) %>%
+    group_modify(~detect_event_custom(.x))
+
+save(SACTN_upwell_base, file = "Data/SACTN_upwell_base.RData")
+```
+
+Loading the data
+    This is the data obtained once the upwelling signals were filtered out
+
+```{r}
+load("Data/OISST_upwell_base.RData")
+load("Data/CMC_upwell_base.RData")
+load("Data/SACTN_upwell_base.RData")
+load("Data/MUR_upwell_base.RData")
+load("Data/G1SST_upwell_base.RData")
+
+# Removing the distance of 20 and 40kms
+library(dplyr)
+removing_distance_func <- function(df){
+  removing_dist_func<- df %>% 
+       filter(!distance %in% c(20000,40000))
+}
+
+OISST_final <- removing_distance_func(df = OISST_upwell_base)
+G1SST_final <- removing_distance_func(df = G1SST_upwell_base)
+MUR_final <- removing_distance_func(df = MUR_upwell_base)
+CMC_final <- removing_distance_func(df = CMC_upwell_base)
+
+# save(OISST_final, file = "Data/OISST_final.RData")
+# save(G1SST_final, file = "Data/G1SST_final.RData")
+# save(MUR_final, file = "Data/MUR_final.RData")
+# save(CMC_final, file = "Data/CMC_final.RData")
+```
+
+To accurately compare 
+  Start date CMC start date 1991-09-02 end date 2017-03-15
+  Start date OISST start date 1981-09- 01  and end date 2018-09-28
+  Start date SACTN start date 1973 and end date 2017-12-16
+  
+```{r}
+#glm to determine if there is a difference in the number of events recorded at different at every distance
+
+load("Data/Count/OISST_count.RData")
+load("Data/Count/G1SST_count.RData")
+load("Data/Count/MUR_count.RData")
+load("Data/Count/CMC_count.RData")
+G1SST_count <- G1SST_count %>% 
+  mutate(src = "G1SST")
+
+combined <- rbind(CMC_count,G1SST_count,MUR_count,OISST_count)
+
+options(scipen = 999)
+
+anova_func <- function(df){
+  sites_aov <- aov(distance ~ no_observation * src, data = df)
+return(sites_aov)
+}
+
+combined <- anova_func(df = combined)
+summary(combined)
+
+m_coeff <- function(df){
+  res <- lm(formula = val ~ date_peak, data = df)
+  res_coeff <- round(as.numeric(res$coefficient[2]), 4)
+}
+# Changes in upwelling metrics
+lm_func <- function(df){
+  upwell_lm <- df %>% 
+  select(-c(index_start:index_end)) %>% 
+  gather(key = "var", value = "val", -c(site:date_end)) %>% 
+  group_by(site, var, distance) %>% 
+  nest() %>% 
+  mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  # convert from daily to decadal values
+  mutate(slope = slope * 365.25*10)
+}
+
+OISST_lm <- lm_func(df = OISST_upwell_base)
+CMC_lm <- lm_func(df = CMC_upwell_base)
+
+SACTN_lm <- SACTN_upwell_base %>% 
+  select(-c(index_start:index_end)) %>% 
+  gather(key = "var", value = "val", -c(site:date_end)) %>% 
+  group_by(site, var) %>% 
+  nest() %>% 
+  mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  # convert from daily to decadal values
+  mutate(slope = slope * 365.25*10)
+```
+  
+
+As a common date we will use a start date from 1992-01-31 and end date 16-12-31
+
+```{r}
+# Generalosed linear models
+
+# Generalized Linear Models- Look at the difference in metrics of in situ upwelling and remotely sensed SST data upwelling 
+# Generalized linear models are fit using the glm( ) function. The form of the glm function is glm(formula, family=familytype(link=linkfunction), data=)
+
+# trends_duration_func <- function(df){
+#   upwellmodel <- glm(SACTN_upwell_base$duration[SACTN_upwell_base$event_no] ~ seq(1:length(SACTN_upwell_base$duration[SACTN_upwell_base$event_no])), 
+#                      family = poisson(link = "log"))
+#   upwellmodel0 <- glm(SACTN_upwell_base$duration[SACTN_upwell_base$event_no] ~ 1, family = poisson(link = "log")) # intercept only
+#   dat2 <- data.frame(site = SACTN_upwell_base$site, upwelltrend = round(as.numeric(coef(upwellmodel)[2]*10),1),
+#                        upwellR2 = round(1-logLik(upwellmodel)/logLik(upwellmodel0),2), # McFadden's pseudo-R2
+#                        upwell.val = round(coef(summary(upwellmodel))[,4][2],2))
+# }
+# 
+# OISST_trends_duration_func <- trends_duration_func(df = OISST_upwell_base)
+# CMC_trends_duration_func <- trends_duration_func(df = CMC_upwell_base)
+# SACTN_trends_duration_func <- trends_duration_func(df = SACTN_upwell_base)
+# 
+# 
+# ### Intensity: Chnaged the family and link because of the negative values within the dataset 
+# trends_intensity_func <- function(df){
+#   upwellmodel <- glm(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no] ~ seq(1:length(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no])), 
+#                      family = gaussian(link = "identity"))
+#   upwellmodel0 <- glm(SACTN_upwell_base$intensity_mean[SACTN_upwell_base$event_no] ~ 1, family = gaussian(link = "identity")) # intercept only
+#   dat2 <- data.frame(site = SACTN_upwell_base$site, upwelltrend = round(as.numeric(coef(upwellmodel)[2]*10),1),
+#                        upwellR2 = round(1-logLik(upwellmodel)/logLik(upwellmodel0),2), # McFadden's psesudo-R2
+#                        upwell.val = round(coef(summary(upwellmodel))[,4][2],2))
+# }
+# 
+# OISST_trends_intensity_func <- trends_intensity_func(df = OISST_upwell_base)
+# CMC_trends_intensity_func <- trends_intensity_func(df = CMC_upwell_base)
+# SACTN_trends_intensity_func <- trends_intensity_func(df = SACTN_upwell_base)
+```
+
+# From the years 1992 - 2017
+
+```{r}
+# Which pixels showed the highest upwelling counts within the different datasets
+# Which site showed the most intense upwelling within the different datasets
+
+metric_func <- function(df){
+ metrics <-df %>% 
+  filter(year(date_start) %in% 1992:2017) %>% 
+  #mutate(year = year(date_start)) %>% 
+  group_by(distance, site) %>% 
+  summarise(mean_intensity = mean(intensity_mean),
+            sum_events = sum(event_no)) %>% 
+   select(site, distance, mean_intensity, sum_events)
+}
+
+OISST_metrics <- metric_func(OISST_upwell_base)
+CMC_metrics <- metric_func(CMC_upwell_base)
+
+# No of u pwelling events found at the different sites
+SACTN_metrics <- SACTN_upwell_base %>% 
+  filter(year(date_start) %in% 1992:2017) %>% 
+  group_by(site) %>% 
+  summarise(mean_intensity = mean(intensity_mean),
+            sum_events = sum(event_no)) %>% 
+  select(site, mean_intensity, sum_events)
+
+# Create a table showing these metrics
+
+
+```
+
+## Comparing the relationship between 10 km and 30km from coastline and 10km and 50km from the coastline
+
+```{r}
+
+load("Data/Count/OISST_count.RData")
+load("Data/Count/G1SST_count.RData")
+load("Data/Count/MUR_count.RData")
+load("Data/Count/CMC_count.RData")
+G1SST_count <- G1SST_count %>% 
+  mutate(src = "G1SST")
+
+combined <- rbind(CMC_count,G1SST_count,MUR_count,OISST_count)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -140,7 +140,42 @@ plot_sites <- function(site_list, buffer, title_choice, dist){
                              max(site_list$lat + buffer))) +
     labs(x = "", y = "", colour = "Site\norder") +
     ggtitle(titles[title_choice])
+}south_africa_away_wide <- coastR::transects(site_list_sub, spread = 30)
+
+# Plotting the map
+world_map <- ggplot() + 
+  borders(fill = "grey40", colour = "black")
+
+
+# Create titles
+titles <- c("Shore-normal", "Islands")
+# Plotting function
+plot_sites <- function(site_list, buffer, title_choice, dist){
+  
+  # Find the point 200 km from the site manually to pass to ggplot
+  heading2 <- data.frame(geosphere::destPoint(p = select(site_list, lon, lat),  
+                                              b = site_list$heading, d = dist))
+  
+  # Add the new coordinates tot he site list
+  site_list <- site_list %>% 
+    mutate(lon_dest = heading2$lon,
+           lat_dest = heading2$lat)
+  
+  # Visualise
+  world_map +
+    geom_segment(data = site_list, colour = "red4", 
+                 aes(x = lon, y = lat, xend = lon_dest, yend = lat_dest)) +
+    geom_point(data = site_list, size = 3, colour = "black", aes(x = lon, y = lat)) +
+    geom_point(data = site_list, size = 3, colour = "red", aes(x = lon_dest, y = lat_dest)) +
+    coord_cartesian(xlim = c(min(site_list$lon - buffer), 
+                             max(site_list$lon + buffer)),
+                    ylim = c(min(site_list$lat - buffer), 
+             -                max(site_list$lat + buffer))) +
+    labs(x = "", y = "", colour = "Site\norder") +
+    ggtitle(titles[title_choice])
 }
+south_africa_away <- plot_sites(south_africa_away_wide, 1, 1, 100000)
+south_africa_away
 south_africa_away <- plot_sites(south_africa_away_wide, 1, 1, 100000)
 south_africa_away
 ```
