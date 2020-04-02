@@ -2491,6 +2491,8 @@ slope_calc <- function(df){
 distance_corr <- combined_freq_spread %>% 
   group_by(site, product) %>% 
   slope_calc()
+
+
 ```
 
 
