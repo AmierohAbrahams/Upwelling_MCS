@@ -3465,7 +3465,7 @@ load("Data/CMC_final.RData")
 combined_products <- rbind(OISST_final,CMC_final,MUR_final,G1SST_final)
 
 metric_4years <- combined_products %>% 
-   filter(year(date_start) %in% 2011:2014)
+   filter(year(date_start) %in% 2011:2014) # only for the years 2011-2014 so 4 year period
 
 
 metrics <- metric_4years %>% 
@@ -3478,10 +3478,10 @@ metrics <- metric_4years %>%
   rename(count = y)
 
 
-lmod <- lm(mean_intensity ~ mean_dur, data = metrics)
-summary(lmod)
-
-glht(lmod, linfct = K)
+# lmod <- lm(mean_intensity ~ mean_dur, data = metrics)
+# summary(lmod)
+# 
+# glht(lmod, linfct = K)
 
 ```
 
