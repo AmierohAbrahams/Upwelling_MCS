@@ -2639,12 +2639,7 @@ title: "SST_patterns"
 author: "Amieroh Abrahams"
 date: "19 August 2019"
 output: html_document
----
-# This script is for all the various datasets
 
-# Are the same upwelling signals present at different distances from the coastline and throughout the different datasets
-
-```{r}
 knitr::opts_chunk$set(
   comment = "R>",
   warning = FALSE,
@@ -3427,7 +3422,7 @@ As a common date we will use a start date from 1992-01-31 and end date 16-12-31
 
 metric_func <- function(df){
  metrics <-df %>% 
-  filter(year(date_start) %in% 1992:2017) %>% 
+  filter(year(date_start) %in% 2011:2014) %>% 
   #mutate(year = year(date_start)) %>% 
   group_by(distance, site) %>% 
   summarise(mean_intensity = mean(intensity_mean),
@@ -3438,9 +3433,9 @@ metric_func <- function(df){
 OISST_metrics <- metric_func(OISST_upwell_base)
 CMC_metrics <- metric_func(CMC_upwell_base)
 
-# No of u pwelling events found at the different sites
+# No of upwelling events found at the different sites
 SACTN_metrics <- SACTN_upwell_base %>% 
-  filter(year(date_start) %in% 1992:2017) %>% 
+  filter(year(date_start) %in% 2011:2014) %>% 
   group_by(site) %>% 
   summarise(mean_intensity = mean(intensity_mean),
             sum_events = sum(event_no)) %>% 
@@ -3451,17 +3446,24 @@ SACTN_metrics <- SACTN_upwell_base %>%
 
 ```
 
-## Using series of general linear hypotheses (Hothorn et al., 2008) to look for differences in upwelling signal metrics between datasets and between sites
-# Is there a significant difference in the count between the datasets at a particular site
+## Using series of general linear hypothese to look for differences in upwelling signal metrics between datasets and between sites
+# Is there a significant difference in the duration/intensity etc between the datasets at a particular site
 
 
 ```{r}
-load("Data/OISST_upwell_base.RData")
-load("Data/CMC_upwell_base.RData")
+load("Data/OISST_final.RData")
+load("Data/G1SST_final.RData")
 load("Data/SACTN_upwell_base.RData")
-load("Data/MUR_upwell_base.RData")
-load("Data/G1SST_upwell_base.RData")
+load("Data/MUR_final.RData")
+load("Data/CMC_final.RData")
+
+combined_products <- rbind(OISST_final,CMC_final,SACTN_upwell_base,MUR_final,G1SST_final)
+
+metric_4years <- combined_products %>% 
+   filter(year(date_start) %in% 2011:2014)
+
 ```
+
 
 
 
