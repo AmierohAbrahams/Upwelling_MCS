@@ -3446,21 +3446,42 @@ SACTN_metrics <- SACTN_upwell_base %>%
 
 ```
 
-## Using series of general linear hypothese to look for differences in upwelling signal metrics between datasets and between sites
+## Using series of general linear hypothese to look for differences in upwelling signal metrics between datasets and between sites (?)
 # Is there a significant difference in the duration/intensity etc between the datasets at a particular site
 
 
 ```{r}
+
+library(tidyverse)
+library(multcomp)
+
+
 load("Data/OISST_final.RData")
 load("Data/G1SST_final.RData")
-load("Data/SACTN_upwell_base.RData")
+#load("Data/SACTN_upwell_base.RData")
 load("Data/MUR_final.RData")
 load("Data/CMC_final.RData")
 
-combined_products <- rbind(OISST_final,CMC_final,SACTN_upwell_base,MUR_final,G1SST_final)
+combined_products <- rbind(OISST_final,CMC_final,MUR_final,G1SST_final)
 
 metric_4years <- combined_products %>% 
    filter(year(date_start) %in% 2011:2014)
+
+
+metrics <- metric_4years %>% 
+  mutate(year = year(date_start)) %>% 
+  group_by(product, site) %>% 
+  summarise(y = n(),
+            mean_intensity = mean(intensity_mean),
+            mean_dur = mean(duration),
+            mean_cumIn = mean(intensity_cumulative)) %>% 
+  rename(count = y)
+
+
+lmod <- lm(mean_intensity ~ mean_dur, data = metrics)
+summary(lmod)
+
+glht(lmod, linfct = K)
 
 ```
 
