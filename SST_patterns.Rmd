@@ -3451,18 +3451,16 @@ SACTN_metrics <- SACTN_upwell_base %>%
 
 ```
 
-## Comparing the relationship between 10 km and 30km from coastline and 10km and 50km from the coastline
+## Using series of general linear hypotheses (Hothorn et al., 2008) to look for differences in upwelling signal metrics between datasets and between sites
+# Is there a significant difference in the count between the datasets at a particular site
+
 
 ```{r}
-
-load("Data/Count/OISST_count.RData")
-load("Data/Count/G1SST_count.RData")
-load("Data/Count/MUR_count.RData")
-load("Data/Count/CMC_count.RData")
-G1SST_count <- G1SST_count %>% 
-  mutate(src = "G1SST")
-
-combined <- rbind(CMC_count,G1SST_count,MUR_count,OISST_count)
+load("Data/OISST_upwell_base.RData")
+load("Data/CMC_upwell_base.RData")
+load("Data/SACTN_upwell_base.RData")
+load("Data/MUR_upwell_base.RData")
+load("Data/G1SST_upwell_base.RData")
 ```
 
 
