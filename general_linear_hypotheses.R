@@ -51,7 +51,8 @@ lm_metrics <- metrics %>%
   gather(key = "var", value = "val", -c(product:site)) %>% 
   group_by(site, var, product) %>% 
   nest() %>% 
-  mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  #mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  #mutate(model = purrr::map(data, ~lm( ~ value))) %>% 
   select(-data) %>% 
   unnest() 
 
