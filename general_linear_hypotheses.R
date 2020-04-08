@@ -1,5 +1,5 @@
-## Using series of general linear hypothese to look for differences in upwelling signal metrics between datasets and between sites (?)
-## Is there a significant difference in the duration/intensity etc between the datasets at a particular site
+## Using a series of general linear hypotheses to look for differences in upwelling signal metrics between datasets and between sites (?)
+## Is there a significant difference in the duration/intensity etc between the datasets at a particular site?
 
 library(tidyverse)
 library(lubridate)
@@ -7,6 +7,7 @@ library(multcomp)
 options(scipen = 999)
 
 load("Data/OISST_final.RData")
+OISST_final$distance_km <- OISST_final$distance/1000 # This column is missing from this dataframe
 load("Data/G1SST_final.RData")
 #load("Data/SACTN_upwell_base.RData")
 load("Data/MUR_final.RData")
@@ -19,7 +20,7 @@ metric_4years <- combined_products %>%
 
 
 metrics <- metric_4years %>% 
-  mutate(year = year(date_start)) %>% 
+  # mutate(year = year(date_start)) %>% # Why is this here? It is removed in the summarise step.
   group_by(product, site) %>% 
   summarise(y = n(),
             mean_intensity = mean(intensity_mean),
@@ -43,7 +44,7 @@ metrics <- metric_4years %>%
 
 
 lm_coeff <- function(df){
-  res <- lm(formula = val ~  , data = df)
+  res <- lm(formula = val ~  date_peak, data = df)
   res_coeff <- round(as.numeric(res$coefficient[2]), 2)
 }
 
@@ -51,9 +52,9 @@ lm_metrics <- metrics %>%
   gather(key = "var", value = "val", -c(product:site)) %>% 
   group_by(site, var, product) %>% 
   nest() %>% 
-  #mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  # mutate(slope = purrr::map(data, lm_coeff)) %>% # Neither of these lines of code run
   #mutate(model = purrr::map(data, ~lm( ~ value))) %>% 
-  select(-data) %>% 
+  select(-data) %>%
   unnest() 
 
 ### define coefficients of linear function directly
@@ -63,4 +64,12 @@ K
 
 ### set up general linear hypothesis
 glht(lm_metrics, linfct = K)
+
+### Why not just perform a normal ANOVA?
+# Why go to all this extra trouble?
+# I would recommend reading up more on ANOVA
+summary(aov(duration ~ site * product * distance, data = metric_4years))
+summary(aov(intensity_mean ~ site * product * distance, data = metric_4years))
+summary(aov(intensity_max ~ site * product * distance, data = metric_4years))
+summary(aov(intensity_cumulative ~ site * product * distance, data = metric_4years))
 
