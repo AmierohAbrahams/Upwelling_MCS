@@ -219,8 +219,8 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
   #            size = 4, angle = 0, colour = "black") +
     annotate("text", label = "ATLANTIC\nOCEAN", x = 15.00, y = -33.0,
              size =5, angle = 0, colour = "black") +
-    annotate("text", label = "Benguela", x = 15, y = -30,
-             size = 5, angle = 302, colour = "black") +
+    # annotate("text", label = "Benguela", x = 15, y = -30,
+    #          size = 5, angle = 302, colour = "black") +
     # annotate("text", label = "Agulhas", x = 31.7, y = -31.7,
     #          size = 5, angle = 50, colour = "black") +
   guides(fill = guide_colourbar()) +
