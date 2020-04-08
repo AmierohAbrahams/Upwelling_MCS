@@ -28,48 +28,59 @@ metrics <- metric_4years %>%
             mean_cumIn = mean(intensity_cumulative)) %>% 
   rename(count = y)
 
-# anova_func <- function(df){
-#   currents_aov <- aov(mean_intensity ~ mean_dur  * site, data = df)
-#   return(currents_aov)
-# }
-# anova_metrics <- anova_func(df = metrics)
-# summary(anova_metrics)
-# 
-# anova <- function(df){
-#   currents_aov <- aov(mean_intensity ~ mean_dur  * product, data = df)
-#   return(currents_aov)
-# }
-# anova_metrics <- anova(df = metrics)
-# summary(anova_metrics)
-
-
+# Function for extracting slope from linear model
 lm_coeff <- function(df){
-  res <- lm(formula = val ~  date_peak, data = df)
-  res_coeff <- round(as.numeric(res$coefficient[2]), 2)
+  res <- lm(formula = val ~ date_peak, data = df)
+  res_coeff <- as.numeric(res$coefficient[2])
 }
 
-lm_metrics <- metrics %>% 
-  gather(key = "var", value = "val", -c(product:site)) %>% 
-  group_by(site, var, product) %>% 
+# Calculate all of the linear models
+lm_metrics <- metric_4years %>% 
+  ungroup() %>% 
+  dplyr::select(-heading, -c(lon:index_end), -distance_km) %>% 
+  pivot_longer(cols = c(duration, intensity_mean:rate_decline), 
+               names_to = "var", values_to = "val") %>% 
+  group_by(site, product, distance, var) %>% 
   nest() %>% 
-  # mutate(slope = purrr::map(data, lm_coeff)) %>% # Neither of these lines of code run
-  #mutate(model = purrr::map(data, ~lm( ~ value))) %>% 
-  select(-data) %>%
-  unnest() 
+  mutate(slope = purrr::map(data, lm_coeff)) %>% 
+  dplyr::select(-data) %>% 
+  unnest(cols = slope) %>% 
+  # convert from daily to decadal values
+  mutate(slope = round((slope*365.25*10), 2)) %>% 
+  ungroup()
+
+# Cast the results wide for easier use with ANOVA
+lm_metrics_wide <- pivot_wider(lm_metrics, 
+                               id_cols = site:distance, 
+                               names_from = var, values_from = slope)
+
+### test example
+lmod <- lm(Fertility ~ ., data = swiss)
 
 ### define coefficients of linear function directly
-K <- diag(length(coef(lm_metrics)))[-1,]
-rownames(K) <- names(coef(lm_metrics))[-1]
+K <- diag(length(coef(lmod)))[-1,]
+rownames(K) <- names(coef(lmod))[-1]
 K
 
 ### set up general linear hypothesis
-glht(lm_metrics, linfct = K)
+summary(glht(lmod, linfct = K))
 
 ### Why not just perform a normal ANOVA?
 # Why go to all this extra trouble?
 # I would recommend reading up more on ANOVA
-summary(aov(duration ~ site * product * distance, data = metric_4years))
-summary(aov(intensity_mean ~ site * product * distance, data = metric_4years))
-summary(aov(intensity_max ~ site * product * distance, data = metric_4years))
-summary(aov(intensity_cumulative ~ site * product * distance, data = metric_4years))
+summary(aov(duration ~ site + product + distance, data = metric_4years))
+summary(aov(intensity_mean ~ site + product + distance, data = metric_4years))
+summary(aov(intensity_max ~ site + product + distance, data = metric_4years))
+summary(aov(intensity_cumulative ~ site + product + distance, data = metric_4years))
+
+# Here are ANOVAs on the linear model results
+# NB: This is not advisable as these linear models are based on only 4 years of data.
+# That is not enough to draw any conclusions about rates of change over time
+# I suppose the arguments could be made that one is not measuring lon term change, 
+# but rather than the data products should show reasonable agreement for events detected
+# within any gicen year.
+summary(aov(duration ~ site + product + distance, data = lm_metrics_wide))
+summary(aov(intensity_mean ~ site + product + distance, data = lm_metrics_wide))
+summary(aov(intensity_max ~ site + product + distance, data = lm_metrics_wide))
+summary(aov(intensity_cumulative ~ site + product + distance, data = lm_metrics_wide))
 
