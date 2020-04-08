@@ -55,8 +55,6 @@ lm_metrics_wide <- pivot_wider(lm_metrics,
                                names_from = var, values_from = slope)
 
 ### test example
-lmod <- lm(Fertility ~ ., data = swiss)
-
 ### define coefficients of linear function directly
 K <- diag(length(coef(lmod)))[-1,]
 rownames(K) <- names(coef(lmod))[-1]
