@@ -68,11 +68,12 @@ final_combined$count <- as.numeric(final_combined$count)
 
 counts <- read_csv("Data/counts.csv")
 
-ggplot(data = counts, aes(x = duration, y = count)) +
-  geom_boxplot(aes(colour = product)) +
+ggplot(data = combined, aes(x = product,y = duration)) +
+  geom_boxplot(aes(fill = product)) +
   facet_wrap(~site)  +
-  labs(x = "Duration (Days)", y = "Number of upwelling signals", colour = "SST products")+
+  labs(y = "Duration (Days)", x = "SST product")+
   theme_bw()+
+  theme(legend.position="none") +
   theme(axis.text = element_text(size = 12),
         axis.title = element_text(size = 12, face = "bold"),
         legend.text = element_text(size = 12),
