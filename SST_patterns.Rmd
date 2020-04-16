@@ -2634,42 +2634,7 @@ ggplot(data =final_intensity, aes(x = intensity_mean)) +
                        position = "dodge", alpha=0.6) +
   # labs(x = "Duration (Days)", y = "Number of upwelling signals", colour = "Temperature products") +
   facet_wrap(~site) +
-theme_bw() ---
-title: "SST_patterns"
-author: "Amieroh Abrahams"
-date: "19 August 2019"
-output: html_document
-
-knitr::opts_chunk$set(
-  comment = "R>",
-  warning = FALSE,
-  message = FALSE 
-)
-#update.packages() 
-library(tidyverse)
-library(lubridate)
-library(ggpubr)
-library(zoo)
-library(FNN)
-library(scales)
-library(gridExtra)
-library(circular)
-library(fossil)
-library(mapproj)
-library(broom)
-# library(ncdf4) # This was used to process NetCDF files in an earlier version
-library(stringr)
-library(doMC); doMC::registerDoMC(cores = 4)
-library(fasttime)
-library(xtable)
-library(ncdf4) # library for processing netCDFs
-library(data.table)
-# library(plyr) # RWS: Never load the plyr package as it interferes with the tidyverse
-library(heatwaveR)
-library(grid)
-library(ggthemes)
 ```
-
 # Loading in all the data created using the code bellow
 
 ```{r}
@@ -3477,44 +3442,6 @@ metrics <- metric_4years %>%
             mean_dur = mean(duration),
             mean_cumIn = mean(intensity_cumulative)) %>% 
   rename(count = y)
-
-# anova_func <- function(df){
-#   currents_aov <- aov(mean_intensity ~ mean_dur  * site, data = df)
-#   return(currents_aov)
-# }
-# anova_metrics <- anova_func(df = metrics)
-# summary(anova_metrics)
-# 
-# anova <- function(df){
-#   currents_aov <- aov(mean_intensity ~ mean_dur  * product, data = df)
-#   return(currents_aov)
-# }
-# anova_metrics <- anova(df = metrics)
-# summary(anova_metrics)
-
-
-lm_coeff <- function(df){
-  res <- lm(formula = val ~  , data = df)
-  res_coeff <- round(as.numeric(res$coefficient[2]), 2)
-}
-
-lm_metrics <- metrics %>% 
-  gather(key = "var", value = "val", -c(product:site)) %>% 
-  group_by(site, var, product) %>% 
-  nest() %>% 
-  mutate(slope = purrr::map(data, lm_coeff)) %>% 
-  select(-data) %>% 
-  unnest() 
-
-### define coefficients of linear function directly
-K <- diag(length(coef(lm_metrics)))[-1,]
-  rownames(K) <- names(coef(lm_metrics))[-1]
-K
-  
-### set up general linear hypothesis
-  glht(lm_metrics, linfct = K)
-
-
 ```
 
 
