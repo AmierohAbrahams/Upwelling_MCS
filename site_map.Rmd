@@ -228,7 +228,7 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
                        labels = scales::unit_format(unit = "°E", sep = "")) +
     scale_y_continuous(expand = c(0, 0),
                        labels = scales::unit_format(unit = "°S", sep = "")) +
-  coord_fixed(ratio = 1, xlim = c(10.5, 39.5), ylim = c(-39.5, -25.5),
+  coord_fixed(ratio = 1, xlim = c(15, 21.5), ylim = c(-35,-27),
                 expand = TRUE) +
   theme(axis.text = element_text(size = rel(1.2), colour = "black"),
         axis.text.x = element_text(vjust = 1),
@@ -237,6 +237,7 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
         axis.title.y = element_text(angle = 90, vjust = 0.3),
         axis.ticks = element_line(colour = "black"),
         axis.ticks.length = unit(0.15, "cm"),
+        axis.ticks.margin = unit(0.1, "cm"),
         panel.background = element_rect(fill = "white", colour = "black", size = 0.5),
         #panel.border = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
