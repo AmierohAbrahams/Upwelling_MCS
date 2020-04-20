@@ -15,12 +15,12 @@ Upwelling is primarily caused by alongshore, equator ward winds. These winds are
 
 $$ UpwellingIndex = μ{(Cosθ − 160)}$$
 
-In this equation μ represents the wind speed (m/s) and θ represents the wind direction which is measured in degrees. The 160 degrees is used as this refers to the angle of the coastline. This equation is largely dependant on wind speed and direction data in order to determing the intensity of the upwelling event. Wind data were obtained daily from the South African Weather Service (SAWS). This wind data was then matched to the date at which temperature were collected. With this data the upwelling index was determined.
+In this equation μ represents the wind speed (m/s) and θ represents the wind direction which is measured in degrees. The 160 degrees is used as this refers to the angle of the coastline. This equation is largely dependant on wind speed and direction data in order to determining the intensity of the upwelling event. Wind data were obtained daily from the South African Weather Service (SAWS). This wind data were then matched to the date at which temperatures were collected. With these data the upwelling index was determined.
 
 # libraries
 
 ```{r}
-# Installling andloading libraries
+# Installing and loading libraries
 
 library(circular)
 ## devtools::install_github("robwschlegel/coastR")
@@ -35,62 +35,60 @@ library(coastR)
   - Use the circular function
   - Determine daily wind data obtained from 3hr intervals
 
-```{r}
-# wind_1 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind1/wind1.txt", na.strings = "",
-#                      col.names = c("station_number", "station_name", "date", "hour", "sub", "speed", "dir"))
-# 
-# wind_2 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind2/wind2.txt", na.strings = "",
-#                      col.names = c("station_number", "station_name", "date", "hour", "sub" ,"speed", "dir"))
-# 
-# wind_3 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind3/wind3.txt", na.strings = "",
-#                      col.names = c("station_number", "station_name", "date", "hour", "sub" ,"speed", "dir"))
-# 
-# # Slecting the important columns for each of the datasets
-# wind_fix <- function(df){
-# wind <- df %>%
-#   select(station_name, date, hour, dir, speed) %>%  #column names
-#   mutate(date = as.Date(as.character(date)),
-#          hour = as.numeric(as.character(hour)),
-#          dir = as.numeric(as.character(dir)),
-#          speed = as.numeric(as.character(speed)))
-# }
-# 
-# wind_1 <- wind_fix(df = wind_1)
-# wind_2 <- wind_fix(df = wind_2)
-# wind_3 <- wind_fix(df = wind_3)
-# 
-# ## Renaming the sites within the wind datasets to match the name of the sites at which seawater temperature was collected
-# ## The wind data was obtained from the SAWS and the wind stations used were the closes stations to which temperature was collected
-# 
-# renaming_sites_1 <- function(df) {
-#   sites <- df %>%
-#       mutate(temp_sites = case_when(station_name == "CAPE TOWN TABLE BAY" ~ "Sea Point",
-#                                     station_name == "CAPE TOWN - ROYAL YACHT CLUB" ~ "Sea Point",
-#                                     station_name  == "PORT NOLLOTH" ~"Port Nolloth",
-#                                     station_name  == "CAPE TOWN SLANGKOP" ~ "Hout Bay",
-#                                     station_name  == "LAMBERTSBAAI NORTIER" ~ "Lamberts Bay",
-#                                     station_name  == "LANGEBAANWEG AWS" ~ "Saldanha Bay"))
-#   return(sites)
-# }
-# 
-# 
-# wind_sitesmatched_1 <-  renaming_sites_1(df = wind_1)
-# wind_sitesmatched_2 <-  renaming_sites_1(df = wind_2)
-# wind_sitesmatched_3 <-  renaming_sites_1(df = wind_3)
-# wind_data <- rbind(wind_sitesmatched_3,wind_sitesmatched_2,wind_sitesmatched_1)
-# save(wind_data, file = "Data/wind_data.RData")
-# 
-# load("Data/wind_data.RData")
-# selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay", "Hout Bay")
-# 
-# wind_daily <- wind_data %>%
-#   # ungroup() %>%
-#   # mutate(date = as.Date(date))%>% # Changing the date to date format
-#   dplyr::group_by(temp_sites, date) %>%
-#   filter(temp_sites %in% selected_sites) %>%  # Matching the sites to wind temp sites
-#   dplyr::summarise(dir_circ = round(mean.circular(circular(dir, units = "degrees")),2), # Direction using the circular function
-#                    mean_speed = round(mean(speed),2)) # Calculating the mean
-# save(wind_daily, file = "Data/wind_daily.RData")
+```{r, eval=FALSE}
+wind_1 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind1/wind1.txt", na.strings = "",
+                     col.names = c("station_number", "station_name", "date", "hour", "sub", "speed", "dir"))
+
+wind_2 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind2/wind2.txt", na.strings = "",
+                     col.names = c("station_number", "station_name", "date", "hour", "sub" ,"speed", "dir"))
+
+wind_3 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind3/wind3.txt", na.strings = "",
+                     col.names = c("station_number", "station_name", "date", "hour", "sub" ,"speed", "dir"))
+
+# Selecting the important columns for each of the datasets
+## Renaming the sites within the wind datasets to match the name of the sites at which seawater temperature was collected
+## The wind data was obtained from the SAWS and the wind stations used were the closes stations to which temperature was collected
+wind_fix <- function(df){
+wind <- df %>%
+  mutate(date = as.Date(as.character(date)),
+         hour = as.numeric(as.character(hour)),
+         dir = as.numeric(as.character(dir)),
+         speed = as.numeric(as.character(speed)),
+         temp_sites = case_when(station_name == "CAPE TOWN TABLE BAY" ~ "Sea Point",
+                                station_name == "CAPE TOWN - ROYAL YACHT CLUB" ~ "Sea Point",
+                                station_name  == "PORT NOLLOTH" ~"Port Nolloth",
+                                station_name  == "CAPE TOWN SLANGKOP" ~ "Hout Bay",
+                                station_name  == "LAMBERTSBAAI NORTIER" ~ "Lamberts Bay",
+                                station_name  == "LANGEBAANWEG AWS" ~ "Saldanha Bay")) %>% 
+  select(temp_sites, date, hour, dir, speed) %>% 
+  drop_na()
+}
+
+wind_fix_1 <- wind_fix(df = wind_1)
+wind_fix_2 <- wind_fix(df = wind_2)
+wind_fix_3 <- wind_fix(df = wind_3)
+
+# Combine and save
+wind_data <- rbind(wind_fix_3, wind_fix_2, wind_fix_1)
+save(wind_data, file = "Data/wind_data.RData")
+
+load("Data/wind_data.RData")
+selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay", "Hout Bay")
+
+# RWS: Please figure out why some wind direction values are returned as NA
+# RWS: Also, it's not enough to just calculate mean speed. It needs to be taken into account with the directions.
+# RWS: Please look through these resources and make corrections accordingly:
+# https://cran.r-project.org/web/packages/rWind/rWind.pdf
+# https://www.kaggle.com/srlightfoote/example-wind-analysis-in-r
+wind_daily <- wind_data %>%
+  # ungroup() %>%
+  # mutate(date = as.Date(date))%>% # Changing the date to date format
+  filter(temp_sites %in% selected_sites) %>%  # Matching the sites to wind temp sites
+  dplyr::group_by(temp_sites, date) %>%
+  dplyr::summarise(dir_circ = round(mean.circular(circular(dir, units = "degrees", 
+                                                           template = 'geographics')),2), # Direction using the circular function
+                   mean_speed = round(mean(speed),2)) # Calculating the mean
+save(wind_daily, file = "Data/wind_daily.RData") 
 ```
 
 # Load wind
@@ -107,17 +105,15 @@ load("Data/site_list_sub.Rdata")
 ```{r}
 # Coast R- function that calculates the angle of the site perpendicular to the coastline
 # Transect function in coastR package finds the angle away or along the coastline
-south_africa_away_wide <- coastR::transects(site_list_sub, spread = 30)
+south_africa_away_wide <- coastR::transects(site_list_sub, spread = 30) %>% 
+  mutate(heading = ifelse(heading < 0, heading+360, heading))
 
 # Plotting the map
 world_map <- ggplot() + 
   borders(fill = "grey40", colour = "black")
 
-
-# Create titles
-titles <- c("Shore-normal", "Islands")
 # Plotting function
-plot_sites <- function(site_list, buffer, title_choice, dist){
+plot_sites <- function(site_list, buffer, dist){
   
   # Find the point 200 km from the site manually to pass to ggplot
   heading2 <- data.frame(geosphere::destPoint(p = select(site_list, lon, lat),  
@@ -138,57 +134,21 @@ plot_sites <- function(site_list, buffer, title_choice, dist){
                              max(site_list$lon + buffer)),
                     ylim = c(min(site_list$lat - buffer), 
                              max(site_list$lat + buffer))) +
-    labs(x = "", y = "", colour = "Site\norder") +
-    ggtitle(titles[title_choice])
-}south_africa_away_wide <- coastR::transects(site_list_sub, spread = 30)
-
-# Plotting the map
-world_map <- ggplot() + 
-  borders(fill = "grey40", colour = "black")
-
-
-# Create titles
-titles <- c("Shore-normal", "Islands")
-# Plotting function
-plot_sites <- function(site_list, buffer, title_choice, dist){
-  
-  # Find the point 200 km from the site manually to pass to ggplot
-  heading2 <- data.frame(geosphere::destPoint(p = select(site_list, lon, lat),  
-                                              b = site_list$heading, d = dist))
-  
-  # Add the new coordinates tot he site list
-  site_list <- site_list %>% 
-    mutate(lon_dest = heading2$lon,
-           lat_dest = heading2$lat)
-  
-  # Visualise
-  world_map +
-    geom_segment(data = site_list, colour = "red4", 
-                 aes(x = lon, y = lat, xend = lon_dest, yend = lat_dest)) +
-    geom_point(data = site_list, size = 3, colour = "black", aes(x = lon, y = lat)) +
-    geom_point(data = site_list, size = 3, colour = "red", aes(x = lon_dest, y = lat_dest)) +
-    coord_cartesian(xlim = c(min(site_list$lon - buffer), 
-                             max(site_list$lon + buffer)),
-                    ylim = c(min(site_list$lat - buffer), 
-             -                max(site_list$lat + buffer))) +
-    labs(x = "", y = "", colour = "Site\norder") +
-    ggtitle(titles[title_choice])
+    labs(x = "", y = "", colour = "Site\norder")
 }
-south_africa_away <- plot_sites(south_africa_away_wide, 1, 1, 100000)
-south_africa_away
-south_africa_away <- plot_sites(south_africa_away_wide, 1, 1, 100000)
+south_africa_away <- plot_sites(south_africa_away_wide, 1, 100000)
 south_africa_away
 ```
 
 # Upwelling indeces using the above formula
 
 ```{r}
-UI_angle <- wind_daily %>%  # Making refeerence to the wind daily datta created above
+UI_angle <- wind_daily %>%  # Making reference to the wind daily data created above
   dplyr::rename(site = sites) %>%  # Renaming sites to site
-  left_join(south_africa_away_wide[,c(2,21)], by = "site") %>%  # Joining wind data to south africa wide data column 2 and 21. by site 
-  dplyr::rename(coast_angle = heading) %>% # Renamingthe column heading to coast_angle
+  left_join(south_africa_away_wide[,c(2,21)], by = "site") %>%  # Joining wind data to South Africa wide data column 2 and 21. by site 
+  drop_na() %>% # removing the na values
+  dplyr::rename(coast_angle = heading) %>% # Renaming the column heading to coast_angle
   mutate(ui.saws = mean_speed * (cos(dir_circ - coast_angle))) %>% # applying the ui formula
-  drop_na %>% # removing the na values
   dplyr::rename(t = date) #renaming date to t
 
 
@@ -204,7 +164,8 @@ UI_angle <- wind_daily %>%  # Making refeerence to the wind daily datta created 
 # Results obtained from UI_angle (Using the perpendicular angle for each site) and the results of wind_UI at -160 (angle of the west coast) appears to be the same
 ```
 
-# Exceedence function heatwaveR - This is done to determine the consecutive number of days at or above what the UI value is meant to be   # Detect consecutive days in exceedance of a given threshold.
+# Exceedence function heatwaveR 
+This is done to determine the consecutive number of days at or above what the UI value is meant to be   # Detect consecutive days in exceedance of a given threshold.
 
 ```{r}
 # Loading the insitu temperature data along the wc
