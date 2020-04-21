@@ -89,6 +89,9 @@ wind_daily <- wind_data %>%
                                                            template = 'geographics')),2),
                                     spw_circ = mean.circular(circular(speed, units = "degrees"))) # Direction using the circular function
 
+library(openair)
+wind_daily_speed <- timeAverage(wind_data, avg.time = "day")
+
 save(wind_daily, file = "Data/wind_daily.RData") 
 ```
 
