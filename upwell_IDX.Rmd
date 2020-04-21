@@ -20,76 +20,75 @@ In this equation μ represents the wind speed (m/s) and θ represents the wind d
 # libraries
 
 ```{r}
-# # Installing and loading libraries
-# 
-# library(circular)
-# ## devtools::install_github("robwschlegel/coastR")
-# library(gridExtra)
-# library(geosphere)
-# library(tidyverse)
-# library(heatwaveR)
-# library(coastR)
-# ```
-# 
-# # Steps
-#   - Use the circular function
-#   - Determine daily wind data obtained from 3hr intervals
-# 
-# ```{r, eval=FALSE}
-# wind_1 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind1/wind1.txt", na.strings = "",
-#                      col.names = c("station_number", "station_name", "date", "hour", "sub", "speed", "dir"))
-# 
-# wind_2 <- read.delim("Documents/Data/Wind_data/wind_data.txt(SAWS)/wind2/wind2.txt", na.strings = "",
-#                      col.names = c("station_number", "station_name", "date", "hour", "sub" ,"speed", "dir"))
-# 
-# wind_3 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind3/wind3.txt", na.strings = "",
-#                      col.names = c("station_number", "station_name", "date", "hour", "sub" ,"speed", "dir"))
-# 
-# # Selecting the important columns for each of the datasets
-# ## Renaming the sites within the wind datasets to match the name of the sites at which seawater temperature was collected
-# ## The wind data was obtained from the SAWS and the wind stations used were the closes stations to which temperature was collected
-# wind_fix <- function(df){
-# wind <- df %>%
-#   mutate(date = as.Date(as.character(date)),
-#          hour = as.numeric(as.character(hour)),
-#          dir = as.numeric(as.character(dir)),
-#          speed = as.numeric(as.character(speed)),
-#          temp_sites = case_when(station_name == "CAPE TOWN TABLE BAY" ~ "Sea Point",
-#                                 station_name == "CAPE TOWN - ROYAL YACHT CLUB" ~ "Sea Point",
-#                                 station_name  == "PORT NOLLOTH" ~"Port Nolloth",
-#                                 station_name  == "CAPE TOWN SLANGKOP" ~ "Hout Bay",
-#                                 station_name  == "LAMBERTSBAAI NORTIER" ~ "Lamberts Bay",
-#                                 station_name  == "LANGEBAANWEG AWS" ~ "Saldanha Bay")) %>% 
-#   dplyr::select(temp_sites, date, hour, dir, speed) %>% 
-#   drop_na()
-# }
-# 
-# wind_fix_1 <- wind_fix(df = wind_1)
-# wind_fix_2 <- wind_fix(df = wind_2)
-# wind_fix_3 <- wind_fix(df = wind_3)
-# 
-# # Combine and save
-# wind_data <- rbind(wind_fix_3, wind_fix_2, wind_fix_1)
-# # save(wind_data, file = "Data/wind_data.RData")
-# selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay") #Removed Hout Bay as this is not one of my sites.
-# 
-# # RWS: Please figure out why some wind direction values are returned as NA
-# # RWS: Also, it's not enough to just calculate mean speed. It needs to be taken into account with the directions.
-# # RWS: Please look through these resources and make corrections accordingly:
-# # https://cran.r-project.org/web/packages/rWind/rWind.pdf
-# # https://www.kaggle.com/srlightfoote/example-wind-analysis-in-r
-# 
-# # Errors in the wind data for Port Nolloth - Recieved the correct wind data with no missing hours
-# 
-# wind_daily <- wind_data %>%
-#   # ungroup() %>%
-#   # mutate(date = as.Date(date))%>% # Changing the date to date format
-#   filter(temp_sites %in% selected_sites) %>%  # Matching the sites to wind temp sites
-#   dplyr::group_by(temp_sites, date) %>%
-#   dplyr::summarise(dir_circ = round(mean.circular(circular(dir, units = "degrees", 
-#                                                            template = 'geographics')),2)) #, # Direction using the circular function
-#                   # mean_speed = round(mean(speed),2)) # Calculating the mean
-# save(wind_daily, file = "Data/wind_daily.RData") 
+# Installing and loading libraries
+
+library(circular)
+## devtools::install_github("robwschlegel/coastR")
+library(gridExtra)
+library(geosphere)
+library(tidyverse)
+library(heatwaveR)
+library(coastR)
+```
+
+# Steps
+  - Use the circular function
+  - Determine daily wind data obtained from 3hr intervals
+
+```{r, eval=FALSE}
+wind_1 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind1/wind1.txt", na.strings = "",
+                     col.names = c("station_number", "station_name", "date", "hour", "sub", "speed", "dir"))
+
+wind_2 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind2/wind2.txt", na.strings = "",
+                     col.names = c("station_number", "station_name", "date", "hour", "sub" ,"speed", "dir"))
+
+wind_3 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind3/wind3.txt", na.strings = "",
+                     col.names = c("station_number", "station_name", "date", "hour", "sub" ,"speed", "dir"))
+
+# Selecting the important columns for each of the datasets
+## Renaming the sites within the wind datasets to match the name of the sites at which seawater temperature was collected
+## The wind data was obtained from the SAWS and the wind stations used were the closes stations to which temperature was collected
+wind_fix <- function(df){
+wind <- df %>%
+  mutate(date = as.Date(as.character(date)),
+         hour = as.numeric(as.character(hour)),
+         dir = as.numeric(as.character(dir)),
+         speed = as.numeric(as.character(speed)),
+         temp_sites = case_when(station_name == "CAPE TOWN TABLE BAY" ~ "Sea Point",
+                                station_name == "CAPE TOWN - ROYAL YACHT CLUB" ~ "Sea Point",
+                                station_name  == "PORT NOLLOTH" ~"Port Nolloth",
+                                station_name  == "CAPE TOWN SLANGKOP" ~ "Hout Bay",
+                                station_name  == "LAMBERTSBAAI NORTIER" ~ "Lamberts Bay",
+                                station_name  == "LANGEBAANWEG AWS" ~ "Saldanha Bay")) %>% 
+  dplyr::select(temp_sites, date, hour, dir, speed) %>% 
+  drop_na()
+}
+
+wind_fix_1 <- wind_fix(df = wind_1)
+wind_fix_2 <- wind_fix(df = wind_2)
+wind_fix_3 <- wind_fix(df = wind_3)
+
+# Combine and save
+wind_data <- rbind(wind_fix_3, wind_fix_2, wind_fix_1)
+save(wind_data, file = "Data/wind_data.RData")
+load("Data/wind_data.RData")
+selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
+
+# RWS: Please figure out why some wind direction values are returned as NA
+# RWS: Also, it's not enough to just calculate mean speed. It needs to be taken into account with the directions.
+# RWS: Please look through these resources and make corrections accordingly:
+# https://cran.r-project.org/web/packages/rWind/rWind.pdf
+# https://www.kaggle.com/srlightfoote/example-wind-analysis-in-r
+wind_daily <- wind_data %>%
+  # ungroup() %>%
+  # mutate(date = as.Date(date))%>% # Changing the date to date format
+  filter(temp_sites %in% selected_sites) %>%  # Matching the sites to wind temp sites
+  dplyr::group_by(temp_sites, date) %>%
+  dplyr::summarise(dir_circ = round(mean.circular(circular(dir, units = "degrees", 
+                                                           template = 'geographics')),2),  # Direction using the circular function
+                  mean_speed = round(mean(speed),2)) # Calculating the mean
+
+save(wind_daily, file = "Data/wind_daily.RData") 
 ```
 
 # Load wind
@@ -116,7 +115,7 @@ world_map <- ggplot() +
   borders(fill = "grey40", colour = "black")
 
 # Plotting function
-# plot_sites <- function(site_list, buffer, dist){
+plot_sites <- function(site_list, buffer, dist){
   
   # Find the point 200 km from the site manually to pass to ggplot
 #   heading2 <- data.frame(geosphere::destPoint(p = select(site_list, lon, lat),  
