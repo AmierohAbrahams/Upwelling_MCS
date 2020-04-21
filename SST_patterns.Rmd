@@ -51,12 +51,12 @@ rm(BC_avhrr_only_v2_Document_Document ); gc()
 load("Data/CMC.RData") # 1decimal places
 load("Data/MUR.RData")
 
-# # ### The temperature products
+# ### The temperature products
 # load("~/Documents/Upwelling_MCS/Data/Final_G1SST.RData") #G1SST
-# load("~/Documents/Upwelling_MCS/Data/Final.RData") # MUR
-# load("~/Documents/Upwelling_MCS/Data/SACTN_US.RData") # SACTN
-# load("~/Documents/Upwelling_MCS/Data/OISST_fill.RData") # OISST
-# load("~/Documents/Upwelling_MCS/Data/CMC_fill.RData") # CMC temperature
+load("~/Documents/Upwelling_MCS/Data/Final.RData") # MUR
+load("~/Documents/Upwelling_MCS/Data/SACTN_US.RData") # SACTN
+load("~/Documents/Upwelling_MCS/Data/OISST_fill.RData") # OISST
+load("~/Documents/Upwelling_MCS/Data/CMC_fill.RData") # CMC temperature
 ```
 
 # PLotting theme
@@ -601,7 +601,7 @@ upwelling <- UI_angle %>%
   # mutate(min_t = min(t),
   #        max_t = max(t)) %>%
   nest() %>% # apply the following functions to all of the variables in te dataset
-  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1997-01-01", "2015-12-31")), # creating a column of climatologies. Column will be named clim
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("2010-06-23", "2014-08-15")), # creating a column of climatologies. Column will be named clim
          # NB: A threshold of 3 appeared to be far to strict
          # purr::map - apllies a function to each element of a vector
          exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  #Upwelling cannot be descrbed as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
@@ -627,7 +627,7 @@ detect_event_custom <- function(df){
 ts2clm_custom <- function(df){
   # The climatology base period used here is up for debate...
   # The choice of the 25th percentile threshold also needs to be justified and sensitivty tested
-  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1992-01-01", "2016-12-31"))
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2010-06-23", "2014-08-15"))
   return(res)
 }
 # 
@@ -647,7 +647,8 @@ OISST_upwell_base <- upwelling_detect_event(df = OISST_fill)
 save(OISST_upwell_base, file = "Data/OISST_upwell_base.RData")
 CMC_upwell_base <- upwelling_detect_event(df = CMC_fill)
 save(CMC_upwell_base, file = "Data/CMC_upwell_base.RData")
-# 
+MUR_upwell_base <- upwelling_detect_event(df = Final)
+
 # Here we remove the site Hout Bay so that we have a long time series. The length of Hout Bay time series ends in 200. Many sites change from here
 SACTN_US <- SACTN_US %>%
   filter(site %in% selected_sites)
