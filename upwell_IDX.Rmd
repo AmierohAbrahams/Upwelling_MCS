@@ -70,8 +70,8 @@ wind_fix_3 <- wind_fix(df = wind_3)
 
 # Combine and save
 wind_data <- rbind(wind_fix_3, wind_fix_2, wind_fix_1)
-save(wind_data, file = "Data/wind_data.RData")
-load("Data/wind_data.RData")
+#save(wind_data, file = "Data/wind_data.RData")
+# load("Data/wind_data.RData")
 selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
 
 # RWS: Please figure out why some wind direction values are returned as NA
@@ -79,14 +79,15 @@ selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
 # RWS: Please look through these resources and make corrections accordingly:
 # https://cran.r-project.org/web/packages/rWind/rWind.pdf
 # https://www.kaggle.com/srlightfoote/example-wind-analysis-in-r
-wind_daily <- wind_data %>%
-  # ungroup() %>%
-  # mutate(date = as.Date(date))%>% # Changing the date to date format
+
+
+
+wind_daily <- wind_data %>% 
   filter(temp_sites %in% selected_sites) %>%  # Matching the sites to wind temp sites
   dplyr::group_by(temp_sites, date) %>%
   dplyr::summarise(dir_circ = round(mean.circular(circular(dir, units = "degrees", 
-                                                           template = 'geographics')),2),  # Direction using the circular function
-                  mean_speed = round(mean(speed),2)) # Calculating the mean
+                                                           template = 'geographics')),2),
+                                    spw_circ = mean.circular(circular(speed, units = "degrees"))) # Direction using the circular function
 
 save(wind_daily, file = "Data/wind_daily.RData") 
 ```
@@ -115,7 +116,7 @@ world_map <- ggplot() +
   borders(fill = "grey40", colour = "black")
 
 # Plotting function
-plot_sites <- function(site_list, buffer, dist){
+# plot_sites <- function(site_list, buffer, dist){
   
   # Find the point 200 km from the site manually to pass to ggplot
 #   heading2 <- data.frame(geosphere::destPoint(p = select(site_list, lon, lat),  
