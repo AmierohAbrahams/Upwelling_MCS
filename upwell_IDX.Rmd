@@ -23,7 +23,9 @@ In this equation μ represents the wind speed (m/s) and θ represents the wind d
 # Installing and loading libraries
 
 library(circular)
+library(foehnix)
 ## devtools::install_github("robwschlegel/coastR")
+## devtools::install_github("retostauffer/Rfoehnix")
 library(gridExtra)
 library(geosphere)
 library(tidyverse)
@@ -89,14 +91,26 @@ wind_daily <- wind_data %>%
                                                            template = 'geographics')),2),
                                     spw_circ = mean.circular(circular(speed, units = "degrees"))) # Direction using the circular function
 
+
+
 library(openair)
 wind_daily_speed <- timeAverage(wind_data, avg.time = "day")
-save(wind_daily, file = "Data/wind_daily.RData") 
+# save(wind_daily, file = "Data/wind_daily.RData") 
 
 
 #Convert Wind Speed and Wind Direction to u/v Wind Components 
 # Then get the daily average and then convert it back?
 # https://rdrr.io/github/retostauffer/Rfoehnix/man/ddff2uv.html
+# Use with zoo
+library("zoo")
+set.seed(100)
+Sys.setenv("TZ" = "UTC")
+## Calculate dd/ff
+wind_data <- wind_data %>% 
+  rename(dd = dir,
+         ff = speed)
+
+uv <- ddff2uv(wind_data)
 ```
 
 # Load wind
