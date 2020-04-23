@@ -79,7 +79,7 @@ selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
 # RWS: Please look through these resources and make corrections accordingly:
 # https://cran.r-project.org/web/packages/rWind/rWind.pdf
 # https://www.kaggle.com/srlightfoote/example-wind-analysis-in-r
-
+  
 
 
 wind_daily <- wind_data %>% 
@@ -91,8 +91,12 @@ wind_daily <- wind_data %>%
 
 library(openair)
 wind_daily_speed <- timeAverage(wind_data, avg.time = "day")
-
 save(wind_daily, file = "Data/wind_daily.RData") 
+
+
+#Convert Wind Speed and Wind Direction to u/v Wind Components 
+# Then get the daily average and then convert it back?
+# https://rdrr.io/github/retostauffer/Rfoehnix/man/ddff2uv.html
 ```
 
 # Load wind
