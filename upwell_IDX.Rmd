@@ -79,48 +79,46 @@ selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
 # RWS: Please figure out why some wind direction values are returned as NA
 # RWS: Also, it's not enough to just calculate mean speed. It needs to be taken into account with the directions.
 # RWS: Please look through these resources and make corrections accordingly:
-# https://cran.r-project.org/web/packages/rWind/rWind.pdf
+# https://cran.r-project.org/web/packages/rWind/rWind.pdfsave(, file = "Data_coastal_angle/wind_daily.RData")
 # https://www.kaggle.com/srlightfoote/example-wind-analysis-in-r
+# The data provided by SAWS already reads wind from the direction which it is blwing
   
-
-
 wind_daily <- wind_data %>% 
   filter(temp_sites %in% selected_sites) %>%  # Matching the sites to wind temp sites
   dplyr::group_by(temp_sites, date) %>%
   dplyr::summarise(dir_circ = round(mean.circular(circular(dir, units = "degrees", 
                                                            template = 'geographics')),2),
                                     spw_circ = mean.circular(circular(speed, units = "degrees"))) # Direction using the circular function
+# save(wind_daily, file = "Data_coast_angle/wind_daily.RData")
 
-
-
-library(openair)
-wind_daily_speed <- timeAverage(wind_data, avg.time = "day")
-# save(wind_daily, file = "Data/wind_daily.RData") 
-
-
-#Convert Wind Speed and Wind Direction to u/v Wind Components 
-# Then get the daily average and then convert it back?
-# https://rdrr.io/github/retostauffer/Rfoehnix/man/ddff2uv.html
-# Use with zoo
-library("zoo")
-set.seed(100)
-Sys.setenv("TZ" = "UTC")
-## Calculate dd/ff
-wind_data <- wind_data %>% 
-  rename(dd = dir,
-         ff = speed)
-
-uv <- ddff2uv(wind_data)
-
-#blowing to
+# library(openair)
+# wind_daily_speed <- timeAverage(wind_data, avg.time = "day")
+# # save(wind_daily, file = "Data/wind_daily.RData") 
+# #Convert Wind Speed and Wind Direction to u/v Wind Components 
+# # Then get the daily average and then convert it back?
+# # https://rdrr.io/github/retostauffer/Rfoehnix/man/ddff2uv.html
+# # Use with zoo
+# 
+# library("zoo")
+# set.seed(100)
+# Sys.setenv("TZ" = "UTC")
+# ## Calculate dd/ff
+# wind_data <- wind_data %>% 
+#   rename(dd = dir,
+#          ff = speed)
+# 
+# uv <- ddff2uv(wind_data)
+# #blowing to
 ```
 
 # Load wind
 
 ```{r}
-load("Data/wind_daily.RData") 
+# load("Data/wind_daily.RData") 
+load("Data_coast_angle/wind_daily.RData") 
 wind_daily <- wind_daily %>%
-  dplyr::rename(sites = temp_sites) %>% 
+  dplyr::rename(sites = temp_sites,
+                mean_speed = spw_circ) %>% 
   drop_na()
 load("Data/site_list_sub.Rdata")
 load("Data/SACTN_US.RData")
@@ -171,14 +169,14 @@ world_map <- ggplot() +
 ```{r}
 UI_angle <- wind_daily %>%  # Making reference to the wind daily data created above
   dplyr::rename(site = sites) %>%  # Renaming sites to site
-  left_join(south_africa_away_wide[,c(2,21)], by = "site") %>%  # Joining wind data to South Africa wide data column 2 and 21. by site 
+  #left_join(south_africa_away_wide[,c(2,21)], by = "site") %>%  # Joining wind data to South Africa wide data column 2 and 21. by site 
   drop_na() %>% # removing the na values
-  dplyr::rename(coast_angle = heading) %>% # Renaming the column heading to coast_angle
-  mutate(ui.saws = mean_speed * (cos(dir_circ - coast_angle))) %>% # applying the ui formula
+  #dplyr::rename(coast_angle = heading) %>% # Renaming the column heading to coast_angle
+  mutate(ui.saws = mean_speed * (cos(dir_circ - 160))) %>% # This is the rientation of the coastal angle for the west coast
   dplyr::rename(t = date) %>% 
   drop_na()#renaming date to t
 
-
+# save(UI_angle, file = "Data_coast_angle/UI_angle.RData")
 
 # save(UI_angle, file = "Data/UI_angle.RData")
 # index <- wind_UI %>%
@@ -214,7 +212,7 @@ SACTN_upwell <- UI_angle %>%
   # mutate(min_t = min(t), 
   #        max_t = max(t)) %>% 
   nest() %>% # apply the following functions to all of the variables in te dataset
-  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1992-01-01", "2016-12-31")), # creating a column of climaatologies. Column will be named clim
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1992-07-09", "2017-12-21")), # creating a column of climaatologies. Column will be named clim
          # NB: A threshold of 3 appeared to be far to strict
          # purr::map - apllies a function to each element of a vector
          exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  #Upwelling cannot be descrbed as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
@@ -264,7 +262,7 @@ SACTN_upwell_base <- SACTN_US %>%
   nest() %>% 
   # The climatology base period used here is up for debate...
   # The choice of the 30th percentile threshold also needs to be justified and sensitivty tested
-  mutate(clim = purrr::map(data, ts2clm, pctile = 25, climatologyPeriod = c("1995-01-01", "2004-12-31"))) %>%
+  mutate(clim = purrr::map(data, ts2clm, pctile = 25, climatologyPeriod = c("1992-07-09", "2005-10-19"))) %>%
   select(-data) %>% 
   unnest() %>%
   left_join(SACTN_upwell, by = c("site", "t")) %>%
@@ -286,6 +284,7 @@ SACTN_upwell_events <- SACTN_upwell_base %>%
   filter(row_number() %% 2 == 0) %>%
   unnest()
 # save(SACTN_upwell_events, file = "Data/SACTN_upwell_events.RData")
+# save(SACTN_upwell_events, file = "Data_coast_angle/SACTN_upwell_events.RData")
 # Unpack the daily climatology results
 SACTN_upwell_clims <- SACTN_upwell_base %>% 
   unnest() %>%
