@@ -87,9 +87,7 @@ wind_daily_tested <- wind_data %>%
 #AA: NA values appear when applying the circular function...
 load(Data_coast_angle/wind_daily_tested.RData)
 
-wind_daily <- wind_data %>% 
-  filter(temp_sites %in% selected_sites) %>%  # Matching the sites to wind temp sites
-  dplyr::group_by(temp_sites, date) %>%
+wind_daily <- wind_daily_tested%>%
   dplyr::summarise(dir_circ = round(mean.circular(circular(dir, units = "degrees", 
                                                            template = 'geographics')),2),
                                     spw_circ = mean.circular(circular(speed, units = "degrees"))) # Direction using the circular function
@@ -97,7 +95,7 @@ wind_daily <- wind_data %>%
 
 # library(openair)
 # wind_daily_speed <- timeAverage(wind_data, avg.time = "day")
-# # save(wind_daily, file = "Data/wind_daily.RData") 
+
 # #Convert Wind Speed and Wind Direction to u/v Wind Components 
 # # Then get the daily average and then convert it back?
 # # https://rdrr.io/github/retostauffer/Rfoehnix/man/ddff2uv.html
@@ -112,7 +110,6 @@ wind_daily <- wind_data %>%
 #          ff = speed)
 # 
 # uv <- ddff2uv(wind_data)
-# #blowing to
 ```
 
 # Load wind
