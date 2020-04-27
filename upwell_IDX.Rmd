@@ -76,12 +76,21 @@ wind_data <- rbind(wind_fix_3, wind_fix_2, wind_fix_1)
 # load("Data/wind_data.RData")
 selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
 
+wind_daily_tested <- wind_data %>% 
+  filter(temp_sites %in% selected_sites) %>%  # Matching the sites to wind temp sites
+  dplyr::group_by(temp_sites, date) 
+
+#save(wind_daily_tested, file = "Data_coast_angle/wind_daily_tested.RData")
+
 # RWS: Also, it's not enough to just calculate mean speed. It needs to be taken into account with the directions.
 # RWS: Please look through these resources and make corrections accordingly:
 # https://cran.r-project.org/web/packages/rWind/rWind.pdfsave(, file = "Data_coastal_angle/wind_daily.RData")
 # https://www.kaggle.com/srlightfoote/example-wind-analysis-in-r
 # The data provided by SAWS already reads wind from the direction which it is blwing
   
+#AA: NA values appear when applying the circular function...
+load(Data_coast_angle/wind_daily_tested.RData)
+
 wind_daily <- wind_data %>% 
   filter(temp_sites %in% selected_sites) %>%  # Matching the sites to wind temp sites
   dplyr::group_by(temp_sites, date) %>%
