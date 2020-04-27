@@ -82,10 +82,6 @@ wind_daily_tested <- wind_data %>%
 
 #save(wind_daily_tested, file = "Data_coast_angle/wind_daily_tested.RData")
 
-# RWS: Also, it's not enough to just calculate mean speed. It needs to be taken into account with the directions.
-# RWS: Please look through these resources and make corrections accordingly:
-# https://cran.r-project.org/web/packages/rWind/rWind.pdfsave(, file = "Data_coastal_angle/wind_daily.RData")
-# https://www.kaggle.com/srlightfoote/example-wind-analysis-in-r
 # The data provided by SAWS already reads wind from the direction which it is blwing
   
 #AA: NA values appear when applying the circular function...
