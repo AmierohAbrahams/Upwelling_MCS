@@ -76,7 +76,6 @@ wind_data <- rbind(wind_fix_3, wind_fix_2, wind_fix_1)
 # load("Data/wind_data.RData")
 selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
 
-# RWS: Please figure out why some wind direction values are returned as NA
 # RWS: Also, it's not enough to just calculate mean speed. It needs to be taken into account with the directions.
 # RWS: Please look through these resources and make corrections accordingly:
 # https://cran.r-project.org/web/packages/rWind/rWind.pdfsave(, file = "Data_coastal_angle/wind_daily.RData")
