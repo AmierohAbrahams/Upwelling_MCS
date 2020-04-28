@@ -118,8 +118,6 @@ total_signals <- combined_products %>%
   summarise(y = n()) %>% 
   rename(count = y)
   
-
-
 # Correlation comparing signals detected at 10km with signals detected at 30km and, signals detected at 10km and 50km
 correlation_signals <- combined_products %>%
   mutate(year = year(date_start)) %>% 
