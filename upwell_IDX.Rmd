@@ -15,22 +15,22 @@ Upwelling is primarily caused by alongshore, equator ward winds. These winds are
 
 $$ UpwellingIndex = μ{(Cosθ − 160)}$$
 
-In this equation μ represents the wind speed (m/s) and θ represents the wind direction which is measured in degrees. The 160 degrees is used as this refers to the angle of the coastline. This equation is largely dependant on wind speed and direction data in order to determining the intensity of the upwelling event. Wind data were obtained daily from the South African Weather Service (SAWS). This wind data were then matched to the date at which temperatures were collected. With these data the upwelling index was determined.
+In this equation μ represents the wind speed (m/s) and θ represents the wind direction which is measured in degrees. The 160 degrees is used as this refers to the angle of the coastline for the West Coast of South Africa (Fielding & Davis, 1989). This equation is dependant on wind speed and direction data in order to determining the intensity of the upwelling event. Wind data were obtained daily from the South African Weather Service (SAWS). These wind data were then matched to the date at which temperatures were collected. With these data the upwelling index was determined.
 
 # libraries
 
 ```{r}
 # Installing and loading libraries
-
-library(circular)
-library(foehnix)
 ## devtools::install_github("robwschlegel/coastR")
 ## devtools::install_github("retostauffer/Rfoehnix")
+library(tidyverse)
+library(circular)
+library(foehnix)
 library(gridExtra)
 library(geosphere)
-library(tidyverse)
 library(heatwaveR)
 library(coastR)
+library(openair)
 ```
 
 # Steps
@@ -77,39 +77,14 @@ wind_data <- rbind(wind_fix_3, wind_fix_2, wind_fix_1)
 selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
 
 wind_daily_tested <- wind_data %>% 
-  filter(temp_sites %in% selected_sites) %>%  # Matching the sites to wind temp sites
-  dplyr::group_by(temp_sites, date) 
+  filter(temp_sites %in% selected_sites) #%>%  # Matching the sites to wind temp sites
+  # dplyr::group_by(temp_sites, date) 
+# save(wind_daily_tested, file = "Data_coast_angle/wind_daily_tested.RData")
 
-#save(wind_daily_tested, file = "Data_coast_angle/wind_daily_tested.RData")
-
-# The data provided by SAWS already reads wind from the direction which it is blwing
-  
-#AA: NA values appear when applying the circular function...
-load(Data_coast_angle/wind_daily_tested.RData)
-
-wind_daily <- wind_daily_tested%>%
-  dplyr::summarise(dir_circ = round(mean.circular(circular(dir, units = "degrees", 
-                                                           template = 'geographics')),2),
-                                    spw_circ = mean.circular(circular(speed, units = "degrees"))) # Direction using the circular function
-# save(wind_daily, file = "Data_coast_angle/wind_daily.RData")
-
-# library(openair)
-# wind_daily_speed <- timeAverage(wind_data, avg.time = "day")
-
-# #Convert Wind Speed and Wind Direction to u/v Wind Components 
-# # Then get the daily average and then convert it back?
-# # https://rdrr.io/github/retostauffer/Rfoehnix/man/ddff2uv.html
-# # Use with zoo
-# 
-# library("zoo")
-# set.seed(100)
-# Sys.setenv("TZ" = "UTC")
-# ## Calculate dd/ff
-# wind_data <- wind_data %>% 
-#   rename(dd = dir,
-#          ff = speed)
-# 
-# uv <- ddff2uv(wind_data)
+# The data provided by SAWS already reads wind from the direction which it is blowing
+# RWS: Great find on this timeAverage function!
+wind_daily <- timeAverage(wind_daily_tested, avg.time = "day", type = "temp_sites", vector.ws = TRUE)
+save(wind_daily, file = "Data_coast_angle/wind_daily.RData")
 ```
 
 # Load wind
@@ -119,7 +94,7 @@ wind_daily <- wind_daily_tested%>%
 load("Data_coast_angle/wind_daily.RData") 
 wind_daily <- wind_daily %>%
   dplyr::rename(sites = temp_sites,
-                mean_speed = spw_circ) %>% 
+                mean_speed = speed) %>% 
   drop_na()
 load("Data/site_list_sub.Rdata")
 load("Data/SACTN_US.RData")
@@ -127,10 +102,13 @@ load("Data/SACTN_US.RData")
 
 # Determining the angle perpendicular to the coastline and plotting it
 
+<!-- RWS: This section is no longer necessary as we decided to go with the static value of 160 -->
+
 ```{r}
 # Coast R- function that calculates the angle of the site perpendicular to the coastline
 # Transect function in coastR package finds the angle away or along the coastline
-south_africa_away_wide <- coastR::transects(site_list_sub, spread = 30) %>% 
+south_africa_along_wide <- coastR::transects(site_list_sub, spread = 30, alongshore = T) 
+south_africa_away_wide <- coastR::transects(site_list_sub, spread = 30, alongshore = F) %>% 
   mutate(heading = ifelse(heading < 0, heading+360, heading))
 
 # Plotting the map
@@ -138,48 +116,54 @@ world_map <- ggplot() +
   borders(fill = "grey40", colour = "black")
 
 # Plotting function
-# plot_sites <- function(site_list, buffer, dist){
-  
+plot_sites <- function(site_list, buffer, dist){
+
   # Find the point 200 km from the site manually to pass to ggplot
-#   heading2 <- data.frame(geosphere::destPoint(p = select(site_list, lon, lat),  
-#                                               b = site_list$heading, d = dist))
-#   
-#   # Add the new coordinates tot he site list
-#   site_list <- site_list %>% 
-#     mutate(lon_dest = heading2$lon,
-#            lat_dest = heading2$lat)
-#   
-#   # Visualise
-#   world_map +
-#     geom_segment(data = site_list, colour = "red4", 
-#                  aes(x = lon, y = lat, xend = lon_dest, yend = lat_dest)) +
-#     geom_point(data = site_list, size = 3, colour = "black", aes(x = lon, y = lat)) +
-#     geom_point(data = site_list, size = 3, colour = "red", aes(x = lon_dest, y = lat_dest)) +
-#     coord_cartesian(xlim = c(min(site_list$lon - buffer), 
-#                              max(site_list$lon + buffer)),
-#                     ylim = c(min(site_list$lat - buffer), 
-#                              max(site_list$lat + buffer))) +
-#     labs(x = "", y = "", colour = "Site\norder")
-# }
-# south_africa_away <- plot_sites(south_africa_away_wide, 1, 100000)
-# south_africa_away
+  heading2 <- data.frame(geosphere::destPoint(p = select(site_list, lon, lat),
+                                              b = site_list$heading, d = dist))
+#
+  # Add the new coordinates tot he site list
+  site_list <- site_list %>%
+    mutate(lon_dest = heading2$lon,
+           lat_dest = heading2$lat)
+#
+  # Visualise
+  world_map +
+    geom_segment(data = site_list, colour = "red4",
+                 aes(x = lon, y = lat, xend = lon_dest, yend = lat_dest)) +
+    geom_point(data = site_list, size = 3, colour = "black", aes(x = lon, y = lat)) +
+    geom_point(data = site_list, size = 3, colour = "red", aes(x = lon_dest, y = lat_dest)) +
+    coord_quickmap(xlim = c(min(site_list$lon - buffer),
+                             max(site_list$lon + buffer)),
+                    ylim = c(min(site_list$lat - buffer),
+                             max(site_list$lat + buffer))) +
+    labs(x = "", y = "", colour = "Site\norder")
+}
+# Perpendicular transects
+south_africa_away <- plot_sites(south_africa_away_wide, 1, 100000)
+south_africa_away
+
+# SHore normal transects
+south_africa_along <- plot_sites(south_africa_along_wide, 1, 100000)
+south_africa_along
 ```
 
 # Upwelling indeces using the above formula
 
 ```{r}
-UI_angle <- wind_daily %>%  # Making reference to the wind daily data created above
+# RWS: the cos() function works on radians, not degrees.
+UI_angle <- wind_daily %>% # Making reference to the wind daily data created above
   dplyr::rename(site = sites) %>%  # Renaming sites to site
   #left_join(south_africa_away_wide[,c(2,21)], by = "site") %>%  # Joining wind data to South Africa wide data column 2 and 21. by site 
   drop_na() %>% # removing the na values
   #dplyr::rename(coast_angle = heading) %>% # Renaming the column heading to coast_angle
-  mutate(ui.saws = mean_speed * (cos(dir_circ - 160))) %>% # This is the rientation of the coastal angle for the west coast
-  dplyr::rename(t = date) %>% 
-  drop_na()#renaming date to t
-
+  mutate(ui.saws = mean_speed * (cos(deg_rad(dir - 160)))) %>% # This is the orientation of the coastal angle for the west coast
+  dplyr::rename(t = date) %>% # renaming date to t
+  drop_na()
 # save(UI_angle, file = "Data_coast_angle/UI_angle.RData")
-
 # save(UI_angle, file = "Data/UI_angle.RData")
+
+# RWS: Can the following code be deleted now?
 # index <- wind_UI %>%
 #   group_by(site) %>%
 #   select("date", "ui.saws") %>%
@@ -191,7 +175,9 @@ UI_angle <- wind_daily %>%  # Making reference to the wind daily data created ab
 ```
 
 # Exceedence function heatwaveR 
-This is done to determine the consecutive number of days at or above what the UI value is meant to be   # Detect consecutive days in exceedance of a given threshold.
+
+This is done to determine the consecutive number of days at or above what the UI value is meant to be  
+<!-- # Detect consecutive days in exceedance of a given threshold. -->
 
 ```{r}
 # Loading the insitu temperature data along the wc
@@ -210,21 +196,29 @@ load("Data/SACTN_US.RData") # temperature data for all the sites with a 30year t
 SACTN_upwell <- UI_angle %>% 
   dplyr::rename(temp = ui.saws) %>%
   group_by(site) %>%
+  mutate(t = as.Date(t)) %>% 
   # mutate(min_t = min(t), 
   #        max_t = max(t)) %>% 
-  nest() %>% # apply the following functions to all of the variables in te dataset
-  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1992-07-09", "2017-12-21")), # creating a column of climaatologies. Column will be named clim
+  nest() %>% # apply the following functions to all of the variables in the dataset
+  # RWS: Please stop using uneven periods for your climatology periods 12 month periods should be used.
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1992-07-09", "2017-12-21")), # creating a column of climatologies. Column will be named clim
          # NB: A threshold of 3 appeared to be far to strict
-         # purr::map - apllies a function to each element of a vector
-         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  #Upwelling cannot be descrbed as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
+         # purr::map - applies a function to each element of a vector
+         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  # Upwelling cannot be described as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
   # Detect consecutive days in exceedance of a given threshold.
   # mutate() %>% 
   select(-data, -clim) %>% 
-  unnest() %>%
+  unnest(cols = exceed) %>%
   filter(row_number() %% 2 == 1) %>%
-  unnest() %>% # creates a column for each variables
+  unnest(cols = exceed) %>% # creates a column for each variables
   dplyr::rename(ui.saws = temp) %>% # rename upwelling index vale to temp so that it could work with the function
   select(site, t, ui.saws, exceedance) # selecting only these variables
+
+# RWS: If with the above code your primary objective is to determine when ui.saws is above 1, that may be done with the following code
+SACTN_upwell <- UI_angle %>% 
+  mutate(exceedance = ifelse(ui.saws >= 1, TRUE, FALSE),
+         t = as.Date(t))
+
 # Calculate quantiles of upwelling index
 
 # Static numbers are often rejected and so we decided to find a percentile value as these are often more likely to be approved
@@ -241,7 +235,7 @@ SACTN_upwell_quantiles <- SACTN_upwell %>%
 
 # SACTN_upwell_transform <- as.data.frame(read.zoo(transform( SACTN_upwell, Date = as.POSIXct(t) ), FUN = identity ))
 # There are a few ideas on how to go about doing this
-# The first is to calculatea rolling climatology and to check the upwelling phenology agianst that
+# The first is to calculate rolling climatology and to check the upwelling phenology against that
 # in order to determine changes in upwelling values, but this won't give us the metrics we want
 # Rather what we can do is set a static bottom threshold below which we are interested in looking for upwelling
 # We then use the upwelling index values created above as a second filter to determine the metrics of the upwelling
@@ -253,7 +247,7 @@ SACTN_upwell_quantiles <- SACTN_upwell %>%
 
 # Detect event: 
 detect_event_custom <- function(df){
-  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 3, coldSpells = T)
+  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 1, coldSpells = T)
   return(res)
 }
 # Calculate the upwelling event metrics
@@ -262,10 +256,10 @@ SACTN_upwell_base <- SACTN_US %>%
   group_by(site) %>% 
   nest() %>% 
   # The climatology base period used here is up for debate...
-  # The choice of the 30th percentile threshold also needs to be justified and sensitivty tested
+  # The choice of the 30th percentile threshold also needs to be justified and sensitivity tested
   mutate(clim = purrr::map(data, ts2clm, pctile = 25, climatologyPeriod = c("1992-07-09", "2005-10-19"))) %>%
   select(-data) %>% 
-  unnest() %>%
+  unnest(cols = clim) %>%
   left_join(SACTN_upwell, by = c("site", "t")) %>%
   filter(!is.na(exceedance)) %>%
   group_by(site) %>% 
@@ -358,15 +352,4 @@ SACTN_upwell_lm <- SACTN_upwell_events %>%
   # convert from daily to decadal values
   mutate(slope = slope * 365.25*10)
 ```
-
-
-
-
-
-
-
-
-
-
-
 
