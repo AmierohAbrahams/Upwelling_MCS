@@ -44,10 +44,10 @@ load("Data/MUR.RData")
 
 # ### The temperature products
 # load("~/Documents/Upwelling_MCS/Data/Final_G1SST.RData") #G1SST
-load("~/Documents/Upwelling_MCS/Data/Final.RData") # MUR
-load("~/Documents/Upwelling_MCS/Data/SACTN_US.RData") # SACTN
-load("~/Documents/Upwelling_MCS/Data/OISST_fill.RData") # OISST
-load("~/Documents/Upwelling_MCS/Data/CMC_fill.RData") # CMC temperature
+load("Data/Final.RData") # MUR
+load("Data/SACTN_US.RData") # SACTN
+load("Data/OISST_fill.RData") # OISST
+load("Data/CMC_fill.RData") # CMC temperature
 
 # SACTN_US <- SACTN_US %>% 
 #   dplyr::rename(in_situ_temp = temp)
