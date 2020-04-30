@@ -20,107 +20,106 @@ library(doMC); doMC::registerDoMC(cores = 7)
 
 # 2: Coastal distances ----------------------------------------------------
 
-# load("Data/site_list_sub.Rdata")
-# # xtable(site_list_sub, auto = TRUE)
-# west <- site_list_sub
-# west$coast <- "west" # Chnages wc to west
-# 
-# load("Data/africa_coast.RData")
-# 
-# ## Downloading the bathy data from NOAA
-# # Download mid-res bathymetry data
-# # sa_lat <- c(-38, -24.5); sa_lon <- c(11.5, 35.5)
-# # sa_bathy <- as.xyz(getNOAA.bathy(lon1 = sa_lon[1], lon2 = sa_lon[2], lat1 = sa_lat[1], lat2 = sa_lat[2], resolution = 4))
-# # colnames(sa_bathy) <- c("lon", "lat", "depth")
-# # sa_bathy <- sa_bathy[sa_bathy$depth <= 0,]
-# # save(sa_bathy, file = "Data_P1/bathy/sa_bathy.RData")
-# 
-# # Loading in the newly downloaded bathymetry data               
-# load("Data/bathy/sa_bathy.RData")
+load("Data/site_list_sub.Rdata")
+# xtable(site_list_sub, auto = TRUE)
+west <- site_list_sub
+west$coast <- "west" # Chnages wc to west
+
+load("Data/africa_coast.RData")
+
+# Downloading the bathy data from NOAA
+# Download mid-res bathymetry data
+sa_lat <- c(-38, -24.5); sa_lon <- c(11.5, 35.5)
+sa_bathy <- as.xyz(getNOAA.bathy(lon1 = sa_lon[1], lon2 = sa_lon[2], lat1 = sa_lat[1], lat2 = sa_lat[2], resolution = 4))
+colnames(sa_bathy) <- c("lon", "lat", "depth")
+sa_bathy <- sa_bathy[sa_bathy$depth <= 0,]
+save(sa_bathy, file = "Data_P1/bathy/sa_bathy.RData")
+
+# # Loading in the newly downloaded bathymetry data
+load("Data/bathy/sa_bathy.RData")
 
 # # This function takes one site (e.g. one set of lon/lats) and calculates a shore normal transect
-# shore.normal.transect <- function(site, width = 2){
-#   # Find the site on the coastline and it's nearest neighbour points
-#   coords <- data.frame(lon = site$lon, lat = site$lat)
-#   coords2 <- knnx.index(africa_coast[,1:2], as.matrix(coords), k = 1)
-#   coords3 <- data.frame(site = site$site, africa_coast[c(coords2-width, coords2+width),]) 
-#   coords3 <- coords3[2:1,1:3]
-#   # Define the shore normal transect bearing
-#   heading <- earth.bear(coords3[1,2], coords3[1,3], coords3[2,2], coords3[2,3]) + 90
-#   if(heading >= 360){
-#     heading <- heading-360
-#   } else {
-#     heading <- heading
-#   }
-#   heading2 <- data.frame(site = site$site, lon = site$lon, lat = site$lat, heading)
-#   return(heading2)
-# }
-# 
-# # Creating the transects
-# site_transects <- data.frame()
-# for(i in 1:length(west$site)){
-#  site <- west[i,]
-#  site_transect <- shore.normal.transect(site, 2)
-#  site_transects <- rbind(site_transects, site_transect)
-# }
-# 
+shore.normal.transect <- function(site, width = 2){
+  # Find the site on the coastline and it's nearest neighbour points
+  coords <- data.frame(lon = site$lon, lat = site$lat)
+  coords2 <- knnx.index(africa_coast[,1:2], as.matrix(coords), k = 1)
+  coords3 <- data.frame(site = site$site, africa_coast[c(coords2-width, coords2+width),])
+  coords3 <- coords3[2:1,1:3]
+  # Define the shore normal transect bearing
+  heading <- earth.bear(coords3[1,2], coords3[1,3], coords3[2,2], coords3[2,3]) + 90
+  if(heading >= 360){
+    heading <- heading-360
+  } else {
+    heading <- heading
+  }
+  heading2 <- data.frame(site = site$site, lon = site$lon, lat = site$lat, heading)
+  return(heading2)
+}
+
+# Creating the transects
+site_transects <- data.frame()
+for(i in 1:length(west$site)){
+ site <- west[i,]
+ site_transect <- shore.normal.transect(site, 2)
+ site_transects <- rbind(site_transects, site_transect)
+}
+
 # # Manually correcting Sea Point and Kommetjie
-# site_transects$heading[4:5] <- 290 
-# # save(site_transects, file = "Data/site_transects.RData")
-# load("Data/site_transects.RData")
-# 
+site_transects$heading[4:5] <- 290
+# save(site_transects, file = "Data/site_transects.RData")
+load("Data/site_transects.RData")
+
 # # This function takes one site (e.g. one set of lon/lats) and calculates a shore norm./subal transect
 # # It then extracts a lat/ lon point every X kilometres until reaching a specified isobath
-# 
-# transect.pixel <- function(site, distances){
-#   # Extract coordinates
-#   coords <- data.frame(lon = site$lon, lat = site$lat)
-#   # Find lon/ lats every X metres 
-#   pixels <- data.frame()
-#   # deep <- 999
-#   # distance_multiplier <- 1
-#   # while(deep > isobath){
-#   for(i in 1:length(distances)){
-#     coords2 <- as.data.frame(destPoint(p = coords, b = site$heading, d = distances[i]))
-#     sitesIdx <- knnx.index(sa_bathy[,1:2], as.matrix(coords2), k = 1)
-#     bathy2 <- sa_bathy[sitesIdx,]
-#     bathy2 <- bathy2[complete.cases(bathy2$depth),]
-#     bathy3 <- data.frame(site = site$site, lon = bathy2$lon, lat = bathy2$lat, 
-#                          heading = site$heading, 
-#                          distance = distances[i])
-#     pixels <- rbind(pixels, bathy3)
-#     coords <- coords2
-#   }
-#   if(nrow(pixels) < 1){
-#     pixels <- data.frame(site, depth = NA)
-#   }else{
-#     pixels <- pixels
-#   }+
+#
+transect.pixel <- function(site, distances){
+  # Extract coordinates
+  coords <- data.frame(lon = site$lon, lat = site$lat)
+  # Find lon/ lats every X metres
+  pixels <- data.frame()
+  # deep <- 999
+  # distance_multiplier <- 1
+  # while(deep > isobath){
+  for(i in 1:length(distances)){
+    coords2 <- as.data.frame(destPoint(p = coords, b = site$heading, d = distances[i]))
+    sitesIdx <- knnx.index(sa_bathy[,1:2], as.matrix(coords2), k = 1)
+    bathy2 <- sa_bathy[sitesIdx,]
+    bathy2 <- bathy2[complete.cases(bathy2$depth),]
+    bathy3 <- data.frame(site = site$site, lon = bathy2$lon, lat = bathy2$lat,
+                         heading = site$heading,
+                         distance = distances[i])
+    pixels <- rbind(pixels, bathy3)
+    coords <- coords2
+  }
+  if(nrow(pixels) < 1){
+    pixels <- data.frame(site, depth = NA)
+  }else{
+    pixels <- pixels
+  }
 
-#   return(pixels)
-# }
-# 
+  return(pixels)
+}
+
 # # Pixel points
-# site_pixels <- data.frame()
-# for(i in 1:length(west$site)){
-#   site <- site_transects[i,]
-#   site_pixel <- transect.pixel(site, c(10000, 20000, 30000, 40000, 50000)) # RWS: fixed error
-#   site_pixels <- rbind(site_pixels, site_pixel)
-# }
-# 
-# # Bounding box
-#   # Only one is made in order to know how large the the geom_point() squares should be made to match
-# bbox <- data.frame(xmin = destPoint(p = site_pixels[1,2:3], b = 270, d = 12500)[1],
-#                    xmax = destPoint(p = site_pixels[1,2:3], b = 90, d = 12500)[1],
-#                    ymin = destPoint(p = site_pixels[1,2:3], b = 180, d = 12500)[2],
-#                    ymax = destPoint(p = site_pixels[1,2:3], b = 0, d = 12500)[2])
-# 
-# # Determining the temperature at the various distances from the coast
-# 
-# # save(site_pixels, file = "Data/site_pixels.RData")
-# load("Data/site_pixels.RData")
+site_pixels <- data.frame()
+for(i in 1:length(west$site)){
+  site <- site_transects[i,]
+  site_pixel <- transect.pixel(site, c(00000, 25000, 50000)) # RWS: fixed error
+  site_pixels <- rbind(site_pixels, site_pixel)
+}
 
+# Bounding box
+  # Only one is made in order to know how large the the geom_point() squares should be made to match
+bbox <- data.frame(xmin = destPoint(p = site_pixels[1,2:3], b = 270, d = 12500)[1],
+                   xmax = destPoint(p = site_pixels[1,2:3], b = 90, d = 12500)[1],
+                   ymin = destPoint(p = site_pixels[1,2:3], b = 180, d = 12500)[2],
+                   ymax = destPoint(p = site_pixels[1,2:3], b = 0, d = 12500)[2])
 
+# Determining the temperature at the various distances from the coast
+
+# save(site_pixels, file = "Data/site_pixels.RData")
+load("Data/site_pixels.RData")
+save(site_pixels, file = "Data_coast_angle/site_pixels.RData")
 
 # 2: EXtracting the MUR data  ----------------------------------------------------
 
