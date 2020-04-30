@@ -80,7 +80,6 @@ wind_daily_tested <- wind_data %>%
   filter(temp_sites %in% selected_sites) #%>%  # Matching the sites to wind temp sites
   # dplyr::group_by(temp_sites, date) 
 # save(wind_daily_tested, file = "Data_coast_angle/wind_daily_tested.RData")
-
 # The data provided by SAWS already reads wind from the direction which it is blowing
 # RWS: Great find on this timeAverage function!
 wind_daily <- timeAverage(wind_daily_tested, avg.time = "day", type = "temp_sites", vector.ws = TRUE)
@@ -100,54 +99,6 @@ load("Data/site_list_sub.Rdata")
 load("Data/SACTN_US.RData")
 ```
 
-# Determining the angle perpendicular to the coastline and plotting it
-
-<!-- RWS: This section is no longer necessary as we decided to go with the static value of 160 -->
-
-```{r}
-# Coast R- function that calculates the angle of the site perpendicular to the coastline
-# Transect function in coastR package finds the angle away or along the coastline
-south_africa_along_wide <- coastR::transects(site_list_sub, spread = 30, alongshore = T) 
-south_africa_away_wide <- coastR::transects(site_list_sub, spread = 30, alongshore = F) %>% 
-  mutate(heading = ifelse(heading < 0, heading+360, heading))
-
-# Plotting the map
-world_map <- ggplot() + 
-  borders(fill = "grey40", colour = "black")
-
-# Plotting function
-plot_sites <- function(site_list, buffer, dist){
-
-  # Find the point 200 km from the site manually to pass to ggplot
-  heading2 <- data.frame(geosphere::destPoint(p = select(site_list, lon, lat),
-                                              b = site_list$heading, d = dist))
-#
-  # Add the new coordinates tot he site list
-  site_list <- site_list %>%
-    mutate(lon_dest = heading2$lon,
-           lat_dest = heading2$lat)
-#
-  # Visualise
-  world_map +
-    geom_segment(data = site_list, colour = "red4",
-                 aes(x = lon, y = lat, xend = lon_dest, yend = lat_dest)) +
-    geom_point(data = site_list, size = 3, colour = "black", aes(x = lon, y = lat)) +
-    geom_point(data = site_list, size = 3, colour = "red", aes(x = lon_dest, y = lat_dest)) +
-    coord_quickmap(xlim = c(min(site_list$lon - buffer),
-                             max(site_list$lon + buffer)),
-                    ylim = c(min(site_list$lat - buffer),
-                             max(site_list$lat + buffer))) +
-    labs(x = "", y = "", colour = "Site\norder")
-}
-# Perpendicular transects
-south_africa_away <- plot_sites(south_africa_away_wide, 1, 100000)
-south_africa_away
-
-# SHore normal transects
-south_africa_along <- plot_sites(south_africa_along_wide, 1, 100000)
-south_africa_along
-```
-
 # Upwelling indeces using the above formula
 
 ```{r}
@@ -162,16 +113,6 @@ UI_angle <- wind_daily %>% # Making reference to the wind daily data created abo
   drop_na()
 # save(UI_angle, file = "Data_coast_angle/UI_angle.RData")
 # save(UI_angle, file = "Data/UI_angle.RData")
-
-# RWS: Can the following code be deleted now?
-# index <- wind_UI %>%
-#   group_by(site) %>%
-#   select("date", "ui.saws") %>%
-#   mutate(saws.condition = ifelse(ui.saws < 12.5, "upwelling"))
-# wind_UI <- wind_daily %>% 
-#   mutate(ui.saws = mean_speed * (cos(dir_circ - 160))) %>% # 160 is angle perpendicular to the west coast of SA (See paper Fielding and Davis pg 182)
-#   drop_na
-# Results obtained from UI_angle (Using the perpendicular angle for each site) and the results of wind_UI at -160 (angle of the west coast) appears to be the same
 ```
 
 # Exceedence function heatwaveR 
