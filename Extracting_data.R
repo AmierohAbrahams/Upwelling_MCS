@@ -13,7 +13,7 @@ library(stringr)
 library(tidyverse)
 library(reshape2)
 library(ncdf4) # library for processing netCDFs
-library(plyr)
+# library(plyr)
 library(lubridate)
 library(data.table)
 library(doMC); doMC::registerDoMC(cores = 7)

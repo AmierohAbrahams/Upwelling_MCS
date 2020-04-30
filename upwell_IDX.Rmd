@@ -25,7 +25,7 @@ In this equation μ represents the wind speed (m/s) and θ represents the wind d
 ## devtools::install_github("retostauffer/Rfoehnix")
 library(tidyverse)
 library(circular)
-library(foehnix)
+#library(foehnix)
 library(gridExtra)
 library(geosphere)
 library(heatwaveR)
@@ -47,9 +47,6 @@ wind_2 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind2/wind2.txt", na.st
 wind_3 <- read.delim("Data/Wind_data/wind_data.txt(SAWS)/wind3/wind3.txt", na.strings = "",
                      col.names = c("station_number", "station_name", "date", "hour", "sub" ,"speed", "dir"))
 
-# Selecting the important columns for each of the datasets
-## Renaming the sites within the wind datasets to match the name of the sites at which seawater temperature was collected
-## The wind data was obtained from the SAWS and the wind stations used were the closes stations to which temperature was collected
 wind_fix <- function(df){
 wind <- df %>%
   mutate(date = as.Date(as.character(date)),
@@ -77,11 +74,9 @@ wind_data <- rbind(wind_fix_3, wind_fix_2, wind_fix_1)
 selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
 
 wind_daily_tested <- wind_data %>% 
-  filter(temp_sites %in% selected_sites) #%>%  # Matching the sites to wind temp sites
-  # dplyr::group_by(temp_sites, date) 
+  filter(temp_sites %in% selected_sites) 
 # save(wind_daily_tested, file = "Data_coast_angle/wind_daily_tested.RData")
-# The data provided by SAWS already reads wind from the direction which it is blowing
-# RWS: Great find on this timeAverage function!
+
 wind_daily <- timeAverage(wind_daily_tested, avg.time = "day", type = "temp_sites", vector.ws = TRUE)
 save(wind_daily, file = "Data_coast_angle/wind_daily.RData")
 ```
@@ -89,7 +84,6 @@ save(wind_daily, file = "Data_coast_angle/wind_daily.RData")
 # Load wind
 
 ```{r}
-# load("Data/wind_daily.RData") 
 load("Data_coast_angle/wind_daily.RData") 
 wind_daily <- wind_daily %>%
   dplyr::rename(sites = temp_sites,
@@ -102,12 +96,9 @@ load("Data/SACTN_US.RData")
 # Upwelling indeces using the above formula
 
 ```{r}
-# RWS: the cos() function works on radians, not degrees.
-UI_angle <- wind_daily %>% # Making reference to the wind daily data created above
-  dplyr::rename(site = sites) %>%  # Renaming sites to site
-  #left_join(south_africa_away_wide[,c(2,21)], by = "site") %>%  # Joining wind data to South Africa wide data column 2 and 21. by site 
-  drop_na() %>% # removing the na values
-  #dplyr::rename(coast_angle = heading) %>% # Renaming the column heading to coast_angle
+UI_angle <- wind_daily %>% 
+  dplyr::rename(site = sites) %>%  
+  drop_na() %>% 
   mutate(ui.saws = mean_speed * (cos(deg_rad(dir - 160)))) %>% # This is the orientation of the coastal angle for the west coast
   dplyr::rename(t = date) %>% # renaming date to t
   drop_na()
@@ -122,45 +113,27 @@ This is done to determine the consecutive number of days at or above what the UI
 
 ```{r}
 # Loading the insitu temperature data along the wc
-load("Data/SACTN_US.RData") # temperature data for all the sites with a 30year time series
-# exceedance <-
-#   function(data,
-#            x = t,
-#            y = temp,
-#            threshold,
-#            below = FALSE,
-#            minDuration = 5,
-#            joinAcrossGaps = TRUE,
-#            maxGap = 2,
-#            maxPadLength = 3)
-# Upwelling temperature threshold 12.4 / 30th percentile
+load("Data/SACTN_US.RData")
 SACTN_upwell <- UI_angle %>% 
   dplyr::rename(temp = ui.saws) %>%
   group_by(site) %>%
   mutate(t = as.Date(t)) %>% 
   # mutate(min_t = min(t), 
   #        max_t = max(t)) %>% 
-  nest() %>% # apply the following functions to all of the variables in the dataset
-  # RWS: Please stop using uneven periods for your climatology periods 12 month periods should be used.
-  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1992-07-09", "2017-12-21")), # creating a column of climatologies. Column will be named clim
-         # NB: A threshold of 3 appeared to be far to strict
-         # purr::map - applies a function to each element of a vector
-         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  # Upwelling cannot be described as an event. Upwelling can last for a few hours. Given that we have daily data, upwelling events minimum duration here will be 1day
-  # Detect consecutive days in exceedance of a given threshold.
-  # mutate() %>% 
+  nest() %>% 
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1993-01-01", "2017-12-21")), 
+         exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  
   select(-data, -clim) %>% 
   unnest(cols = exceed) %>%
   filter(row_number() %% 2 == 1) %>%
-  unnest(cols = exceed) %>% # creates a column for each variables
-  dplyr::rename(ui.saws = temp) %>% # rename upwelling index vale to temp so that it could work with the function
-  select(site, t, ui.saws, exceedance) # selecting only these variables
+  unnest(cols = exceed) %>% 
+  dplyr::rename(ui.saws = temp) %>%
+  select(site, t, ui.saws, exceedance) 
 
-# RWS: If with the above code your primary objective is to determine when ui.saws is above 1, that may be done with the following code
+# OR
 SACTN_upwell <- UI_angle %>% 
   mutate(exceedance = ifelse(ui.saws >= 1, TRUE, FALSE),
-         t = as.Date(t))
-
-# Calculate quantiles of upwelling index
+         t = as.Date(t))x
 
 # Static numbers are often rejected and so we decided to find a percentile value as these are often more likely to be approved
 
@@ -174,18 +147,6 @@ SACTN_upwell_quantiles <- SACTN_upwell %>%
             quant_90 = quantile(ui.saws, probs = 0.90, na.rm = TRUE)) %>% 
   mutate_if(is.numeric, round, digits = 2)
 
-# SACTN_upwell_transform <- as.data.frame(read.zoo(transform( SACTN_upwell, Date = as.POSIXct(t) ), FUN = identity ))
-# There are a few ideas on how to go about doing this
-# The first is to calculate rolling climatology and to check the upwelling phenology against that
-# in order to determine changes in upwelling values, but this won't give us the metrics we want
-# Rather what we can do is set a static bottom threshold below which we are interested in looking for upwelling
-# We then use the upwelling index values created above as a second filter to determine the metrics of the upwelling
-# Unfortunately the way that the heatwaveR functions work well does with purrr. 
-# I've figured this out once before but can't remember where now.
-# Rather than go through the process I have rather just made a convenience function below that
-# does what I want and can simply be given to purrr::map() without any faffing about.
-
-
 # Detect event: 
 detect_event_custom <- function(df){
   res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 1, coldSpells = T)
@@ -196,73 +157,33 @@ SACTN_upwell_base <- SACTN_US %>%
   dplyr::rename(t = date) %>% 
   group_by(site) %>% 
   nest() %>% 
-  # The climatology base period used here is up for debate...
-  # The choice of the 30th percentile threshold also needs to be justified and sensitivity tested
-  mutate(clim = purrr::map(data, ts2clm, pctile = 25, climatologyPeriod = c("1992-07-09", "2005-10-19"))) %>%
+  mutate(clim = purrr::map(data, ts2clm, pctile = 25, climatologyPeriod = c("1993-01-01", "2005-10-19"))) %>%
   select(-data) %>% 
   unnest(cols = clim) %>%
   left_join(SACTN_upwell, by = c("site", "t")) %>%
   filter(!is.na(exceedance)) %>%
   group_by(site) %>% 
-  # mutate(thresh = mean(seas, na.rm = T)-sd(seas, na.rm = T)) %>% # Manually set threshold to the mean
-  # mutate(thresh = 10) %>% # Manually set threshold to a static value. Doesn't work across all sites
-  # mutate(thresh = quantile(temp, 0.3, na.rm = T)) %>% # Manually set threshold to a single quantile
   nest() %>% 
   mutate(exceed = purrr::map(data, detect_event_custom)) %>% 
-  select(-data) #%>% 
-  # unnest() %>% 
-  # filter(row_number() %% 2 == 0) %>% # Select event summary metrics
-  # filter(row_number() %% 2 == 1) %>% # Select daily values
-  # unnest()
-# Unpack the event metric reults
+  select(-data)
+
 SACTN_upwell_events <- SACTN_upwell_base %>% 
   unnest() %>%
   filter(row_number() %% 2 == 0) %>%
   unnest()
 # save(SACTN_upwell_events, file = "Data/SACTN_upwell_events.RData")
 # save(SACTN_upwell_events, file = "Data_coast_angle/SACTN_upwell_events.RData")
-# Unpack the daily climatology results
+
 SACTN_upwell_clims <- SACTN_upwell_base %>% 
   unnest() %>%
   filter(row_number() %% 2 == 1) %>% 
   unnest()
 # save(SACTN_upwell_clims, file = "Data/SACTN_upwell_clims.RData")
-# The above chunk of code appears to work as expected.
-# What needs to be done now is that the thresholds for duration and UI strength need to be justified/decided uopn. 
-    # Min duration for an upwelling event - 1day and threshold -1
-# What also needs to be decided is if we are interested in any upwelling results throughout the year,
-# or only during the upwelling season, whenever that may be for each site.
-# I think we have demonstrated the technical capability needed to answer the question of whether or not upwelling
-# is changing over time.
-# Now we really need to focus on which of these parameters need to best be tweaked to answer that question.
 ```
 
 # MCS and upwelling indeces plot
 
 ```{r}
-# match_func <- function(df){
-#   match <- SACTN_MCS_clims  %>% 
-#   left_join(df, by = c("site", "t")) %>% 
-#   na.trim()
-#   return(match)
-# }
-# 
-# index <- index %>% 
-#   dplyr::rename(site = sites) %>% 
-#   dplyr::rename(t = date)
-# 
-# match <- match_func(df = index)
-# 
-# upwell_MCS <- ggplot(data = match, aes(x = t, y = ui.saws)) +
-#   geom_line() +
-#   geom_point(data = filter(match, event == TRUE), colour = "navy") +
-#   geom_rug(data = filter(match, saws.condition == "upwelling"), sides = "b") +
-#   scale_x_date(expand = c(0, 0)) +
-#   facet_wrap(~site, ncol = 1) +
-#   theme_grey() +
-#   labs(y = "Temperature (°C)", x = NULL)
-# upwell_MCS
-# Plot some of the Upwelling/MCS results
 SP_upwelling <- SACTN_upwell_clims %>% 
   filter(site == "Sea Point", lubridate::year(t) %in% 2016:2018)
 plot1 <- ggplot(SP_upwelling, aes(x = t, y = temp)) +
@@ -273,9 +194,6 @@ plot1 <- ggplot(SP_upwelling, aes(x = t, y = temp)) +
   geom_rug(data = filter(SP_upwelling, event_no > 0), sides = "b")
 plot1
   
-# The dots on the plot help to show the length of each wind driven upwelling event detected.
-# This supports the use of this methodology.
-# Up next is fitting linear models to the upwelling metric results to see what trends shake out.
 # Linear Models
 lm_coeff <- function(df){
   res <- lm(formula = val ~ date_peak, data = df)
