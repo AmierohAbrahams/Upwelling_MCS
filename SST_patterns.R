@@ -35,19 +35,16 @@ library(ggthemes)
 
 load("Data/site_list_sub.Rdata")
 load("Data/SACTN_US.RData")
-load("Data/site_pixels.RData") # 5 decimal places
+#load("Data/site_pixels.RData") # 5 decimal places
 load("Data/OISST.RData") # 2 decimal places
 OISST <- BC_avhrr_only_v2_Document_Document 
 rm(BC_avhrr_only_v2_Document_Document ); gc()
 load("Data/CMC.RData") # 1decimal places
 load("Data/MUR.RData")
+load("Data_coast_angle/site_pixels.RData")
 
 # ### The temperature products
 # load("~/Documents/Upwelling_MCS/Data/Final_G1SST.RData") #G1SST
-load("Data/Final.RData") # MUR
-load("Data/SACTN_US.RData") # SACTN
-load("Data/OISST_fill.RData") # OISST
-load("Data/CMC_fill.RData") # CMC temperature
 
 OISST_prod <- OISST %>%
   dplyr::select(lon, lat) %>%
@@ -94,13 +91,14 @@ OISST_fill <- OISST_fill %>%
 CMC_fill <- CMC_fill %>%
   filter(site %in% selected_sites)
 
-# save(OISST_fill, file = "Data/OISST_fill.RData")
-# save(CMC_fill, file = "Data/CMC_fill.RData")
+# save(OISST_fill, file = "Data_coast_angle/OISST_fill.RData")
+# save(CMC_fill, file = "Data_coast_angle/CMC_fill.RData")
 
 # load("Data/UI_angle.RData")
 load("Data_coast_angle/UI_angle.RData")
 
 upwelling <- UI_angle %>%
+  mutate(date = as.Date(date)) %>% 
   dplyr::rename(temp = ui.saws) %>%
   group_by(site) %>%
   nest() %>% # apply the following functions to all of the variables in te dataset

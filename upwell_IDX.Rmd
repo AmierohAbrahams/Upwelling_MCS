@@ -102,7 +102,7 @@ UI_angle <- wind_daily %>%
   mutate(ui.saws = mean_speed * (cos(deg_rad(dir - 160)))) %>% # This is the orientation of the coastal angle for the west coast
   dplyr::rename(t = date) %>% # renaming date to t
   drop_na()
-# save(UI_angle, file = "Data_coast_angle/UI_angle.RData")
+#save(UI_angle, file = "Data_coast_angle/UI_angle.RData")
 # save(UI_angle, file = "Data/UI_angle.RData")
 ```
 
@@ -118,10 +118,8 @@ SACTN_upwell <- UI_angle %>%
   dplyr::rename(temp = ui.saws) %>%
   group_by(site) %>%
   mutate(t = as.Date(t)) %>% 
-  # mutate(min_t = min(t), 
-  #        max_t = max(t)) %>% 
   nest() %>% 
-  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1993-01-01", "2017-12-21")), 
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1973-01-01", "2016-12-31")), 
          exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  
   select(-data, -clim) %>% 
   unnest(cols = exceed) %>%
@@ -133,7 +131,7 @@ SACTN_upwell <- UI_angle %>%
 # OR
 SACTN_upwell <- UI_angle %>% 
   mutate(exceedance = ifelse(ui.saws >= 1, TRUE, FALSE),
-         t = as.Date(t))x
+         t = as.Date(t))
 
 # Static numbers are often rejected and so we decided to find a percentile value as these are often more likely to be approved
 
@@ -171,7 +169,7 @@ SACTN_upwell_events <- SACTN_upwell_base %>%
   unnest() %>%
   filter(row_number() %% 2 == 0) %>%
   unnest()
-# save(SACTN_upwell_events, file = "Data/SACTN_upwell_events.RData")
+save(SACTN_upwell_events, file = "Data_coast_angle/SACTN_upwell_events.RData")
 # save(SACTN_upwell_events, file = "Data_coast_angle/SACTN_upwell_events.RData")
 
 SACTN_upwell_clims <- SACTN_upwell_base %>% 
