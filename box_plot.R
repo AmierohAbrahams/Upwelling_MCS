@@ -10,25 +10,13 @@ options(scipen = 999)
 # load("Data/MUR_final.RData")
 # load("Data/CMC_final.RData")
 
-load("Data_coast_base/OISST_upwell_base.RData")
-load("Data_coast_base/CMC_upwell_base.RData")
-load("Data_coast_base/SACTN_upwell_base.RData")
-load("Data_coast_base/MUR_upwell_base.RData")
-load("Data_coast_base/G1SST_upwell_base.RData")
+load("Data_coast_angle/OISST_upwell_base.RData")
+load("Data_coast_angle/CMC_upwell_base.RData")
+load("Data_coast_angle/SACTN_upwell_base.RData")
+load("Data_coast_angle/MUR_upwell_base.RData")
+load("Data_coast_angle/G1SST_upwell_base.RData")
 
-# Removing the distance of 20 and 40kms
-library(dplyr)
-removing_distance_func <- function(df){
-  removing_dist_func<- df %>% 
-    filter(!distance %in% c(20000,40000))
-}
-
-OISST_final <- removing_distance_func(df = OISST_upwell_base)
-G1SST_final <- removing_distance_func(df = G1SST_upwell_base)
-MUR_final <- removing_distance_func(df = MUR_upwell_base)
-CMC_final <- removing_distance_func(df = CMC_upwell_base)
-
-combined_products <- rbind(OISST_final,CMC_final,MUR_final,G1SST_final)
+combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base)
 
 #save(combined_products, file = "Data_coast_angle/combined_products.RData")
 
@@ -44,7 +32,6 @@ seasons_func <- function(df){
 
 combined_products <- seasons_func(df = combined_products)
 SACTN <- seasons_func(df = SACTN_upwell_base)
-
 
 metric_prods <- combined_products %>% 
   filter(year(date_start) %in% 2011:2014) %>% 
