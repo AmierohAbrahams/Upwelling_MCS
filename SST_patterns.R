@@ -126,6 +126,7 @@ upwelling_detect_event <- function(df){
     group_modify(~detect_event_custom(.x))
 }
 
+
 OISST_upwell_base <- upwelling_detect_event(df = OISST_fill)
 #save(OISST_upwell_base, file = "Data/OISST_upwell_base.RData")
 save(OISST_upwell_base, file = "Data_coast_angle/OISST_upwell_base.RData")

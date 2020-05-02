@@ -6,49 +6,44 @@ options(scipen = 999)
 
 # load("Data/OISST_final.RData")
 # load("Data/G1SST_final.RData")
-# load("Data/SACTN_upwell_base.RData")
+load("Data/SACTN_upwell_base.RData")
 # load("Data/MUR_final.RData")
 # load("Data/CMC_final.RData")
 
-load("Data_coast_angle/OISST_upwell_base.RData")
-load("Data_coast_angle/CMC_upwell_base.RData")
-load("Data_coast_angle/SACTN_upwell_base.RData")
-load("Data_coast_angle/MUR_upwell_base.RData")
-load("Data_coast_angle/G1SST_upwell_base.RData")
-
-combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base)
-
-#save(combined_products, file = "Data_coast_angle/combined_products.RData")
-
+# Loading data: Created in SST_patterns.R and upwell_IDX.Rmd
+# load("Data_coast_angle/OISST_upwell_base.RData")
+# load("Data_coast_angle/CMC_upwell_base.RData")
+# load("Data_coast_angle/SACTN_upwell_base.RData")
+# load("Data_coast_angle/MUR_upwell_base.RData")
+# load("Data/G1SST_upwell_base.RData")
+# 
 seasons_func <- function(df){
-  BC_seaons <- df %>% 
+  BC_seaons <- df %>%
     mutate(month = month(as.Date(as.character(date_start)), abbr = T, label = T),
-           year = year(date_start)) %>% 
-    mutate(season = ifelse(month %in% c("Dec", "Jan", "Feb"), "Summer",        
+           year = year(date_start)) %>%
+    mutate(season = ifelse(month %in% c("Dec", "Jan", "Feb"), "Summer",
                            ifelse(month %in% c("Mar", "Apr", "May"), "Autumn",
                                   ifelse(month %in% c("Jun", "Jul", "Aug"), "Winter",
                                          ifelse(month %in% c("Sep", "Oct", "Nov"), "Spring","Error")))))
 }
+# 
+# combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base, G1SST_upwell_base.RData)
+# #write.csv(combined_products,file = "combined_products.csv")
+
+combined_products <- read_csv("Data_coast_angle/combined_products.csv")
 
 combined_products <- seasons_func(df = combined_products)
 SACTN <- seasons_func(df = SACTN_upwell_base)
 
 metric_prods <- combined_products %>% 
   filter(year(date_start) %in% 2011:2014) %>% 
-  filter(season == "Summer")
+  filter(season == "Summer") %>% 
+  dplyr::select(-heading,-distance)
 
 metric_SACTN <- SACTN %>% 
   filter(year(date_start) %in% 2011:2014) %>% 
   mutate(product = "SACTN")
-
-combined <- rbind(metric_prods, metric_SACTN)
-write.csv(combined,'combined.csv')
-
-metrics <- combined %>% 
-  mutate(year = year(date_start)) %>% 
-  group_by(product, site, duration) %>% 
-  summarise(y = n())%>% 
-  rename(count = y)
+  filter(season == "Summer")
 
 metrics_func <- function(df){
   metrics <- df %>% 
@@ -57,7 +52,6 @@ metrics_func <- function(df){
   summarise(y = n())%>% 
   rename(count = y)
 }
-
 
 metrics <- metrics_func(df = metric_prods)
 metrics_SACTN <- metrics_func(df = metric_SACTN)
@@ -76,9 +70,7 @@ final_combined$count <- as.numeric(final_combined$count)
 #   labs(x = "Duration (Days)", y = "Number of upwelling signals", colour = "Temperature products") +
 #   facet_wrap(~site) 
 
-counts <- read_csv("Data/counts.csv")
-
-ggplot(data = metrics, aes(x = product,y = duration)) +
+ggplot(data = final_combined, aes(x = product,y = duration)) +
   geom_boxplot(aes(fill = product)) +
   facet_wrap(~site)  +
   labs(y = "Duration (Days)", x = "SST product")+
@@ -90,8 +82,6 @@ ggplot(data = metrics, aes(x = product,y = duration)) +
         legend.title = element_text(size = 14),
         strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
         strip.text = element_text(face="bold"))
-
-
 
 #############################################
 #Correlations
