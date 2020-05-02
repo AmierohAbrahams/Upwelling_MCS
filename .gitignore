@@ -2,3 +2,17 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# Upwelling-MCS paper
+- Table with length of time series
+- Changes to the wind direction, so now to deg
+- When determining the climatology, kept it to fixed years
+- Chose the years 2011-2014: Because the G1SST data is from 2010. For the G1SST data I have from 2010 – 2018. For all of the other datasets I have (MUR, CMC) – 2015, OISST data is till 2018
+- Find period that it all overlaps 2010-2014
+-Run the analyses
+
+# EBUS paper
+
+- changed the region for the currents to match that of the paper
+- changed everything to degrees
+- run the analyses – get the results
