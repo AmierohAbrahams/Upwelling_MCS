@@ -9,7 +9,8 @@
 - When determining the climatology, kept it to fixed years
 - Chose the years 2011-2014: Because the G1SST data is from 2010. For the G1SST data I have from 2010 – 2018. For all of the other datasets I have (MUR, CMC) – 2015, OISST data is till 2018
 - Find period that it all overlaps 2010-2014
--Run the analyses
+- Run the analyses
+- Get G1SST to rbind
 
 # EBUS paper
 
