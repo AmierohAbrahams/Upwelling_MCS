@@ -105,12 +105,12 @@ upwelling <- UI_angle %>%
          t = as.Date(t))
 
 detect_event_custom <- function(df){
-  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 1, coldSpells = T)$event # 1 or 3?
+  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 1, coldSpells = T)$event 
   return(res)
 }
 
 ts2clm_custom <- function(df){
-  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2003-01-01", "2015-12-30")) #Length of MUR time series: Chnage according to length os SST product
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1982-01-01", "17-12-31")) #Length of MUR time series: Chnage according to length os SST product
   return(res)
 }
 

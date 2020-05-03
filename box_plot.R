@@ -42,7 +42,7 @@ metric_prods <- combined_products %>%
 
 metric_SACTN <- SACTN %>% 
   filter(year(date_start) %in% 2011:2014) %>% 
-  mutate(product = "SACTN")
+  mutate(product = "SACTN") %>% 
   filter(season == "Summer")
 
 metrics_func <- function(df){
@@ -86,8 +86,6 @@ ggplot(data = final_combined, aes(x = product,y = duration)) +
 #############################################
 #Correlations
 
-load("~/Documents/Upwelling_MCS/Data_coast_angle/combined_products.RData")
-
 #Calculating the number of signals detected at different distances from the coastline
 total_signals <- combined_products %>%
   mutate(year = year(date_start)) %>% 
@@ -101,8 +99,8 @@ correlation_signals <- combined_products %>%
   group_by(product, distance,site) %>% 
   summarise(y = n())
 
-combined_freq_spread <- pivot_wider(Combined_frequency, names_prefix = "dist_",
-                                    names_from = distance, values_from = number_of_signals)
+combined_freq_spread <- pivot_wider(correlation_signals, names_prefix = "dist_",
+                                    names_from = distance, values_from = y)
 
 slope_calc <- function(df){
   df %>% 
@@ -117,8 +115,8 @@ slope_calc <- function(df){
     #    signal_distance_r = mod4[1],
     #    signal_distance_r2 = glance(mod3)$adj.r.squared) %>%
     # select(-mod1, -mod2, -mod3, -mod4) %>% 
-  do(mod1 = cor(.$dist_10, .$dist_30, method = "pearson", use = "complete.obs"),
-     mod2 = cor(.$dist_10, .$dist_50, method = "pearson", use = "complete.obs")) %>%
+  do(mod1 = cor(.$dist_0, .$dist_25000, method = "pearson", use = "complete.obs"),
+     mod2 = cor(.$dist_0, .$dist_50000, method = "pearson", use = "complete.obs")) %>%
     mutate(dist_10_vs_30_r = mod1[1],
            dist_10_vs_50_r = mod2[1]) %>% 
     # select(dist_10_vs_30_r, dist_10_vs_50_r) %>% 
