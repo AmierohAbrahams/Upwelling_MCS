@@ -52,12 +52,6 @@ SACTN_US <- SACTN_daily_v4.2 %>%
   dplyr::rename(insitu_temp = temp)
 ```
 
-# Creating a table showing the start and end dates for each of the data products used in this project
-
-```{r}
-
-```
-
 # Steps
   - Use the circular function
   - Determine daily wind data obtained from 3hr intervals
