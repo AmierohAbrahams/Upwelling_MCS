@@ -29,7 +29,7 @@ load("Data/OISST.RData") # 2 decimal places
 OISST <- BC_avhrr_only_v2_Document_Document 
 rm(BC_avhrr_only_v2_Document_Document ); gc()
 load("Data/CMC.RData") # 1decimal places
-load("Data/_coast_angleMUR.RData")
+load("Data_coast_angle/MUR.RData")
 load("Data_coast_angle/site_pixels.RData")
 
 # ### The temperature products
