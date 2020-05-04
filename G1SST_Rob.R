@@ -7,6 +7,8 @@ library(heatwaveR)
 load("Data_coast_angle/UI_angle.RData") 
 load("G1SST.RData") 
 
+G1SST <- data.frame(G1SST)
+
 upwelling <- UI_angle %>% 
   mutate(exceedance = ifelse(ui.saws >= 1, TRUE, FALSE),
          t = as.Date(t))
@@ -17,7 +19,7 @@ detect_event_custom <- function(df){
 }
 
 ts2clm_custom <- function(df){
-  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1982-01-01", "2017-12-31")) #Length of MUR time series: Chnage according to length os SST product
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1982-01-01", "2017-12-31")) # Length of MUR time series: Change according to length of SST product
   return(res)
 }
 
@@ -33,5 +35,5 @@ upwelling_detect_event <- function(df){
     group_modify(~detect_event_custom(.x))
 }
 
-
+# RWS: Note that this still doesn't run due to mismatches in the dates of the time series
 G1SST_upwell_base <- upwelling_detect_event(df = G1SST)
