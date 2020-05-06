@@ -1,10 +1,14 @@
-#library(tidync)
+library(tidync)
+# load("Data/OISST.RData") # 2 decimal places
+# OISST <- BC_avhrr_only_v2_Document_Document 
+# rm(BC_avhrr_only_v2_Document_Document ); gc()
+# load("Data_coast_angle/site_pixels.RData")
 
-temp_dat <- tidync("/media/amieroh/Amieroh/Data/Datasets/G1SST_data/20100711-JPL_OUROCEAN-L4UHfnd-GLOB-v01-fv01_0-G1SST_subset.nc") %>% 
+temp_dat <- tidync("/media/amieroh/Amieroh/Data/Datasets/G1SST_data/20141226-JPL_OUROCEAN-L4UHfnd-GLOB-v01-fv01_0-G1SST_subset.nc") %>% 
   hyper_tibble() %>% 
   select(lon, lat, analysed_sst) %>% 
   dplyr::rename(temp = analysed_sst) %>% 
-  mutate(t ="2010-07-11")
+  mutate(t ="2014-12-26")
 
 # OISST_prod <- OISST %>%
 #   dplyr::select(lon, lat) %>%
@@ -56,6 +60,9 @@ G1SST_fill <- extract %>%
 #                               distance == "50000" ~ "50000"))
 
 G1SST_finally <- rbind(G1SST_fill,G1SST_finally)
+# G1SST_finally_sub <- rbind(G1SST_fill,G1SST_fill2)
+# G1SST_finally <- rbind(G1SST_finally_sub,G1SST_finally)
+
 save(G1SST_finally, file = "G1SST_finally.RData")
 write_csv(G1SST_finally, path = "G1SST_finally.csv")
 data3 <- arrange(G1SST_finally, date)
