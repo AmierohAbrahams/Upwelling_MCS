@@ -126,16 +126,17 @@ upwelling_detect_event <- function(df){
     group_modify(~detect_event_custom(.x))
 }
 
+G1SST_finally <- G1SST_finally %>% 
+  arrange(date)
 
+G1SST_upwell_base <- upwelling_detect_event(df = G1SST_finally)
+#save(G1SST_upwell_base, file = "Data_coast_angle/G1SST_upwell_base.RData")
 OISST_upwell_base <- upwelling_detect_event(df = OISST_fill)
-#save(OISST_upwell_base, file = "Data/OISST_upwell_base.RData")
-save(OISST_upwell_base, file = "Data_coast_angle/OISST_upwell_base.RData")
+#save(OISST_upwell_base, file = "Data_coast_angle/OISST_upwell_base.RData")
 CMC_upwell_base <- upwelling_detect_event(df = CMC_fill)
-save(CMC_upwell_base, file = "Data_coast_angle/CMC_upwell_base.RData")
+#save(CMC_upwell_base, file = "Data_coast_angle/CMC_upwell_base.RData")
 MUR_upwell_base <- upwelling_detect_event(df = MUR_fill)
-save(MUR_upwell_base, file = "Data_coast_angle/MUR_upwell_base.RData")
-G1SST_upwell_base <- upwelling_detect_event(df = G1SST_fill)
-save(G1SST_upwell_base, file = "Data_coast_angle/G1SST_upwell_base.RData")
+#save(MUR_upwell_base, file = "Data_coast_angle/MUR_upwell_base.RData")
 
 # Here we remove the site Hout Bay so that we have a long time series. The length of Hout Bay time series ends in 200. Many sites change from here
 SACTN_US <- SACTN_US %>% 

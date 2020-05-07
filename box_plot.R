@@ -6,17 +6,24 @@ options(scipen = 999)
 
 # load("Data/OISST_final.RData")
 # load("Data/G1SST_final.RData")
-load("Data/SACTN_upwell_base.RData")
+# load("Data/SACTN_upwell_base.RData")
 # load("Data/MUR_final.RData")
 # load("Data/CMC_final.RData")
 
 # Loading data: Created in SST_patterns.R and upwell_IDX.Rmd
-# load("Data_coast_angle/OISST_upwell_base.RData")
-# load("Data_coast_angle/CMC_upwell_base.RData")
-# load("Data_coast_angle/SACTN_upwell_base.RData")
-# load("Data_coast_angle/MUR_upwell_base.RData")
+load("Data_coast_angle/OISST_upwell_base.RData")
+load("Data_coast_angle/CMC_upwell_base.RData")
+load("Data_coast_angle/SACTN_upwell_base.RData")
+load("Data_coast_angle/MUR_upwell_base.RData")
+load("Data_coast_angle/G1SST_upwell_base.RData")
+
 # load("Data/G1SST_upwell_base.RData")
-# 
+
+combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base, G1SST_upwell_base)
+#save(combined_products, file = "Data_coast_angle/combined_products")
+
+G1SST_upwell_base$distance <- as.numeric(G1SST_upwell_base$distance)
+
 seasons_func <- function(df){
   BC_seaons <- df %>%
     mutate(month = month(as.Date(as.character(date_start)), abbr = T, label = T),
@@ -26,13 +33,8 @@ seasons_func <- function(df){
                                   ifelse(month %in% c("Jun", "Jul", "Aug"), "Winter",
                                          ifelse(month %in% c("Sep", "Oct", "Nov"), "Spring","Error")))))
 }
-# 
-# combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base, G1SST_upwell_base.RData)
-# #write.csv(combined_products,file = "combined_products.csv")
-
-combined_products <- read_csv("Data_coast_angle/combined_products.csv")
-
-combined_products <- seasons_func(df = combined_products)
+ 
+combined_products <- seasons_func(combined_products)
 SACTN <- seasons_func(df = SACTN_upwell_base)
 
 metric_prods <- combined_products %>% 
@@ -42,8 +44,7 @@ metric_prods <- combined_products %>%
 
 metric_SACTN <- SACTN %>% 
   filter(year(date_start) %in% 2011:2014) %>% 
-  mutate(product = "SACTN") %>% 
-  filter(season == "Summer")
+  mutate(product = "SACTN") 
 
 metrics_func <- function(df){
   metrics <- df %>% 
@@ -86,8 +87,11 @@ ggplot(data = final_combined, aes(x = product,y = duration)) +
 #############################################
 #Correlations
 
+load("Data_coast_angle/combined_products.RData")
+
 #Calculating the number of signals detected at different distances from the coastline
 total_signals <- combined_products %>%
+  filter(year(date_start) %in% 2011:2014) %>% 
   mutate(year = year(date_start)) %>% 
   group_by(product, distance) %>% 
   summarise(y = n()) %>% 
@@ -95,6 +99,7 @@ total_signals <- combined_products %>%
   
 # Correlation comparing signals detected at 10km with signals detected at 30km and, signals detected at 10km and 50km
 correlation_signals <- combined_products %>%
+  filter(year(date_start) %in% 2011:2014) %>% 
   mutate(year = year(date_start)) %>% 
   group_by(product, distance,site) %>% 
   summarise(y = n())
