@@ -43,7 +43,7 @@ site_list_sub <- site_list %>%
 
 site_list_sub <- site_list_sub[c(-2, -3, -5, -6, -7,-9, -12, -13, -14),] # Here I keep all the sites with temperature obtained up to
 # 2017 -kommetjie and Yzerfontein was removed as temperatures started in 1990s. 
-# I took up till 2017 because the G1SST data starts frm 2010-present. To create a long time series to run through the heatwaveR algorithm, this was needed.
+# I took up till 2017 because the SACTN data ends here.. To create a long time series to run through the heatwaveR algorithm, this was needed.
 # save(site_list_sub, file = "Data_coast_angle/site_list_sub.Rdata")
 
 SACTN_US <- SACTN_daily_v4.2 %>%
