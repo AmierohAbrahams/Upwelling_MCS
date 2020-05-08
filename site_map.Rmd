@@ -147,7 +147,7 @@ site_pixels <- data.frame()
 for(i in 1:length(west$site)){
   site <- site_transects[i,]
   #site_pixel <- transect.pixel(site, c(10000, 20000, 30000, 40000, 50000)) # RWS: fixed error
-  site_pixel <- transect.pixel(site, c(10000, 30000, 50000))
+  site_pixel <- transect.pixel(site, c(0, 25000, 50000))
   site_pixels <- rbind(site_pixels, site_pixel)
 }
 
@@ -174,10 +174,10 @@ load("Data/south_africa_coast.RData")
 load("Data/africa_coast.RData")
 load("Data/sa_provinces_new.RData")
 load("Data/site_list_sub.Rdata")
-load("Data/site_pixels_new.RData")
+load("Data_coast_angle/site_pixels.RData")
 
 #load("Data/site_pixels.RData")
-load("MUR.RData")
+#load("MUR.RData")
 names(south_africa_coast)[1] <- "lon"
 
 # Manually divide up coastline

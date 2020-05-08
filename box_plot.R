@@ -74,7 +74,7 @@ final_combined$count <- as.numeric(final_combined$count)
 ggplot(data = final_combined, aes(x = product,y = duration)) +
   geom_boxplot(aes(fill = product)) +
   facet_wrap(~site)  +
-  labs(y = "Duration (Days)", x = "SST product")+
+  labs(y = "Duration (Days)", x = "SST products")+
   theme_bw()+
   theme(legend.position="none") +
   theme(axis.text = element_text(size = 12),
@@ -82,8 +82,7 @@ ggplot(data = final_combined, aes(x = product,y = duration)) +
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14),
         strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
-        strip.text = element_text(face="bold"))
-
+        strip.text = element_text(face="bold", size = 12))
 #############################################
 #Correlations
 
