@@ -63,7 +63,10 @@ G1SST_finally <- rbind(G1SST_fill,G1SST_finally)
 # G1SST_finally_sub <- rbind(G1SST_fill,G1SST_fill2)
 # G1SST_finally <- rbind(G1SST_finally_sub,G1SST_finally)
 
-save(G1SST_finally, file = "G1SST_finally.RData")
-write_csv(G1SST_finally, path = "G1SST_finally.csv")
-data3 <- arrange(G1SST_finally, date)
-write_csv(data3, path = "data3.csv")
+# save(G1SST_finally, file = "G1SST_finally.RData")
+# write_csv(G1SST_finally, path = "G1SST_finally.csv")
+# data3 <- arrange(G1SST_finally, date)
+# write_csv(data3, path = "data3.csv")
+
+save(G1SST_last, file = "G1SST_last.RData") ##Key distance of 0km
+save(G1SST_last, file = "Data_coast_angle/G1SST_last ")

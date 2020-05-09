@@ -99,6 +99,7 @@ MUR_fill <- MUR_fill %>%
 
 # load("Data/UI_angle.RData")
 load("Data_coast_angle/UI_angle.RData") # Created in script 'upwell_IDX.Rmd'
+load("Data_coast_angle/G1SST_last.RData") # Created in Extracting folder : extract_tidync.R script"
 
 upwelling <- UI_angle %>% 
   mutate(exceedance = ifelse(ui.saws >= 1, TRUE, FALSE),
@@ -126,11 +127,14 @@ upwelling_detect_event <- function(df){
     group_modify(~detect_event_custom(.x))
 }
 
-G1SST_finally <- G1SST_finally %>% 
+# G1SST_finally <- G1SST_finally %>% 
+#   arrange(date)
+
+G1SST_last <- G1SST_last %>% 
   arrange(date)
 
-G1SST_upwell_base <- upwelling_detect_event(df = G1SST_finally)
-#save(G1SST_upwell_base, file = "Data_coast_angle/G1SST_upwell_base.RData")
+G1SST_upwell_base <- upwelling_detect_event(df = G1SST_last)
+# save(G1SST_upwell_base, file = "Data_coast_angle/G1SST_upwell_base.RData")
 OISST_upwell_base <- upwelling_detect_event(df = OISST_fill)
 #save(OISST_upwell_base, file = "Data_coast_angle/OISST_upwell_base.RData")
 CMC_upwell_base <- upwelling_detect_event(df = CMC_fill)

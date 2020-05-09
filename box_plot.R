@@ -18,11 +18,9 @@ load("Data_coast_angle/MUR_upwell_base.RData")
 load("Data_coast_angle/G1SST_upwell_base.RData")
 
 # load("Data/G1SST_upwell_base.RData")
-
+G1SST_upwell_base$distance <- as.numeric(G1SST_upwell_base$distance)
 combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base, G1SST_upwell_base)
 #save(combined_products, file = "Data_coast_angle/combined_products")
-
-G1SST_upwell_base$distance <- as.numeric(G1SST_upwell_base$distance)
 
 seasons_func <- function(df){
   BC_seaons <- df %>%
@@ -83,6 +81,7 @@ ggplot(data = final_combined, aes(x = product,y = duration)) +
         legend.title = element_text(size = 14),
         strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
         strip.text = element_text(face="bold", size = 12))
+
 #############################################
 #Correlations
 
@@ -134,8 +133,17 @@ distance_corr <- combined_freq_spread %>%
   group_by(site, product) %>% 
   slope_calc()
 
+###########################################################################
+
+load("Data_coast_angle/OISST_fill.RData")
+load("Data_coast_angle/CMC_fill.RData")
+load("Data_coast_angle/MUR_fill.RData")
+load("Data_coast_angle/G1SST_last.RData")
+load("Data/SACTN_US.RData")
 
 
 
-
-
+SST_products <- rbind(OISST_fill,G1SST_finally,CMC_fill,MUR_fill)
+SST_anaomaly <- SST_products %>% 
+  group_by(site,product) %>% 
+  summarise(mean_temp = mean(temp))
