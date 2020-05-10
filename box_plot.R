@@ -161,3 +161,4 @@ SACTN_anaomaly <- SST_products %>%
 # Run a correlation of daily temperatures @0km against each of the different distances
 # Run only for the dates where upwelling is occuring
 # How did the anomaly differ to the actual temps
+
