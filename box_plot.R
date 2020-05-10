@@ -3,6 +3,9 @@ library(tidyverse)
 library(lubridate)
 library(multcomp)
 options(scipen = 999)
+# devtools::install_github("twitter/AnomalyDetection")
+library(AnomalyDetection)
+
 
 # load("Data/OISST_final.RData")
 # load("Data/G1SST_final.RData")
@@ -141,9 +144,20 @@ load("Data_coast_angle/MUR_fill.RData")
 load("Data_coast_angle/G1SST_last.RData")
 load("Data/SACTN_US.RData")
 
+# data(OISST_fill)
+# res = AnomalyDetectionTs(raw_data, max_anoms=0.02, direction='both', plot=TRUE)
+# res$plot
 
+SST_products <- rbind(OISST_fill,G1SST_last,CMC_fill,MUR_fill)
 
-SST_products <- rbind(OISST_fill,G1SST_finally,CMC_fill,MUR_fill)
 SST_anaomaly <- SST_products %>% 
   group_by(site,product) %>% 
-  summarise(mean_temp = mean(temp))
+  mutate(anom = temp - mean(temp, na.rm = TRUE))
+
+SACTN_anaomaly <- SST_products %>% 
+  group_by(site) %>% 
+  mutate(anom = temp - mean(temp, na.rm = TRUE))
+
+# Run a correlation of daily temperatures @0km against each of the different distances
+# Run only for the dates where upwelling is occuring
+# How did the anomaly differ to the actual temps
