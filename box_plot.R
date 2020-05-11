@@ -162,3 +162,5 @@ SACTN_anaomaly <- SST_products %>%
 # Run only for the dates where upwelling is occuring
 # How did the anomaly differ to the actual temps
 
+# match temp column by date to the events column.
+# Plot the anaomaly temperature and actual tenperature but must match events
