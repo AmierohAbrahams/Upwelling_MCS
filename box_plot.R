@@ -349,7 +349,7 @@ SST_anaomaly <- SST_products %>%
   group_by(site,product) %>% 
   mutate(anom = temp - mean(temp, na.rm = TRUE))
 
-SACTN_anaomaly <- SST_products %>% 
+SACTN_anaomaly <- SACTN_US %>% 
   group_by(site) %>% 
   mutate(anom = temp - mean(temp, na.rm = TRUE))
 
@@ -380,12 +380,18 @@ matched_anaomaly_sub <- matched_anaomaly %>%
   filter(year(date) %in% 2011:2014) %>% 
   dplyr::select(product,distance,site,temp)
 
+# slope_calc <- function(df){
+#   df %>%
+#     do(mod1 = cor(.$distance, .$temp, method = "pearson", use = "complete.obs")) %>%
+#     mutate(dist_temp= mod1[1]) %>%
+#     dplyr::select(-mod1) %>%
+#     mutate_if(is.numeric, round, 2)
+# }
 
 slope_calc <- function(df){
   df %>%
-    do(mod1 = cor(.$distance, .$temp, method = "pearson", use = "complete.obs")) %>%
-    mutate(dist_temp= mod1[1]) %>%
-    dplyr::select(-mod1) %>%
+    cor.test(x = .$distance, .$temp,
+             use = "complete.obs", method = "pearson") %>% 
     mutate_if(is.numeric, round, 2)
 }
 
@@ -400,16 +406,12 @@ distance_corr <- matched_anaomaly_sub %>%
 #   geom_line() +
 #   facet_wrap(~site)
 
+summary(aov(temp ~site + product + distance , data = matched_anaomaly_sub))
+# summary(aov(temp ~ anom + site + product + distance , data = matched_anaomaly))
 
-
-
-
-
-
-
-
-
-
+mode <- lm(temp ~ anom + site + product + distance, data = matched_anaomaly)
+ANOVA <- aov(model)
+TUKEY <- TukeyHSD(x=ANOVA, 'matched_anaomaly$temp', conf.level=0.95)
 
 
 
