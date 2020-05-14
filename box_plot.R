@@ -84,63 +84,13 @@ ggplot(data = final_combined, aes(x = product,y = duration)) +
         strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
         strip.text = element_text(face="bold", size = 12))
 
-#############################################
-#Correlations
-
-load("Data_coast_angle/combined_products.RData")
-
-#Calculating the number of signals detected at different distances from the coastline
-total_signals <- combined_products %>%
-  filter(year(date_start) %in% 2011:2014) %>% 
-  mutate(year = year(date_start)) %>% 
-  group_by(product, distance) %>% 
-  summarise(y = n()) %>% 
-  rename(count = y)
-  
-# Correlation comparing signals detected at 10km with signals detected at 30km and, signals detected at 10km and 50km
-correlation_signals <- combined_products %>%
-  filter(year(date_start) %in% 2011:2014) %>% 
-  mutate(year = year(date_start)) %>% 
-  group_by(product, distance,site) %>% 
-  summarise(y = n())
-
-combined_freq_spread <- pivot_wider(correlation_signals, names_prefix = "dist_",
-                                    names_from = distance, values_from = y)
-
-slope_calc <- function(df){
-  df %>% 
-    # mutate(row_num = 1:n()) %>% 
-    # do(mod1 = lm(number_of_signals ~ row_num, data = .),
-    # mod2 = lm(distance ~ row_num, data = .),
-    # mod3 = lm(distance ~ number_of_signals, data = .),
-    # mod4 = cor(.$distance, .$number_of_signals, method = "pearson", use = "complete.obs")[1]) %>% 
-    # mutate(distance_slope = summary(mod1)$coeff[2],
-    #    signal_slope = summary(mod2)$coeff[2],
-    #    signal_distance_slope = summary(mod3)$coeff[2],
-    #    signal_distance_r = mod4[1],
-    #    signal_distance_r2 = glance(mod3)$adj.r.squared) %>%
-    # select(-mod1, -mod2, -mod3, -mod4) %>% 
-  do(mod1 = cor(.$dist_0, .$dist_25000, method = "pearson", use = "complete.obs"),
-     mod2 = cor(.$dist_0, .$dist_50000, method = "pearson", use = "complete.obs")) %>%
-    mutate(dist_10_vs_30_r = mod1[1],
-           dist_10_vs_50_r = mod2[1]) %>% 
-    # select(dist_10_vs_30_r, dist_10_vs_50_r) %>% 
-    dplyr::select(-mod1, -mod2) %>% 
-    mutate_if(is.numeric, round, 2)
-}
-
-#### test <- cor(combined_freq_spread$`10`, combined_freq_spread$`30`)
-
-distance_corr <- combined_freq_spread %>% 
-  group_by(site, product) %>% 
-  slope_calc()
-
 # 4: Correlation ----------------------------------------------------
 # Doing a correlation to test if a signal present at 0 km is present at 25 km and the chances that it is present at 50 km
 
 # Run a correlation of daily temperatures at 0 km against each of the different distances
 # Run only for the dates where upwelling is occuring 
 
+# Loading the daily temperatures
 load("Data_coast_angle/OISST_fill.RData")
 load("Data_coast_angle/CMC_fill.RData")
 load("Data_coast_angle/MUR_fill.RData")
@@ -149,6 +99,7 @@ load("Data/SACTN_US.RData")
 
 SST_products <- rbind(OISST_fill,G1SST_last,CMC_fill,MUR_fill)
 
+# Determining the anomaly teperature for SST products and SACTN
 SST_anaomaly <- SST_products %>% 
   group_by(site,product) %>% 
   mutate(anom = temp - mean(temp, na.rm = TRUE))
@@ -161,21 +112,22 @@ SST_anaomaly <- SST_anaomaly %>%
   dplyr::select(temp,anom, product,site,date, distance)
 SST_anaomaly$distance <- as.numeric(SST_anaomaly$distance)
 
+
+# LOading the upwelling metric data
 load("Data_coast_angle/OISST_upwell_base.RData")
 load("Data_coast_angle/CMC_upwell_base.RData")
 load("Data_coast_angle/SACTN_upwell_base.RData")
 load("Data_coast_angle/MUR_upwell_base.RData")
 load("Data_coast_angle/G1SST_upwell_base.RData")
 
-# load("Data/G1SST_upwell_base.RData")
-G1SST_upwell_base$distance <- as.numeric(G1SST_upwell_base$distance)
 combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base, G1SST_upwell_base)
 combined_products <- combined_products %>% 
   rename(date = date_start)
 
-
+# Matching the temperature and anomaly column to the upwelling metrics
 matched_anaomaly<- combined_products %>% 
   left_join(SST_anaomaly, by = c("date", "site", "product", "distance"))
+
 #save(matched_anaomaly, file = "Data_coast_angle/matched_anaomaly.RData")
 
 load("Data_coast_angle/matched_anaomaly.RData")
@@ -205,6 +157,8 @@ distance_corr <- matched_anaomaly_sub %>%
   slope_calc()
 
 # 5: Anomaly temperature ----------------------------------------------------
+# How did the anaomaly temperatures vary compared to actual temps
+
 
 # ggplot(data =matched_anaomaly, aes(x = date, y = anom, colour = product)) +
 #   geom_line() +
