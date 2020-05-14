@@ -109,7 +109,7 @@ SST_anom <- SST_clims %>%
 
 SST_corr <- SST_anom %>% 
   group_by(site,temp,anom,product) %>% 
-  correlation(partial = TRUE, multilevel = TRUE) %>% 
+  correlation(method = pearson) %>% 
   summary()
 
 # anom_spread<- SST_anom %>%
