@@ -20,6 +20,7 @@ library(doMC); doMC::registerDoMC(cores = 4)
 library(fasttime)
 library(data.table)
 library(heatwaveR)
+
 # 2: Loading data ----------------------------------------------------
 
 # load("Data/site_list_sub.Rdata")
@@ -45,7 +46,7 @@ CMC_prod <- CMC %>%
   unique() %>%
   mutate(product = "CMC")
 
-MUR_prod <- MUR_new %>%
+MUR_prod <- MUR %>%
   dplyr::select(lon, lat) %>%
   unique() %>%
   mutate(product = "MUR")
@@ -81,7 +82,7 @@ pixel_match <- site_pixels %>%
 
 
 OISST_fill <- right_join(OISST, filter(pixel_match, product == "OISST"), by = c("lon", "lat"))
-MUR_fill <- right_join(MUR_new, filter(pixel_match, product == "MUR"), by = c("lon", "lat"))
+MUR_fill <- right_join(MUR, filter(pixel_match, product == "MUR"), by = c("lon", "lat"))
 rm(OISST, MUR); gc()
 
 selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
@@ -134,7 +135,7 @@ G1SST_last <- G1SST_last %>%
   arrange(date)
 
 G1SST_upwell_base <- upwelling_detect_event(df = G1SST_last)
-# save(G1SST_upwell_base, file = "Data_coast_angle/G1SST_upwell_base.RData")
+#save(G1SST_upwell_base, file = "Data_coast_angle/G1SST_upwell_base.RData")
 OISST_upwell_base <- upwelling_detect_event(df = OISST_fill)
 #save(OISST_upwell_base, file = "Data_coast_angle/OISST_upwell_base.RData")
 CMC_upwell_base <- upwelling_detect_event(df = CMC_fill)
