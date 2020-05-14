@@ -176,14 +176,14 @@ SACTN_upwell_base <- SACTN_US %>%
   group_by(site) %>% 
   nest() %>% 
   mutate(clim = purrr::map(data, ts2clm, pctile = 25, climatologyPeriod = c("1993-01-01", "2005-10-19"))) %>%
-  select(-data) %>% 
+  dplyr::select(-data) %>% 
   unnest(cols = clim) %>%
   left_join(SACTN_upwell, by = c("site", "t")) %>%
   filter(!is.na(exceedance)) %>%
   group_by(site) %>% 
   nest() %>% 
-  mutate(exceed = purrr::map(data, detect_event_custom)) %>% 
-  select(-data)
+  dplyr::mutate(exceed = purrr::map(data, detect_event_custom)) %>% 
+  dplyr::select(-data)
 
 SACTN_upwell_events <- SACTN_upwell_base %>% 
   unnest() %>%

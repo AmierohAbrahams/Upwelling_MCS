@@ -5,6 +5,7 @@
 # 2: Loading all of the data 
 # 3: Determining the temperatures at the various distances from the coastline
 # 4: Loading final data products
+# 5: Climatology
 
 # 1: Setup environment ----------------------------------------------------
 #update.packages() 
@@ -160,3 +161,41 @@ SACTN_upwell_base <- SACTN_US %>%
   group_modify(~detect_event_custom(.x))
 
 save(SACTN_upwell_base, file = "Data/SACTN_upwell_base.RData")
+
+# 5: Calculating the climatology ----------------------------------------------------
+
+detect_event_custom <- function(df){
+  res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 1, coldSpells = T)$climatology 
+  return(res)
+}
+
+ts2clm_custom <- function(df){
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2011-01-02 ", "2014-06-30")) #Length of MUR time series: Chnage according to length os SST product
+  return(res)
+}
+
+G1SST_last <- G1SST_last %>% 
+  arrange(date)
+
+G1SST_upwell_clims <- upwelling_detect_event(df = G1SST_last)
+#save(G1SST_upwell_clims, file = "Data_coast_angle/G1SST_upwell_clims.RData")
+OISST_upwell_clims <- upwelling_detect_event(df = OISST_fill)
+#save(OISST_upwell_clims, file = "Data_coast_angle/OISST_upwell_clims.RData")
+CMC_upwell_clims <- upwelling_detect_event(df = CMC_fill)
+# save(CMC_upwell_clims, file = "Data_coast_angle/CMC_upwell_clims.RData")
+MUR_fill$distance <- as.numeric(MUR_fill$distance)
+MUR_upwell_clims <- upwelling_detect_event(df = MUR_fill)
+#save(MUR_upwell_clims, file = "Data_coast_angle/MUR_upwell_clims.RData")
+
+
+
+
+
+
+
+
+
+
+
+
+
