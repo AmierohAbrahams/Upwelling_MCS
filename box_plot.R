@@ -14,7 +14,9 @@ library(lubridate)
 library(multcomp)
 options(scipen = 999)
 # devtools::install_github("twitter/AnomalyDetection")
-library(AnomalyDetection)
+#library(AnomalyDetection)
+#devtools::install_github("easystats/correlation")
+library(correlation)
 
 # 2: Loading data ----------------------------------------------------
 # load("Data/OISST_final.RData")
@@ -91,83 +93,43 @@ ggplot(data = final_combined, aes(x = product,y = duration)) +
 # Run only for the dates where upwelling is occuring 
 
 # Loading the daily temperatures
-load("Data_coast_angle/OISST_fill.RData")
-load("Data_coast_angle/CMC_fill.RData")
-load("Data_coast_angle/MUR_fill.RData")
-load("Data_coast_angle/G1SST_last.RData")
-load("Data/SACTN_US.RData")
+load("Data_coast_angle/OISST_upwell_clims.RData")
+load("Data_coast_angle/CMC_upwell_clims.RData")
+load("Data_coast_angle/MUR_upwell_clims.RData")
+load("Data_coast_angle/G1SST_upwell_clims.RData")
 
-SST_products <- rbind(OISST_fill,G1SST_last,CMC_fill,MUR_fill)
+SST_clims <- rbind(OISST_upwell_clims,G1SST_upwell_clims,CMC_upwell_clims,MUR_upwell_clims)
 
 # Determining the anomaly teperature for SST products and SACTN
-SST_anaomaly <- SST_products %>% 
+SST_anom <- SST_clims %>% 
   group_by(site,product) %>% 
-  mutate(anom = temp - mean(temp, na.rm = TRUE))
+  mutate(anom = temp - mean(seas, na.rm = TRUE)) %>% 
+  filter(year(t) %in% 2011:2014) %>% 
+  dplyr::select(site,distance,temp,anom,product)
 
-SACTN_anaomaly <- SACTN_US %>% 
-  group_by(site) %>% 
-  mutate(anom = temp - mean(temp, na.rm = TRUE))
+SST_corr <- SST_anom %>% 
+  group_by(site,temp,anom,product) %>% 
+  correlation(partial = TRUE, multilevel = TRUE) %>% 
+  summary()
 
-SST_anaomaly <- SST_anaomaly %>% 
-  dplyr::select(temp,anom, product,site,date, distance)
-SST_anaomaly$distance <- as.numeric(SST_anaomaly$distance)
+# anom_spread<- SST_anom %>%
+#   spread(key = distance, value = temp)
 
-
-# LOading the upwelling metric data
-load("Data_coast_angle/OISST_upwell_base.RData")
-load("Data_coast_angle/CMC_upwell_base.RData")
-load("Data_coast_angle/SACTN_upwell_base.RData")
-load("Data_coast_angle/MUR_upwell_base.RData")
-load("Data_coast_angle/G1SST_upwell_base.RData")
-
-combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base, G1SST_upwell_base)
-combined_products <- combined_products %>% 
-  rename(date = date_start)
-
-# Matching the temperature and anomaly column to the upwelling metrics
-matched_anaomaly<- combined_products %>% 
-  left_join(SST_anaomaly, by = c("date", "site", "product", "distance"))
-
-#save(matched_anaomaly, file = "Data_coast_angle/matched_anaomaly.RData")
-
-load("Data_coast_angle/matched_anaomaly.RData")
-
-matched_anaomaly_sub <- matched_anaomaly %>% 
-  filter(year(date) %in% 2011:2014) %>% 
-  dplyr::select(product,distance,site,temp)
-
-# slope_calc <- function(df){
-#   df %>%
-#     do(mod1 = cor(.$distance, .$temp, method = "pearson", use = "complete.obs")) %>%
-#     mutate(dist_temp= mod1[1]) %>%
-#     dplyr::select(-mod1) %>%
-#     mutate_if(is.numeric, round, 2)
-# }
+SST_anom_spread <- pivot_wider(SST_anom, names_prefix = "dist_",
+                               names_from = distance, values_from = temp)
 
 slope_calc <- function(df){
-  df %>%
-    cor.test(x = .$distance, .$temp,
-             use = "complete.obs", method = "pearson") %>% 
+  df %>% 
+    do(mod1 = cor(.$dist_0, .$dist_25000, method = "pearson", use = "complete.obs"),
+       mod2 = cor(.$dist_0, .$dist_50000, method = "pearson", use = "complete.obs")) %>%
+    mutate(dist_0_vs_25_r = mod1[1],
+           dist_0_vs_50_r = mod2[1]) %>% 
+    dplyr::select(-mod1, -mod2) %>% 
     mutate_if(is.numeric, round, 2)
 }
 
-distance_corr <- matched_anaomaly_sub %>%
- #group_by(site, product, distance) %>%
-  group_by(site, product) %>%
+distance_corr <- SST_anom_spread %>% 
+  group_by(site, product) %>% 
   slope_calc()
 
-# 5: Anomaly temperature ----------------------------------------------------
-# How did the anaomaly temperatures vary compared to actual temps
-
-
-# ggplot(data =matched_anaomaly, aes(x = date, y = anom, colour = product)) +
-#   geom_line() +
-#   facet_wrap(~site)
-
-summary(aov(temp ~site + product + distance , data = matched_anaomaly_sub))
-# summary(aov(temp ~ anom + site + product + distance , data = matched_anaomaly))
-
-mode <- lm(temp ~ anom + site + product + distance, data = matched_anaomaly)
-ANOVA <- aov(model)
-TUKEY <- TukeyHSD(x=ANOVA, 'matched_anaomaly$temp', conf.level=0.95)
 

@@ -178,6 +178,7 @@ G1SST_last <- G1SST_last %>%
   arrange(date)
 
 G1SST_upwell_clims <- upwelling_detect_event(df = G1SST_last)
+G1SST_upwell_clims$distance <- as.numeric(G1SST_upwell_clims$distance)
 #save(G1SST_upwell_clims, file = "Data_coast_angle/G1SST_upwell_clims.RData")
 OISST_upwell_clims <- upwelling_detect_event(df = OISST_fill)
 #save(OISST_upwell_clims, file = "Data_coast_angle/OISST_upwell_clims.RData")
@@ -185,6 +186,7 @@ CMC_upwell_clims <- upwelling_detect_event(df = CMC_fill)
 # save(CMC_upwell_clims, file = "Data_coast_angle/CMC_upwell_clims.RData")
 MUR_fill$distance <- as.numeric(MUR_fill$distance)
 MUR_upwell_clims <- upwelling_detect_event(df = MUR_fill)
+MUR_upwell_clims$distance <- as.numeric(MUR_upwell_clims$distance)
 #save(MUR_upwell_clims, file = "Data_coast_angle/MUR_upwell_clims.RData")
 
 
