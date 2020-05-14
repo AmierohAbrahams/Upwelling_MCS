@@ -170,7 +170,7 @@ detect_event_custom <- function(df){
 }
 
 ts2clm_custom <- function(df){
-  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2011-01-02 ", "2014-06-30")) #Length of MUR time series: Chnage according to length os SST product
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1982-01-01", "2017-12-31")) #Length of MUR time series: Chnage according to length os SST product
   return(res)
 }
 
