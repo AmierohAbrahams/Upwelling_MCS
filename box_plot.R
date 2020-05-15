@@ -5,7 +5,6 @@
 # 2: Loading all of the data 
 # 3: Preparing data to plot the box plot
 # 4: Correlations
-# 5: Testing the diffetrence in the anaomly temperatures compared to actual tenperatures
 
 # 1: Setup environment ----------------------------------------------------
 # Loading libraries
@@ -107,6 +106,8 @@ SST_anom <- SST_clims %>%
   filter(year(t) %in% 2011:2014) %>% 
   dplyr::select(site,distance,temp,anom,product)
 
+# Doing the correlation using the easystat correlation package
+# https://rdrr.io/github/easystats/correlation/man/correlation.html
 SST_corr <- SST_anom %>% 
   group_by(site,temp,anom,product) %>% 
   correlation(method = pearson) %>% 
