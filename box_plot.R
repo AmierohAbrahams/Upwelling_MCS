@@ -99,19 +99,26 @@ load("Data_coast_angle/G1SST_upwell_clims.RData")
 
 SST_clims <- rbind(OISST_upwell_clims,G1SST_upwell_clims,CMC_upwell_clims,MUR_upwell_clims)
 
-# Determining the anomaly teperature for SST products and SACTN
+# Determining the anomaly temperature for SST products and SACTN
 SST_anom <- SST_clims %>% 
-  group_by(site,product) %>% 
-  mutate(anom = temp - mean(seas, na.rm = TRUE)) %>% 
+  group_by(site, product, distance) %>% 
+  mutate(anom = temp - seas) %>% 
   filter(year(t) %in% 2011:2014) %>% 
-  dplyr::select(site,distance,temp,anom,product)
+  filter(event_no > 0) %>% # Activate this line to only use dates during an upwelling event
+  dplyr::select(site, t, distance, temp, anom, product) %>% 
+  na.omit() %>% 
+  unique()
+
+# Create wide anomaly data.frame
+sst_anom_wide <- SST_anom %>% 
+  pivot_wider(id_cols = c(site, product, t), names_from = distance, values_from = c(temp, anom))
 
 # Doing the correlation using the easystat correlation package
 # https://rdrr.io/github/easystats/correlation/man/correlation.html
-SST_corr <- SST_anom %>% 
-  group_by(site,temp,anom,product) %>% 
-  correlation(method = pearson) %>% 
-  summary()
+SST_corr <- sst_anom_wide %>% 
+  group_by(site, product) %>% 
+  correlation(method = "pearson") #%>% 
+  # summary()
 
 # anom_spread<- SST_anom %>%
 #   spread(key = distance, value = temp)
