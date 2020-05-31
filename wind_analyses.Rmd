@@ -112,28 +112,6 @@ save(wind_data, file = "Data/wind_data.RData")
 # # save(wind_data, file = "Data_P1/wind_data.RData")
 
 # load("Data_P1/insitu_wind.RData")
-# 
-# test1 <- insitu_wind %>% 
-#   mutate(lat = case_when(site == "Port Nolloth" ~ "-29.25241",
-#                                     site == "Saldanha Bay" ~ "-33.01054",
-#                                     site  == "Yzerfontein" ~ "-33.36068",
-#                                     site  == "Kommetjie" ~ "-34.13667",
-#                                     site  == "Lamberts Bay" ~ "-32.09185",
-#                                     site  == "Sea Point" ~ "-33.91847"))
-# 
-# test <- test1 %>% 
-#   mutate(lon = case_when(site == "Port Nolloth" ~ "16.86710",
-#                                     site == "Saldanha Bay" ~ "17.95063",
-#                                     site  == "Yzerfontein" ~ "18.15731",
-#                                     site  == "Kommetjie" ~ "18.32674",
-#                                     site  == "Lamberts Bay" ~ "18.30262",
-#                                     site  == "Sea Point" ~ "18.38217"))
-# 
-# test_final <- test %>% 
-#   select(date,lat,lon,dir_circ, mean_speed) %>% 
-#   dplyr::rename(speed = mean_speed) %>% 
-#   dplyr::rename(dir = dir_circ)
-
 # Loading the wind data
 library(tidyverse)
 library(circular)
