@@ -140,4 +140,4 @@ distance_corr <- SST_anom_spread %>%
   group_by(site, product) %>% 
   slope_calc()
 
-
+# GAM
