@@ -4,9 +4,9 @@ library(tidync)
 # rm(BC_avhrr_only_v2_Document_Document ); gc()
 # load("Data_coast_angle/site_pixels.RData")
 
-temp_dat <- tidync("/media/amieroh/Amieroh/Data/Datasets/G1SST_data/20141226-JPL_OUROCEAN-L4UHfnd-GLOB-v01-fv01_0-G1SST_subset.nc") %>% 
+temp_dat <- tidync("/home/amieroh/Downloads/data.nc") %>% 
   hyper_tibble() %>% 
-  select(lon, lat, analysed_sst) %>% 
+  select(lon, lat, u, date) %>% 
   dplyr::rename(temp = analysed_sst) %>% 
   mutate(t ="2014-12-26")
 
