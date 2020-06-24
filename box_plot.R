@@ -76,14 +76,24 @@ ggplot(data = final_combined, aes(x = product,y = duration)) +
   geom_boxplot(aes(fill = product)) +
   facet_wrap(~site)  +
   labs(y = "Duration (Days)", x = "SST products")+
-  theme_bw()+
-  theme(legend.position="none") +
-  theme(axis.text = element_text(size = 12),
-        axis.title = element_text(size = 12, face = "bold"),
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 14),
-        strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
-        strip.text = element_text(face="bold", size = 12))
+  theme_update(plot.background = element_rect(colour = NA),
+               panel.background = element_rect(colour = NA, fill = "grey95"),
+               panel.border = element_rect(colour = NA, fill = NA, size = 0.5),
+               panel.grid.major = element_line(colour = "lightblue", size = 0.2),
+               panel.grid.minor = element_blank(),
+               axis.title = element_text(face = "bold", size = 9),
+               axis.text = element_text(size = 7),
+               axis.ticks = element_line(size = 0.3),
+               axis.ticks.length = unit(0.5, "mm"),
+               legend.position = "none",
+               legend.direction = "vertical",
+               legend.text = element_text(size = 6),
+               legend.title = element_text(size = 6),
+               legend.key = element_blank(),
+               legend.key.height = unit(.25, "cm"),
+               legend.background = element_rect(fill = NA, colour = "black", size = 0.2),
+               strip.background = element_rect(fill = "lightblue", colour = NA),
+               strip.text = element_text(size = 8))
 
 # 4: Correlation ----------------------------------------------------
 # Doing a correlation to test if a signal present at 0 km is present at 25 km and the chances that it is present at 50 km
