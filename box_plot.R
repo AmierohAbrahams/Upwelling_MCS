@@ -73,27 +73,25 @@ final_combined <- rbind(metrics, metric_SACTN)
 final_combined$count <- as.numeric(final_combined$count)
 
 ggplot(data = final_combined, aes(x = product,y = duration)) +
-  geom_boxplot(aes(fill = product)) +
+  geom_point(data = metric_prods,shape = 21, fill = "lightgray",
+             color = "black", size = 3) +
+  geom_point(data = metric_SACTN,shape = 21, fill = "lightgray",
+             color = "black", size = 3) +
+  geom_boxplot(aes()) +
   facet_wrap(~site)  +
   labs(y = "Duration (Days)", x = "SST products")+
-  theme_update(plot.background = element_rect(colour = NA),
-               panel.background = element_rect(colour = NA, fill = "grey95"),
-               panel.border = element_rect(colour = NA, fill = NA, size = 0.5),
-               panel.grid.major = element_line(colour = "lightblue", size = 0.2),
-               panel.grid.minor = element_blank(),
-               axis.title = element_text(face = "bold", size = 9),
-               axis.text = element_text(size = 7),
-               axis.ticks = element_line(size = 0.3),
-               axis.ticks.length = unit(0.5, "mm"),
-               legend.position = "none",
-               legend.direction = "vertical",
-               legend.text = element_text(size = 6),
-               legend.title = element_text(size = 6),
-               legend.key = element_blank(),
-               legend.key.height = unit(.25, "cm"),
-               legend.background = element_rect(fill = NA, colour = "black", size = 0.2),
-               strip.background = element_rect(fill = "lightblue", colour = NA),
-               strip.text = element_text(size = 8))
+  theme_set(theme_grey()) +
+  theme_grey() +
+  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+    panel.grid.major = element_line(size = 0.2, linetype = 2),
+    panel.grid.minor = element_line(colour = NA),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(size = 12, colour = "black"),
+    plot.title = element_text(size = 12, hjust = 0),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 10),
+    legend.key = element_rect(size = 0.8, colour = NA),
+    legend.background = element_blank())
 
 # 4: Correlation ----------------------------------------------------
 # Doing a correlation to test if a signal present at 0 km is present at 25 km and the chances that it is present at 50 km
