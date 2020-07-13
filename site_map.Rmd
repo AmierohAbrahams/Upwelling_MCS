@@ -147,7 +147,7 @@ site_pixels <- data.frame()
 for(i in 1:length(west$site)){
   site <- site_transects[i,]
   #site_pixel <- transect.pixel(site, c(10000, 20000, 30000, 40000, 50000)) # RWS: fixed error
-  site_pixel <- transect.pixel(site, c(0, 25000, 50000))
+  site_pixel <- transect.pixel(site, c(10000, 25000, 50000))
   site_pixels <- rbind(site_pixels, site_pixel)
 }
 
@@ -193,6 +193,7 @@ theme_set(theme_bw())
 limits <- c(12,28) # for colour bar
 #breaks <- seq(6, 30, 2) # Create breaks to be used for colour bar
 
+write.csv(site_list_sub,file = "site_list_sub.csv")
 # Define plotting parameters
 sa_lats <- c(-37, -27); sa_lons <- c(14, 25)
 

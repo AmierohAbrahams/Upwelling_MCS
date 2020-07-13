@@ -55,7 +55,7 @@ lm_coeff <- function(df){
 # Calculate all of the linear models
 lm_metrics <- metric_4years %>% 
   ungroup() %>% 
-  dplyr::select(-heading, -c(lon:index_end), -distance_km) %>% 
+  dplyr::select(-heading, -c(lon:index_end)) %>% 
   pivot_longer(cols = c(duration, intensity_mean:rate_decline), 
                names_to = "var", values_to = "val") %>% 
   group_by(site, product, distance, var) %>% 
