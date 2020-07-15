@@ -148,3 +148,24 @@ distance_corr <- SST_anom_spread %>%
   group_by(site, product) %>% 
   slope_calc()
 
+## Bar graph plot
+no_upwelling_sigs <- read_csv("Data_coast_angle/number_upwelling_sigs.csv")
+ggplot(data = no_upwelling_sigs, aes(x = SST_product, y = Number_of_signals, group = factor(Distance), fill = factor(Distance))) +
+  geom_bar(stat = "identity",position = position_dodge2(width =0.5), width = 0.5) +
+  scale_y_continuous(breaks = c(50,100,150,200,250,300,350,400))+
+  scale_x_discrete(limits = c("OISST","CMC", "MUR","G1SST")) +
+  scale_fill_grey(start = .1, end = .5, labels = c("0 km", "25 km", "50 km")) +
+  labs(x ="SST product", y = "Number of upwelling signals") +
+  theme_set(theme_grey()) +
+  theme_grey() +
+  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+    panel.grid.major = element_line(size = 0.2, linetype = 2),
+    panel.grid.minor = element_line(colour = NA),
+    axis.title = element_text(size = 12, face = "bold"),
+    axis.text = element_text(size = 12, colour = "black"),
+    plot.title = element_text(size = 12, hjust = 0),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 10),
+    legend.key = element_rect(size = 0.8, colour = NA),
+    legend.background = element_blank())
+

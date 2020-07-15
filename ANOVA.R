@@ -39,7 +39,7 @@ metric_4years <- combined_products %>%
 
 metrics <- metric_4years %>% 
   # mutate(year = year(date_start)) %>% # Why is this here? It is removed in the summarise step.
-  group_by(product, site) %>% 
+  group_by(product, distance) %>% 
   summarise(y = n(),
             mean_intensity = mean(intensity_mean),
             mean_dur = mean(duration),
