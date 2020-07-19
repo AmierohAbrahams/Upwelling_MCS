@@ -276,8 +276,6 @@ site_map
 # }
 # 
 # Map <- mapping_plot(df = site_list_sub_map, xy = "salmon")
-
-
 ```
 
 
