@@ -16,17 +16,11 @@ knitr::opts_chunk$set(
 )
 
 library(tidyverse)
-library(plyr)
+# library(plyr)
 library(lubridate)
-library(ggpubr)
 library(zoo)
-library(lubridate)
 library(FNN)
-library(forecast)
-library(astrochron)
-library(WaveletComp)
 library(data.table)
-library(heatwaveR)
 library(viridis)
 library(ggrepel)
 library(plyr)
@@ -40,14 +34,11 @@ library(gridExtra)
 library(circular)
 library(fossil)
 library(mapproj)
-library(ncdf4)
 library(reshape2)
-library(plyr) # Never load plyr when also loading the tidyverse. It causes a lot of conflicts.
 library(stringr)
 library(doMC); doMC::registerDoMC(cores = 4)
 library(fasttime)
 library(xtable)
-library(ggpubr)
 library(ggpubr); theme_set(theme_pubr())# library(devtools)
 # install_github("marchtaylor/sinkr")
 
@@ -193,7 +184,7 @@ theme_set(theme_bw())
 limits <- c(12,28) # for colour bar
 #breaks <- seq(6, 30, 2) # Create breaks to be used for colour bar
 
-write.csv(site_list_sub,file = "site_list_sub.csv")
+# write.csv(site_list_sub,file = "site_list_sub.csv")
 # Define plotting parameters
 sa_lats <- c(-37, -27); sa_lons <- c(14, 25)
 
@@ -201,8 +192,8 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
    geom_polygon(aes(group = group),fill = "grey", colour = "grey", size = 0.1, show.legend = FALSE) +
   geom_point(data = site_list_sub, aes(x = lon, y = lat), alpha = 0.8, size = 2) +
   geom_point(data = site_pixels, aes(x = lon, y = lat), colour = "black", shape = 0, alpha = 0.8, size = 2.1) +
-  geom_label_repel(data =site_list_sub, aes(x = lon, y = lat, label = site), 
-                     size = 4, box.padding = 2, nudge_x = 0.7, nudge_y = 0.2, 
+  geom_label_repel(data =site_list_sub, aes(x = lon, y = lat, label = site),
+                     size = 4, box.padding = 2, nudge_x = 0.7, nudge_y = 0.2,
                      segment.alpha = 0.4, force = 0.1) +
   xlab("") + ylab("") +
     annotate("text", label = "ATLANTIC\nOCEAN", x = 16, y = -31.5,
