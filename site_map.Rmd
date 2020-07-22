@@ -184,7 +184,6 @@ theme_set(theme_bw())
 limits <- c(12,28) # for colour bar
 #breaks <- seq(6, 30, 2) # Create breaks to be used for colour bar
 
-# write.csv(site_list_sub,file = "site_list_sub.csv")
 # Define plotting parameters
 sa_lats <- c(-37, -27); sa_lons <- c(14, 25)
 
