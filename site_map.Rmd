@@ -155,7 +155,7 @@ bbox <- data.frame(xmin = destPoint(p = site_pixels[1,2:3], b = 270, d = 12500)[
                    ymin = destPoint(p = site_pixels[1,2:3], b = 180, d = 12500)[2],
                    ymax = destPoint(p = site_pixels[1,2:3], b = 0, d = 12500)[2])
 
-# Determining the temperature at the various distances from the coast
+## Determining the temperature at the various distances from the coast
 ```
 
 
