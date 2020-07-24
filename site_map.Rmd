@@ -142,7 +142,7 @@ for(i in 1:length(west$site)){
   site_pixels <- rbind(site_pixels, site_pixel)
 }
 
-# New site pixels
+# New site pixels [AA,changesd some time recorded the land temp instad]
 # save(site_pixels, file = "Data/site_pixels_new.RData")
 # load("Data/site_pixels_new.RData")
 # save(site_pixels, file = "Data/site_pixels.RData")
