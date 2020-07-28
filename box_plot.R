@@ -162,7 +162,8 @@ ggplot(data = no_upwelling_sigs, aes(x = SST_product, y = Number_of_signals, gro
   theme_set(theme_grey()) +
   theme_grey() +
   scale_fill_manual(values = c("grey79", "grey57", "grey40"))+
-  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+  theme(
+    #panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
     panel.grid.minor = element_line(colour = NA),
     strip.text = element_text(size=12, family = "Palatino"),
