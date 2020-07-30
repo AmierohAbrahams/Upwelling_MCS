@@ -72,12 +72,15 @@ metrics_SACTN <- metrics_func(df = metric_SACTN)
 final_combined <- rbind(metrics, metric_SACTN)
 final_combined$count <- as.numeric(final_combined$count)
 
+Ordering <- c("OISST", "CMC","G1SST", "MUR", "SACTN")
+
 ggplot(data = final_combined, aes(x = product,y = duration)) +
   geom_point(data = metric_prods,shape = 21, fill = "lightgray",
              color = "black", size = 3) +
   geom_point(data = metric_SACTN,shape = 21, fill = "lightgray",
              color = "black", size = 3) +
   geom_boxplot(aes()) +
+  scale_x_discrete(limits = Ordering) +
   facet_wrap(~site)  +
   labs(y = "Duration (Days)", x = "SST products")+
   theme_set(theme_grey()) +
@@ -151,13 +154,15 @@ distance_corr <- SST_anom_spread %>%
   slope_calc()
 
 ## Bar graph plot
+Ordering <- c("OISST", "CMC","G1SST", "MUR")
 no_upwelling_sigs <- read_csv("Data_coast_angle/number_upwelling_sigs.csv")
 ggplot(data = no_upwelling_sigs, aes(x = SST_product, y = Number_of_signals, group = factor(Distance), fill = factor(Distance))) +
   geom_bar(stat = "identity",position = position_dodge2(width =0.5), width = 0.5) +
   scale_y_continuous(breaks = c(50,100,150,200,250,300,350,400))+
-  scale_x_discrete(limits = c("OISST","CMC", "MUR","G1SST")) +
+  scale_x_discrete(limits = Ordering) +
   scale_fill_grey(start = .1, end = .5, labels = c("0", "25", "50")) +
-  labs(x ="SST product", y = "Number of upwelling signals") +
+  scale_fill_discrete(labels = c("0", "25", "50")) +
+    labs(x ="SST product", y = "Number of upwelling signals") +
   labs(fill = "Distance (km)") + 
   theme_set(theme_grey()) +
   theme_grey() +
@@ -176,4 +181,35 @@ ggplot(data = no_upwelling_sigs, aes(x = SST_product, y = Number_of_signals, gro
     legend.text = element_text(size = 16, family = "Palatino"),
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
+
+#########################
+load("Data/metric_ANOVA.RData") # Created in the ANOVA.R script
+
+Ordering <- c("OISST", "CMC","G1SST", "MUR")
+ggplot(data = metric_ANOVA, aes(x = product, y = count, group = factor(distance), fill = factor(distance))) +
+  geom_bar(stat = "identity",position = position_dodge2(width =0.5), width = 0.5) +
+  scale_y_continuous(breaks = c(50,100,150,200,250,300,350,400))+
+  scale_x_discrete(limits = Ordering) +
+  scale_fill_grey(start = .1, end = .5, labels = c("0", "25", "50")) +
+  labs(x ="SST product", y = "Number of upwelling signals") +
+  labs(fill = "Distance (km)") + 
+  facet_wrap(~site)+
+  theme_set(theme_grey()) +
+  theme_grey() +
+  scale_fill_manual(values = c("grey79", "grey57", "grey40"))+
+  theme(
+    #panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+    panel.grid.major = element_line(size = 0.2, linetype = 2),
+    panel.grid.minor = element_line(colour = NA),
+    strip.text = element_text(size=12, family = "Palatino"),
+    axis.ticks.length = unit(0.4, "cm"),
+    axis.ticks = element_line(colour = "black"),
+    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    plot.title = element_text(size = 18, hjust = 0),
+    legend.title = element_text(size = 18, family = "Palatino"),
+    legend.text = element_text(size = 16, family = "Palatino"),
+    legend.key = element_rect(size = 0.8, colour = NA),
+    legend.background = element_blank())
+
 

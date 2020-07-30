@@ -100,3 +100,19 @@ summary(aov(intensity_mean ~ site + product + distance, data = lm_metrics_wide))
 summary(aov(intensity_max ~ site + product + distance, data = lm_metrics_wide))
 summary(aov(intensity_cumulative ~ site + product + distance, data = lm_metrics_wide))
 
+### ANOVA suggested by AJ to compare the differences in number of signals detected between sites
+metric_ANOVA <- combined_products %>% 
+  filter(year(date_start) %in% 2011:2014) %>%  # only for the years 2011-2014 so 4 year period
+  ungroup() %>%
+  group_by(product, site, distance) %>% 
+  summarise(y = n()) %>% 
+  rename(count = y) %>% 
+  mutate(distance = case_when(distance == "25000" ~ "25",
+                                distance == "50000" ~ "50",
+                              distance == "0" ~ "0",))
+
+
+# save(metric_ANOVA, file = "Data/metric_ANOVA.RData")
+
+summary(aov(count ~ site + product + distance, data = metric_ANOVA))
+
