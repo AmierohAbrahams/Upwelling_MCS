@@ -166,6 +166,7 @@ load("Data/africa_coast.RData")
 load("Data/sa_provinces_new.RData")
 load("Data/site_list_sub.Rdata")
 load("Data_coast_angle/site_pixels.RData")
+site_pixels <- read_csv("site_pixels.csv")
 
 #load("Data/site_pixels.RData")
 #load("MUR.RData")

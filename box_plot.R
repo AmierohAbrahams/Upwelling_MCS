@@ -127,7 +127,7 @@ sst_anom_wide <- SST_anom %>%
   pivot_wider(id_cols = c(site, product, t), names_from = distance, values_from = c(temp, anom))
 
 # Doing the correlation using the easystat correlation package
-# https://rdrr.io/github/easystats/correlation/man/correlation.html
+# https://rdrr.io/github/easystats/correlation/man/   correlation.html
 SST_corr <- sst_anom_wide %>% 
   group_by(site, product) %>% 
   correlation(method = "pearson") #%>% 
