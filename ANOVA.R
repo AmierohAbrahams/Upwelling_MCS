@@ -72,21 +72,18 @@ lm_metrics_wide <- pivot_wider(lm_metrics,
                                id_cols = site:distance, 
                                names_from = var, values_from = slope)
 
-### test example
-### define coefficients of linear function directly
-K <- diag(length(coef(lmod)))[-1,]
-rownames(K) <- names(coef(lmod))[-1]
-K
+# ### test example
+# ### define coefficients of linear function directly
+# K <- diag(length(coef(lmod)))[-1,]
+# rownames(K) <- names(coef(lmod))[-1]
+# K
+# ### set up general linear hypothesis
+# summary(glht(lmod, linfct = K))
 
-### set up general linear hypothesis
-summary(glht(lmod, linfct = K))
-
-### Why not just perform a normal ANOVA?
-# Why go to all this extra trouble?
-# I would recommend reading up more on ANOVA
-summary(aov(duration ~ site + product + distance, data = metric_4years))
+# AJ: 3-way ANOVA tests to compare the upwelling metrics such as distance, cummulative intensity and intensity against the different sites, products and distances
+summary(aov(duration ~ site + product + distance , data = metric_4years))
 summary(aov(intensity_mean ~ site + product + distance, data = metric_4years))
-summary(aov(intensity_max ~ site + product + distance, data = metric_4years))
+# summary(aov(intensity_max ~ site + product + distance, data = metric_4years))
 summary(aov(intensity_cumulative ~ site + product + distance, data = metric_4years))
 
 # Here are ANOVAs on the linear model results
