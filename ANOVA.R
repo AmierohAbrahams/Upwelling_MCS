@@ -86,6 +86,12 @@ summary(aov(intensity_mean ~ site + product + distance, data = metric_4years))
 # summary(aov(intensity_max ~ site + product + distance, data = metric_4years))
 summary(aov(intensity_cumulative ~ site + product + distance, data = metric_4years))
 
+## Interaction?
+summary(aov(duration ~ site * product * distance , data = metric_4years))
+summary(aov(intensity_mean ~ site * product * distance, data = metric_4years))
+# summary(aov(intensity_max ~ site + product + distance, data = metric_4years))
+summary(aov(intensity_cumulative ~ site * product * distance, data = metric_4years))
+
 # Here are ANOVAs on the linear model results
 # NB: This is not advisable as these linear models are based on only 4 years of data.
 # That is not enough to draw any conclusions about rates of change over time
