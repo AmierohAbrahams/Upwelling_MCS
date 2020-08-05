@@ -212,4 +212,112 @@ ggplot(data = metric_ANOVA, aes(x = product, y = count, group = factor(distance)
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
 
+# AJ requested plots
 
+metrics_func <- function(df){
+  metrics <- metric_prods %>% 
+    mutate(year = year(date_start)) %>% 
+    group_by(product, site, intensity_mean) %>% 
+    summarise(y = n())
+}
+
+
+metrics <- metrics_func(df = metric_prods)
+metrics_SACTN <- metrics_func(df = metric_SACTN)
+final_combined <- rbind(metrics, metric_SACTN)
+
+ggplot(data = final_combined, aes(x = product,y = intensity_mean)) +
+  geom_point(data = metric_prods,shape = 21, fill = "lightgray",
+             color = "black", size = 3) +
+  geom_point(data = metric_SACTN,shape = 21, fill = "lightgray",
+             color = "black", size = 3) +
+  geom_boxplot(aes()) +
+  scale_x_discrete(limits = Ordering) +
+  facet_wrap(~site)  +
+  labs(y = "Mean intensity (°C)", x = "SST products")+
+  theme_set(theme_grey()) +
+  theme_grey() +
+  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+    panel.grid.major = element_line(size = 0.2, linetype = 2),
+    panel.grid.minor = element_line(colour = NA),
+    strip.text = element_text(size=14, family = "Palatino"),
+    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.ticks.length = unit(0.4, "cm"),
+    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    plot.title = element_text(size = 18, hjust = 0),
+    legend.title = element_text(size = 18),
+    legend.text = element_text(size = 16),
+    legend.key = element_rect(size = 0.8, colour = NA),
+    legend.background = element_blank())
+
+
+metrics_func <- function(df){
+  metrics <- metric_prods %>% 
+    mutate(year = year(date_start)) %>% 
+    group_by(product, site, duration) %>% 
+    summarise(y = n())
+}
+
+
+metrics <- metrics_func(df = metric_prods)
+metrics_SACTN <- metrics_func(df = metric_SACTN)
+final_combined <- rbind(metrics, metric_SACTN)
+
+ggplot(data = test, aes(x = product,y = duration)) +
+  geom_point(data = metric_prods,shape = 21, fill = "lightgray",
+             color = "black", size = 3) +
+  geom_point(data = metric_SACTN,shape = 21, fill = "lightgray",
+             color = "black", size = 3) +
+  geom_boxplot(aes()) +
+  scale_x_discrete(limits = Ordering) +
+  facet_wrap(~site)  +
+  labs(y = "Duration (Days)", x = "SST products")+
+  theme_set(theme_grey()) +
+  theme_grey() +
+  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+    panel.grid.major = element_line(size = 0.2, linetype = 2),
+    panel.grid.minor = element_line(colour = NA),
+    strip.text = element_text(size=14, family = "Palatino"),
+    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.ticks.length = unit(0.4, "cm"),
+    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    plot.title = element_text(size = 18, hjust = 0),
+    legend.title = element_text(size = 18),
+    legend.text = element_text(size = 16),
+    legend.key = element_rect(size = 0.8, colour = NA),
+    legend.background = element_blank())
+
+metrics_func <- function(df){
+  metrics <- metric_prods %>% 
+    mutate(year = year(date_start)) %>% 
+    group_by(product, site, intensity_cumulative) %>% 
+    summarise(y = n())
+}
+
+metrics <- metrics_func(df = metric_prods)
+metrics_SACTN <- metrics_func(df = metric_SACTN)
+final_combined <- rbind(metrics, metric_SACTN)
+
+ggplot(data = final_combined, aes(x = product,y = intensity_cumulative)) +
+  geom_point(data = metric_prods,shape = 21, fill = "lightgray",
+             color = "black", size = 3) +
+  geom_point(data = metric_SACTN,shape = 21, fill = "lightgray",
+             color = "black", size = 3) +
+  geom_boxplot(aes()) +
+  scale_x_discrete(limits = Ordering) +
+  facet_wrap(~site)  +
+  labs(y = "Cumulative intensity (°C.days)", x = "SST products")+
+  theme_set(theme_grey()) +
+  theme_grey() +
+  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+    panel.grid.major = element_line(size = 0.2, linetype = 2),
+    panel.grid.minor = element_line(colour = NA),
+    strip.text = element_text(size=14, family = "Palatino"),
+    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.ticks.length = unit(0.4, "cm"),
+    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    plot.title = element_text(size = 18, hjust = 0),
+    legend.title = element_text(size = 18),
+    legend.text = element_text(size = 16),
+    legend.key = element_rect(size = 0.8, colour = NA),
+    legend.background = element_blank())

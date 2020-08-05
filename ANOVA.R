@@ -1,7 +1,6 @@
 ## Using a series of general linear hypotheses to look for differences in upwelling signal metrics between datasets and between sites (?)
 ## Is there a significant difference in the duration/intensity etc between the datasets at a particular site?
 
-library(tidyverse)
 library(lubridate)
 library(multcomp)
 options(scipen = 999)
@@ -12,6 +11,7 @@ load("Data_coast_angle/SACTN_upwell_base.RData")
 load("Data_coast_angle/MUR_upwell_base.RData")
 load("Data_coast_angle/G1SST_upwell_base.RData")
 
+library(tidyverse)
 # # Removing the distance of 20 and 40kms
 # library(dplyr)
 # removing_distance_func <- function(df){
@@ -86,11 +86,28 @@ summary(aov(intensity_mean ~ site + product + distance, data = metric_4years))
 # summary(aov(intensity_max ~ site + product + distance, data = metric_4years))
 summary(aov(intensity_cumulative ~ site + product + distance, data = metric_4years))
 
-## Interaction?
+## Interaction?     
 summary(aov(duration ~ site * product * distance , data = metric_4years))
 summary(aov(intensity_mean ~ site * product * distance, data = metric_4years))
 # summary(aov(intensity_max ~ site + product + distance, data = metric_4years))
 summary(aov(intensity_cumulative ~ site * product * distance, data = metric_4years))
+
+
+# AJ suggested ANOVA
+
+summary(aov(duration ~ site  , data = metric_4years))
+summary(aov(intensity_mean ~ site  , data = metric_4years))
+summary(aov(intensity_cumulative ~ site  , data = metric_4years))
+
+
+summary(aov(duration ~ product  , data = metric_4years))
+summary(aov(intensity_mean ~ product  , data = metric_4years))
+summary(aov(intensity_cumulative ~ product  , data = metric_4years))
+
+
+summary(aov(duration ~ distance  , data = metric_4years))
+summary(aov(intensity_mean ~ distance  , data = metric_4years))
+summary(aov(intensity_cumulative ~ distance  , data = metric_4years))
 
 # Here are ANOVAs on the linear model results
 # NB: This is not advisable as these linear models are based on only 4 years of data.
@@ -117,5 +134,6 @@ metric_ANOVA <- combined_products %>%
 
 # save(metric_ANOVA, file = "Data/metric_ANOVA.RData")
 
-summary(aov(count ~ site + product + distance, data = metric_ANOVA))
-
+summary(aov(count ~ site, data = metric_ANOVA))
+summary(aov(count ~ product, data = metric_ANOVA))
+summary(aov(count ~ distance, data = metric_ANOVA))
