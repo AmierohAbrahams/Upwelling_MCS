@@ -3,6 +3,7 @@
 
 library(lubridate)
 library(multcomp)
+library(tidyverse)
 options(scipen = 999)
 
 load("Data_coast_angle/OISST_upwell_base.RData")
@@ -11,7 +12,6 @@ load("Data_coast_angle/SACTN_upwell_base.RData")
 load("Data_coast_angle/MUR_upwell_base.RData")
 load("Data_coast_angle/G1SST_upwell_base.RData")
 
-library(tidyverse)
 # # Removing the distance of 20 and 40kms
 # library(dplyr)
 # removing_distance_func <- function(df){
@@ -100,9 +100,9 @@ summary(aov(intensity_mean ~ site  , data = metric_4years))
 summary(aov(intensity_cumulative ~ site  , data = metric_4years))
 
 
-summary(aov(duration ~ product  , data = metric_4years))
-summary(aov(intensity_mean ~ product  , data = metric_4years))
-summary(aov(intensity_cumulative ~ product  , data = metric_4years))
+summary(aov(duration ~ product +distance/site , data = metric_4years))
+summary(aov(intensity_mean ~ product +distance/site  , data = metric_4years))
+summary(aov(intensity_cumulative ~ product +distance/site , data = metric_4years))
 
 
 summary(aov(duration ~ distance  , data = metric_4years))
@@ -135,5 +135,5 @@ metric_ANOVA <- combined_products %>%
 # save(metric_ANOVA, file = "Data/metric_ANOVA.RData")
 
 summary(aov(count ~ site, data = metric_ANOVA))
-summary(aov(count ~ product, data = metric_ANOVA))
+summary(aov(count ~ product + distance/site, data = metric_ANOVA))
 summary(aov(count ~ distance, data = metric_ANOVA))
