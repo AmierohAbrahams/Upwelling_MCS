@@ -31,7 +31,7 @@ load("Data_coast_angle/G1SST_upwell_base.RData")
 # load("Data/MUR_final.RData")
 # load("Data/CMC_final.RData")
 
-combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base,G1SST_upwell_base)
+combined_products <- rbind(OISST_upwell_base, CMC_upwell_base, MUR_upwell_base,G1SST_upwell_base)
 
 metric_4years <- combined_products %>% 
   filter(year(date_start) %in% 2011:2014) # only for the years 2011-2014 so 4 year period
@@ -47,7 +47,7 @@ metrics <- metric_4years %>%
   rename(count = y)
 
 # Function for extracting slope from linear model
-lm_coeff <- function(df){
+lm_coeff <- function(df) {
   res <- lm(formula = val ~ date_peak, data = df)
   res_coeff <- as.numeric(res$coefficient[2])
 }
@@ -85,16 +85,112 @@ lm_metrics_wide <- pivot_wider(lm_metrics,
 # summary(aov(intensity_cumulative ~ site * product * distance, data = metric_4years))
 
 
-# AJ suggested ANOVA
-# Here we only compare the 4 satellite analyses as the 5th data product is the SACTN data. The SACTN data does not have the distance variable
+# A) DIFFERENCES BETWEEN SITES, PER PRODUCT -------------------------------
 
-summary(aov(duration ~ site  , data = metric_4years))
-summary(aov(intensity_mean ~ site  , data = metric_4years))
-summary(aov(intensity_cumulative ~ site  , data = metric_4years))
+# First, we see, for each product, of there are differences between sites
+# We use the measurements taken at different distances from the shore as the replicates
+
+# names of sat products:
+# unique(metric_4years$product)
+# "OISST" "CMC"   "MUR"   "G1SST"
+
+# H0: For OISST, there is no significant effect caused by between-site differences:
+summary(aov(duration ~ site, data = metric_4years[metric_4years$product == "OISST", ]))
+# see MS Word doc for ANOVA table and figure...
+
+ggplot(data = metric_4years, aes(x = site, y = duration)) +
+  geom_boxplot() +
+  facet_wrap(vars(product), ncol = 2) +
+  xlab("Site") + ylab("Duration (days)")
+  
+# H0: For CMC, there is no significant effect caused by between-site differences:
+summary(aov(duration ~ site, data = metric_4years[metric_4years$product == "CMC", ]))
+# you need to make your own ANOVA table, but the figure made above covers this one too...
+
+# H0: For MUR, there is no significant effect caused by between-site differences:
+summary(aov(duration ~ site, data = metric_4years[metric_4years$product == "MUR", ]))
+# you need to make your own ANOVA table, but the figure made above covers this one too...
+
+# H0: For G1SST, there is no significant effect caused by between-site differences:
+summary(aov(duration ~ site, data = metric_4years[metric_4years$product == "G1SST", ]))
+# you need to make your own ANOVA table, but the figure made above covers this one too...
+
+##### YOU NEED TO DO THIS FOR THE OTHER UPWELLING METRICS
+
+
+# B) DIFFERENCES BETWEEN DISTANCES, PER PRODUCT ---------------------------
+
+# Second, we see, for each product, of there are differences between distances
+# We use the measurements taken at different sites as the replicates
+
+# names of sat products:
+# unique(metric_4years$product)
+# "OISST" "CMC"   "MUR"   "G1SST"
+
+# H0: For OISST, there is no significant effect caused by between-distance differences:
+summary(aov(duration ~ distance, data = metric_4years[metric_4years$product == "OISST", ]))
+# use above example and make your own ANOVA table, and include the figure below...
+
+ggplot(data = metric_4years, aes(x = as.factor(distance), y = duration)) +
+  geom_boxplot() +
+  facet_wrap(vars(product), ncol = 2) +
+  xlab("Distance from shore (m)") + ylab("Duration (days)")
+
+# H0: For CMC, there is no significant effect caused by between-distance differences:
+summary(aov(duration ~ distance, data = metric_4years[metric_4years$product == "CMC", ]))
+# use above example and make your own ANOVA table, and include the figure above...
+
+# H0: For MUR, there is no significant effect caused by between-distance differences:
+summary(aov(duration ~ distance, data = metric_4years[metric_4years$product == "MUR", ]))
+# use above example and make your own ANOVA table, and include the figure above...
+
+# H0: For G1SST, there is no significant effect caused by between-distance differences:
+summary(aov(duration ~ distance, data = metric_4years[metric_4years$product == "G1SST", ]))
+# use above example and make your own ANOVA table, and include the figure above...
+
+##### YOU NEED TO DO THIS FOR THE OTHER UPWELLING METRICS
+
+
+# C) ARE THERE DIFFERENCES BETWEEN THE PRODUCTS? --------------------------
+
+# Third, we are interested in the differences between the satellites. The problem is we do
+# not have replicates for satellite, so we have to use the spatial structure as the replicates.
+# So, we can do one of two things: i) nest distance within site, or ii) nest site within distance.
+# It's fine to report only one of them...
+
+# i) nest distance within site
+# H0: there are no differences in metrics between products and this does not interact with site
+summary(aov(duration ~ product + site/distance, data = metric_4years))
+
+ggplot(data = metric_4years, aes(x = product, y = duration)) +
+  geom_boxplot() +
+  xlab("Data product") + ylab("Upwelling duration (days)")
+
+##### YOU NEED TO DO THIS FOR THE OTHER UPWELLING METRICS
+
+# # This one isn't necessary...
+# # i) site distance within distance
+# # H0: there are no differences in metrics between products and this does not interact with site
+# summary(aov(duration ~ product + distance/site, data = metric_4years))
+# 
+# ggplot(data = metric_4years, aes(x = product, y = duration, colour = as.factor(distance))) +
+#   geom_boxplot(aes(colour = as.factor(distance)))
+
+
+
+
+
+
+
+# AMIEROH's OLD STUFF -----------------------------------------------------
+
+summary(aov(duration ~ site, data = metric_4years))
+summary(aov(intensity_mean ~ site, data = metric_4years))
+summary(aov(intensity_cumulative ~ site, data = metric_4years))
 
 
 summary(aov(duration ~ product +distance/site , data = metric_4years))
-summary(aov(intensity_mean ~ product +distance/site  , data = metric_4years))
+summary(aov(intensity_mean ~ product +distance/site, data = metric_4years))
 summary(aov(intensity_cumulative ~ product +distance/site , data = metric_4years))
 
 
