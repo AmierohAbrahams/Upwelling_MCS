@@ -28,7 +28,7 @@
 # OISST_final$distance_km <- OISST_final$distance/1000 # This column is missing from this dataframe
 # load("Data/G1SST_final.RData")
 # #load("Data/SACTN_upwell_base.RData")
-# load("Data/MUR_final.RData")
+# load("Data/MUR_final.RData")  
 # load("Data/CMC_final.RData")
 
 combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base,G1SST_upwell_base)
@@ -83,7 +83,122 @@ lm_metrics_wide <- pivot_wider(lm_metrics,
 # summary(aov(intensity_mean ~ site * product * distance, data = metric_4years))
 # # summary(aov(intensity_max ~ site + product + distance, data = metric_4years))
 # summary(aov(intensity_cumulative ~ site * product * distance, data = metric_4years))
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------
+# ANOVA WITH SACTN
 
+load("Data_coast_angle/OISST_upwell_base.RData")
+load("Data_coast_angle/CMC_upwell_base.RData")
+load("Data_coast_angle/SACTN_upwell_base.RData")
+load("Data_coast_angle/MUR_upwell_base.RData")
+load("Data_coast_angle/G1SST_upwell_base.RData")
+
+combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base, G1SST_upwell_base)
+# save(combined_products, file = "Data_coast_angle/combined_products.RData")
+
+# 2: Preparing box plot data ----------------------------------------------------
+
+seasons_func <- function(df){
+  BC_seaons <- df %>%
+    mutate(month = month(as.Date(as.character(date_start)), abbr = T, label = T),
+           year = year(date_start)) %>%
+    mutate(season = ifelse(month %in% c("Dec", "Jan", "Feb"), "Summer",
+                           ifelse(month %in% c("Mar", "Apr", "May"), "Autumn",
+                                  ifelse(month %in% c("Jun", "Jul", "Aug"), "Winter",
+                                         ifelse(month %in% c("Sep", "Oct", "Nov"), "Spring","Error")))))
+}
+
+combined_products <- seasons_func(combined_products)
+SACTN <- seasons_func(df = SACTN_upwell_base)
+
+metric_prods <- combined_products %>% 
+  filter(year(date_start) %in% 2011:2014) %>% 
+  filter(season == "Summer") %>% 
+  ungroup() %>% 
+  dplyr::select(-heading,-distance)
+metric_prods <- as.data.frame(metric_prods)
+
+metric_SACTN <- SACTN %>% 
+  filter(year(date_start) %in% 2011:2014) %>% 
+  mutate(product = "SACTN") 
+metric_SACTN <- as.data.frame(metric_SACTN)
+
+final <- rbind(metric_SACTN,metric_prods)
+
+summary(aov(duration ~ site, data = final[final$product == "OISST", ]))
+summary(aov(duration ~ site, data = final[final$product == "CMC", ]))
+summary(aov(duration ~ site, data = final[final$product == "G1SST", ]))
+summary(aov(duration ~ site, data = final[final$product == "MUR", ]))
+summary(aov(duration ~ site, data = final[final$product == "SACTN", ]))
+
+ggplot(data = final, aes(x = site, y = duration)) +
+  geom_boxplot() +
+  facet_wrap(vars(product), ncol = 2) +
+  xlab("Site") + ylab("Duration (days)") +
+  theme_set(theme_grey()) +
+  theme_grey() +
+  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+    panel.grid.major = element_line(size = 0.2, linetype = 2),
+    panel.grid.minor = element_line(colour = NA),
+    strip.text = element_text(size=14, family = "Palatino"),
+    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.ticks.length = unit(0.4, "cm"),
+    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    plot.title = element_text(size = 18, hjust = 0),
+    legend.title = element_text(size = 18),
+    legend.text = element_text(size = 16),
+    legend.key = element_rect(size = 0.8, colour = NA),
+    legend.background = element_blank())
+
+summary(aov(intensity_mean ~ site, data = final[final$product == "OISST", ]))
+summary(aov(intensity_mean ~ site, data = final[final$product == "CMC", ]))
+summary(aov(intensity_mean ~ site, data = final[final$product == "G1SST", ]))
+summary(aov(intensity_mean ~ site, data = final[final$product == "MUR", ]))
+summary(aov(intensity_mean ~ site, data = final[final$product == "SACTN", ]))
+
+ggplot(data = final, aes(x = site, y = intensity_mean)) +
+  geom_boxplot() +
+  facet_wrap(vars(product), ncol = 2) +
+  xlab("Site") + ylab("Upwelling mean intensity (°C)") +
+  theme_set(theme_grey()) +
+  theme_grey() +
+  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+    panel.grid.major = element_line(size = 0.2, linetype = 2),
+    panel.grid.minor = element_line(colour = NA),
+    strip.text = element_text(size=14, family = "Palatino"),
+    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.ticks.length = unit(0.4, "cm"),
+    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    plot.title = element_text(size = 18, hjust = 0),
+    legend.title = element_text(size = 18),
+    legend.text = element_text(size = 16),
+    legend.key = element_rect(size = 0.8, colour = NA),
+    legend.background = element_blank())
+
+
+summary(aov(intensity_cumulative ~ site, data = final[final$product == "OISST", ]))
+summary(aov(intensity_cumulative ~ site, data = final[final$product == "CMC", ]))
+summary(aov(intensity_cumulative ~ site, data = final[final$product == "G1SST", ]))
+summary(aov(intensity_cumulative ~ site, data = final[final$product == "MUR", ]))
+summary(aov(intensity_cumulative ~ site, data = final[final$product == "SACTN", ]))
+
+ggplot(data = final, aes(x = site, y = intensity_cumulative)) +
+  geom_boxplot() +
+  facet_wrap(vars(product), ncol = 2) +
+  xlab("Site") + ylab("Upwelling cumulative intensity (°C.days)") +
+  theme_set(theme_grey()) +
+  theme_grey() +
+  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+    panel.grid.major = element_line(size = 0.2, linetype = 2),
+    panel.grid.minor = element_line(colour = NA),
+    strip.text = element_text(size=14, family = "Palatino"),
+    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.ticks.length = unit(0.4, "cm"),
+    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    plot.title = element_text(size = 18, hjust = 0),
+    legend.title = element_text(size = 18),
+    legend.text = element_text(size = 16),
+    legend.key = element_rect(size = 0.8, colour = NA),
+    legend.background = element_blank())
 
 
 # A) DIFFERENCES BETWEEN SITES, PER PRODUCT -------------------------------
@@ -95,11 +210,15 @@ lm_metrics_wide <- pivot_wider(lm_metrics,
 # unique(metric_4years$product)
 # "OISST" "CMC"   "MUR"   "G1SST"
 
+metric_prods <- combined_products %>% 
+  filter(year(date_start) %in% 2011:2014) %>% 
+  filter(season == "Summer") 
+
 # H0: For OISST, there is no significant effect caused by between-site differences:
-summary(aov(duration ~ site, data = metric_4years[metric_4years$product == "OISST", ]))
+summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
 # see MS Word doc for ANOVA table and figure...
 
-ggplot(data = metric_4years, aes(x = site, y = duration)) +
+ggplot(data = metric_prods, aes(x = site, y = duration)) +
   geom_boxplot() +
   facet_wrap(vars(product), ncol = 2) +
   xlab("Site") + ylab("Duration (days)") +
@@ -119,23 +238,23 @@ ggplot(data = metric_4years, aes(x = site, y = duration)) +
     legend.background = element_blank())
 
 # H0: For CMC, there is no significant effect caused by between-site differences:
-summary(aov(duration ~ site, data = metric_4years[metric_4years$product == "CMC", ]))
+summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "CMC", ]))
 # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 # H0: For MUR, there is no significant effect caused by between-site differences:
-summary(aov(duration ~ site, data = metric_4years[metric_4years$product == "MUR", ]))
+summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "MUR", ]))
 # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 # H0: For G1SST, there is no significant effect caused by between-site differences:
-summary(aov(duration ~ site, data = metric_4years[metric_4years$product == "G1SST", ]))
+summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "G1SST", ]))
 # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 ##### YOU NEED TO DO THIS FOR THE OTHER UPWELLING METRICS
 
-summary(aov(intensity_mean ~ site, data = metric_4years[metric_4years$product == "OISST", ]))
+summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
 # see MS Word doc for ANOVA table and figure...
 
-ggplot(data = metric_4years, aes(x = site, y = intensity_mean)) +
+ggplot(data = metric_prods, aes(x = site, y = intensity_mean)) +
   geom_boxplot() +
   facet_wrap(vars(product), ncol = 2) +
   xlab("Site") + ylab("Mean intensity (°C)") +
@@ -155,23 +274,23 @@ ggplot(data = metric_4years, aes(x = site, y = intensity_mean)) +
 
 
 # H0: For CMC, there is no significant effect caused by between-site differences:
-summary(aov(intensity_mean ~ site, data = metric_4years[metric_4years$product == "CMC", ]))
+summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "CMC", ]))
 # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 # H0: For MUR, there is no significant effect caused by between-site differences:
-summary(aov(intensity_mean ~ site, data = metric_4years[metric_4years$product == "MUR", ]))
+summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "MUR", ]))
 # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 # H0: For G1SST, there is no significant effect caused by between-site differences:
-summary(aov(intensity_mean ~ site, data = metric_4years[metric_4years$product == "G1SST", ]))
+summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "G1SST", ]))
 # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 # CUmulative intensity
 
-summary(aov(intensity_cumulative ~ site, data = metric_4years[metric_4years$product == "OISST", ]))
+summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
 # see MS Word doc for ANOVA table and figure...
 
-ggplot(data = metric_4years, aes(x = site, y = intensity_cumulative)) +
+ggplot(data = metric_prods, aes(x = site, y = intensity_cumulative)) +
   geom_boxplot() +
   facet_wrap(vars(product), ncol = 2) +
   xlab("Site") + ylab("Cumulative intensity (°C.days)") +
@@ -191,15 +310,15 @@ ggplot(data = metric_4years, aes(x = site, y = intensity_cumulative)) +
 
 
 # H0: For CMC, there is no significant effect caused by between-site differences:
-summary(aov(intensity_cumulative ~ site, data = metric_4years[metric_4years$product == "CMC", ]))
+summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "CMC", ]))
 # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 # H0: For MUR, there is no significant effect caused by between-site differences:
-summary(aov(intensity_cumulative ~ site, data = metric_4years[metric_4years$product == "MUR", ]))
+summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "MUR", ]))
 # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 # H0: For G1SST, there is no significant effect caused by between-site differences:
-summary(aov(intensity_cumulative ~ site, data = metric_4years[metric_4years$product == "G1SST", ]))
+summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "G1SST", ]))
 # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 
@@ -209,20 +328,23 @@ summary(aov(intensity_cumulative ~ site, data = metric_4years[metric_4years$prod
 # We use the measurements taken at different sites as the replicates
 
 # names of sat products:
-# unique(metric_4years$product)
+# unique(metric_prods$product)
 # "OISST" "CMC"   "MUR"   "G1SST"
 
-# H0: For OISST, there is no significant effect caused by between-distance differences:
-summary(aov(duration ~ distance, data = metric_4years[metric_4years$product == "OISST", ]))
-# use above example and make your own ANOVA table, and include the figure below...
+metric_prods <- combined_products %>% 
+  filter(year(date_start) %in% 2011:2014) %>% 
+  filter(season == "Summer") 
 
-metric_4years <- metric_4years %>% 
+metric_prods <- metric_prods %>% 
   mutate(distance = case_when(distance == "25000" ~ "25",
                               distance == "50000" ~ "50",
                               distance == "0" ~ "0",))
 
+# H0: For OISST, there is no significant effect caused by between-distance differences:
+summary(aov(duration ~ distance, data = metric_prods[metric_prods$product == "OISST", ]))
+# use above example and make your own ANOVA table, and include the figure below...
 
-ggplot(data = metric_4years, aes(x = as.factor(distance), y = duration)) +
+ggplot(data = metric_prods, aes(x = as.factor(distance), y = duration)) +
   geom_boxplot() +
   facet_wrap(vars(product), ncol = 2) +
   xlab("Distance from shore (m)") + ylab("Duration (days)") +
@@ -241,44 +363,44 @@ ggplot(data = metric_4years, aes(x = as.factor(distance), y = duration)) +
     legend.background = element_blank())
 
   # H0: For CMC, there is no significant effect caused by between-distance differences:
-summary(aov(duration ~ distance, data = metric_4years[metric_4years$product == "CMC", ]))
+summary(aov(duration ~ distance, data = metric_prods[metric_prods$product == "CMC", ]))
 # use above example and make your own ANOVA table, and include the figure above...
 
 # H0: For MUR, there is no significant effect caused by between-distance differences:
-summary(aov(duration ~ distance, data = metric_4years[metric_4years$product == "MUR", ]))
+summary(aov(duration ~ distance, data = metric_prods[metric_prods$product == "MUR", ]))
 # use above example and make your own ANOVA table, and include the figure above...
 
 # H0: For G1SST, there is no significant effect caused by between-distance differences:
-summary(aov(duration ~ distance, data = metric_4years[metric_4years$product == "G1SST", ]))
+summary(aov(duration ~ distance, data = metric_prods[metric_prods$product == "G1SST", ]))
 # use above example and make your own ANOVA table, and include the figure above...
 
 ##### YOU NEED TO DO THIS FOR THE OTHER UPWELLING METRICS
 
 
 # H0: For OISST, there is no significant effect caused by between-distance differences:
-summary(aov(intensity_mean ~ distance, data = metric_4years[metric_4years$product == "OISST", ]))
+summary(aov(intensity_mean ~ distance, data = metric_prods[metric_prods$product == "OISST", ]))
 
 # use above example and make your own ANOVA table, and include the figure below...
 
 
 # H0: For CMC, there is no significant effect caused by between-distance differences:
-summary(aov(intensity_mean ~ distance, data = metric_4years[metric_4years$product == "CMC", ]))
+summary(aov(intensity_mean ~ distance, data = metric_prods[metric_prods$product == "CMC", ]))
 # use above example and make your own ANOVA table, and include the figure above...
 
 # H0: For MUR, there is no significant effect caused by between-distance differences:
-summary(aov(intensity_mean ~ distance, data = metric_4years[metric_4years$product == "MUR", ]))
+summary(aov(intensity_mean ~ distance, data = metric_prods[metric_prods$product == "MUR", ]))
 # use above example and make your own ANOVA table, and include the figure above...
 
 # H0: For G1SST, there is no significant effect caused by between-distance differences:
-summary(aov(intensity_mean ~ distance, data = metric_4years[metric_4years$product == "G1SST", ]))
+summary(aov(intensity_mean ~ distance, data = metric_prods[metric_prods$product == "G1SST", ]))
 # use above example and make your own ANOVA table, and include the figure above...
 
-metric_4years <- metric_4years %>% 
+metric_prods <- metric_prods %>% 
   mutate(distance = case_when(distance == "25000" ~ "25",
                               distance == "50000" ~ "50",
                               distance == "0" ~ "0",))
 
-ggplot(data = metric_4years, aes(x = as.factor(distance), y = intensity_mean)) +
+ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_mean)) +
   geom_boxplot() +
   facet_wrap(vars(product), ncol = 2) +
   xlab("Distance from shore (m)") + ylab("Mean intensity (°C)") +
@@ -299,29 +421,29 @@ ggplot(data = metric_4years, aes(x = as.factor(distance), y = intensity_mean)) +
 ###################3
 
 # H0: For OISST, there is no significant effect caused by between-distance differences:
-summary(aov(intensity_cumulative ~ distance, data = metric_4years[metric_4years$product == "OISST", ]))
+summary(aov(intensity_cumulative ~ distance, data = metric_prods[metric_prods$product == "OISST", ]))
 
 # H0: For CMC, there is no significant effect caused by between-distance differences:
-summary(aov(intensity_cumulative ~ distance, data = metric_4years[metric_4years$product == "CMC", ]))
+summary(aov(intensity_cumulative ~ distance, data = metric_prods[metric_prods$product == "CMC", ]))
 # use above example and make your own ANOVA table, and include the figure above...
 
 # H0: For MUR, there is no significant effect caused by between-distance differences:
-summary(aov(intensity_cumulative ~ distance, data = metric_4years[metric_4years$product == "MUR", ]))
+summary(aov(intensity_cumulative ~ distance, data = metric_prods[metric_prods$product == "MUR", ]))
 # use above example and make your own ANOVA table, and include the figure above...
 
 # H0: For G1SST, there is no significant effect caused by between-distance differences:
-summary(aov(intensity_cumulative ~ distance, data = metric_4years[metric_4years$product == "G1SST", ]))
+summary(aov(intensity_cumulative ~ distance, data = metric_prods[metric_prods$product == "G1SST", ]))
 # use above example and make your own ANOVA table, and include the figure above..
 
 # use above example and make your own ANOVA table, and include the figure below...
 
-metric_4years <- metric_4years %>% 
+final <- final %>% 
   mutate(distance = case_when(distance == "25000" ~ "25",
                               distance == "50000" ~ "50",
                               distance == "0" ~ "0",))
   
 
-ggplot(data = metric_4years, aes(x = as.factor(distance), y = intensity_cumulative)) +
+ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_cumulative)) +
   geom_boxplot() +
   facet_wrap(vars(product), ncol = 2) +
   xlab("Distance from shore (m)") + ylab("Cumulative intensity (°C.days)") +
@@ -349,9 +471,9 @@ ggplot(data = metric_4years, aes(x = as.factor(distance), y = intensity_cumulati
 
 # i) nest distance within site
 # H0: there are no differences in metrics between products and this does not interact with site
-summary(aov(duration ~ product + site/distance, data = metric_4years))
+summary(aov(duration ~ product + site/distance, data = metric_prods))
 
-ggplot(data = metric_4years, aes(x = product, y = duration)) +
+ggplot(data = metric_prods, aes(x = product, y = duration)) +
   geom_boxplot() +
   xlab("Data product") + ylab("Upwelling duration (days)")+
   theme_grey() +
@@ -369,9 +491,9 @@ ggplot(data = metric_4years, aes(x = product, y = duration)) +
     legend.background = element_blank())
 
 
-summary(aov(intensity_mean ~ product + site/distance, data = metric_4years))
+summary(aov(intensity_mean ~ product + site/distance, data = metric_prods))
 
-ggplot(data = metric_4years, aes(x = product, y = intensity_mean)) +
+ggplot(data = metric_prods, aes(x = product, y = intensity_mean)) +
   geom_boxplot() +
   xlab("Data product") + ylab("Upwelling mean intensity (°C)")+
   theme_grey() +
@@ -388,11 +510,11 @@ ggplot(data = metric_4years, aes(x = product, y = intensity_mean)) +
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
 
-summary(aov(intensity_cumulative ~ product + site/distance, data = metric_4years))
+summary(aov(intensity_cumulative ~ product + site/distance, data = metric_prods))
 
-ggplot(data = metric_4years, aes(x = product, y = intensity_cumulative)) +
+ggplot(data = metric_prods, aes(x = product, y = intensity_cumulative)) +
   geom_boxplot() +
-  xlab("Data product") + ylab("Upwelling umulative intensity (°C.days)")+
+  xlab("Data product") + ylab("Upwelling cumulative intensity (°C.days)")+
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
@@ -412,7 +534,7 @@ ggplot(data = metric_4years, aes(x = product, y = intensity_cumulative)) +
 # # This one isn't necessary...
 # # i) site distance within distance
 # # H0: there are no differences in metrics between products and this does not interact with site
-# summary(aov(duration ~ product + distance/site, data = metric_4years))
+# summary(aov(duration ~ product + distance/site, data = final))
 # 
 # ggplot(data = metric_4years, aes(x = product, y = duration, colour = as.factor(distance))) +
 #   geom_boxplot(aes(colour = as.factor(distance)))
@@ -466,3 +588,5 @@ metric_ANOVA <- combined_products %>%
 summary(aov(count ~ site, data = metric_ANOVA))
 summary(aov(count ~ product + distance/site, data = metric_ANOVA))
 summary(aov(count ~ distance, data = metric_ANOVA))
+
+
