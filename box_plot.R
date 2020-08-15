@@ -156,14 +156,33 @@ distance_corr <- SST_anom_spread %>%
 ## Bar graph plot
 Ordering <- c("OISST", "CMC","G1SST", "MUR")
 no_upwelling_sigs <- read_csv("Data_coast_angle/number_upwelling_sigs.csv")
-ggplot(data = no_upwelling_sigs, aes(x = SST_product, y = Number_of_signals, group = factor(Distance), fill = factor(Distance))) +
+
+test <- combined_products %>% 
+  mutate(year = year(date_start)) %>% 
+  #filter(year(date_start) %in% 2011:2014)
+  filter(year %in% 2011:2014) %>% 
+  group_by(year, distance, site, product) %>% 
+  summarise(y = n())%>% 
+  rename(count = y)
+  
+test1 <- test %>% 
+ group_by(site,product,distance) %>% 
+  summarise(mean_signals = mean(count),
+            sd_signals = sd(count)) %>% 
+  mutate(Distance = case_when(distance == "25000" ~ "25",
+                            distance == "50000" ~ "50",
+                            distance == "0" ~ "0",))
+
+ggplot(data = test1, aes(x = product, y = mean_signals, group = factor(Distance), fill = factor(Distance))) +
   geom_bar(stat = "identity",position = position_dodge2(width =0.5), width = 0.5) +
-  scale_y_continuous(breaks = c(50,100,150,200,250,300,350,400))+
+  geom_errorbar(aes(ymin = mean_signals - sd_signals, ymax = mean_signals + sd_signals),width=0.4, alpha=0.9, size=0.5, position=position_dodge(.5))+ # Creates error bars for the graph from previously calculated data
+ # scale_y_continuous(breaks = c(50,100,150,200,250,300,350,400))+
   scale_x_discrete(limits = Ordering) +
   scale_fill_grey(start = .1, end = .5, labels = c("0", "25", "50")) +
   scale_fill_discrete(labels = c("0", "25", "50")) +
-    labs(x ="SST product", y = "Number of upwelling signals") +
+    labs(x ="SST product", y = "Average number of upwelling signals") +
   labs(fill = "Distance (km)") + 
+  facet_wrap(~site) +
   theme_set(theme_grey()) +
   theme_grey() +
   scale_fill_manual(values = c("grey79", "grey57", "grey40"))+
