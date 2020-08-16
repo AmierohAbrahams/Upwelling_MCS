@@ -95,7 +95,7 @@ load("Data_coast_angle/G1SST_upwell_base.RData")
 combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base, G1SST_upwell_base)
 # save(combined_products, file = "Data_coast_angle/combined_products.RData")
 
-# 2: Preparing box plot data ----------------------------------------------------
+# 2: Preparing box plot data ---------------------------------------------------------------------------------------------------------------------------------
 
 seasons_func <- function(df){
   BC_seaons <- df %>%
