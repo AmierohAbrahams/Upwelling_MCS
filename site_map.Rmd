@@ -190,6 +190,8 @@ sa_lats <- c(-37, -27); sa_lons <- c(14, 25)
 
 site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) + 
    geom_polygon(aes(group = group),fill = "grey", colour = "grey", size = 0.1, show.legend = FALSE) +
+  stat_contour(data = sa_bathy, aes(x = lon, y = lat, z = depth, alpha = ..level..), 
+               colour = "black", size = 0.2, binwidth = 200, na.rm = TRUE, show_guide = FALSE)+
   geom_point(data = site_list_sub, aes(x = lon, y = lat), alpha = 0.8, size = 2) +
   geom_point(data = site_pixels, aes(x = lon, y = lat), colour = "black", shape = 0, alpha = 0.8, size = 2.1) +
   geom_label_repel(data =site_list_sub, aes(x = lon, y = lat, label = site),
@@ -203,6 +205,9 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
                      labels  = c("34°S","32°S","30°S","28°S")) +
   scale_x_continuous(breaks = seq(16, 20, by = 2),
                       labels = c("16°E", "18°E", "20°E"))+
+  scale_fill_gradient(low = "steelblue4", high = "steelblue1", na.value = "steelblue4", 
+                      breaks = c(-1000, -2000, -3000, -4000, -5000),
+                      guide_legend(title = "depth (m)")) +
 #   scale_x_continuous(expand = c(0, 0),
 #                        labels = scales::unit_format(unit = "°E", sep = "")) +
 #     scale_y_continuous(expand = c(0, 0),
@@ -283,7 +288,61 @@ site_map
 # Map <- mapping_plot(df = site_list_sub_map, xy = "salmon")
 ```
 
+# Bathy plot
 
+```{r}
+fig1_bathy <- ggplot() + theme_bw() + #coord_equal() + 
+  geom_raster(data = sa_bathy, aes(x = lon, y = lat, fill = depth)) +
+  #geom_raster(data = isobath200, aes(x = lon, y = lat, fill = coast)) +
+  stat_contour(data = sa_bathy, aes(x = lon, y = lat, z = depth, alpha = ..level..), 
+               colour = "black", size = 0.2, binwidth = 200, na.rm = TRUE, show_guide = FALSE) +
+  geom_polygon(data = south_africa_coast, aes(x = lon, y = lat, group = group), 
+               size = 0.1, colour = "black", fill = "grey80") +
+  #geom_path(data = sa_provinces_new, aes(x = long, y = lat, group = group)) +
+  # geom_polygon(data = scBox, aes(x = lon, y = lat, group = group), alpha = 0.20, 
+  #              colour = "green", fill = "green") +
+  # geom_polygon(data = wcBox, aes(x = lon, y = lat, group = group), alpha = 0.20, 
+  #              colour = "blue", fill = "blue") +
+  # geom_polygon(data = ecBox, aes(x = lon, y = lat, group = group), alpha = 0.20, 
+  #              colour = "orange", fill = "orange") +
+  geom_point(data = site_pixels, aes(x = lon, y = lat, colour = site), alpha = 0.8, size = 3) +
+  geom_point(data = site_pixels, aes(x = lon, y = lat), colour = "red", shape = 0, alpha = 0.8, size = 2.1) +
+  #geom_rect(data = test, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), 
+            #alpha = 1, colour = "red", size = 0.1, linetype = 1) +
+   scale_y_continuous(breaks = seq(-34, -30, by = 2),
+                     labels  = c("34°S","32°S","30°S")) +
+  scale_x_continuous(breaks = seq(16, 18, by = 2),
+                      labels = c("16°E", "18°E"))+
+  scale_alpha_continuous(breaks = c(-200, -1000, -2000, -3000, -4000, -5000),
+                         guide_legend(title = "depth (m)")) +
+  scale_fill_gradient(low = "steelblue4", high = "steelblue1", na.value = "steelblue4", 
+                      breaks = c(-1000, -2000, -3000, -4000, -5000),
+                      guide_legend(title = "depth (m)")) +
+  labs(title = NULL, x = NULL, y = NULL) +
+  guides(colour = guide_legend(override.aes = list(size = 3))) +
+  #guide_legend(ncol = 2) +
+  ### Annotate specific things:
+  annotate("text", label = "Cape \n Agulhas", x = 20.0, y = -35.1, size = 2., colour = "white") +
+  #annotate("text", label = "False Bay", x = 18.66, y = -34.55, size = 2.2) +
+  annotate("text", label = "Algoa \n Bay", x = 26.4, y = -34.0, size = 2., colour = "white") +
+  annotate("text", label = "Cape \n Point", x = 18.0, y = -34.4, size = 2, colour = "white") +
+  annotate("text", label = "Hamburg", x = 28.3, y = -33.28611111, size = 2, colour = "white") +
+  theme(#panel.background = element_rect(fill = "steelblue4", colour = NA),
+        #panel.border = element_blank(),
+        #axis.title = element_blank(),
+        #axis.text = element_blank(),
+        #axis.ticks = element_blank(),
+        #panel.grid.minor = element_blank(),
+        #panel.grid.major = element_blank(),
+        #plot.title = element_blank(),
+        #legend.text = element_text(size = 7, colour = "White"),
+        #legend.title = element_text(size = 7, colour = "White"),
+        legend.key = element_rect(colour = NA, size = 0.2),
+        legend.key.height = unit(0.4, "cm"),
+        legend.background = element_blank(),
+        legend.justification = c(1,0), legend.position = c(0.5, 0.4)) +
+  coord_cartesian(xlim = sa_lons, ylim = sa_lats)
+```
 
 
 
