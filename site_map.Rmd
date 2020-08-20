@@ -168,6 +168,8 @@ load("Data/site_list_sub.Rdata")
 load("Data_coast_angle/site_pixels.RData")
 site_pixels <- read_csv("site_pixels.csv")
 
+load("~/Documents/Upwelling_MCS/Data/sa_bathy.RData")
+
 #load("Data/site_pixels.RData")
 #load("MUR.RData")
 names(south_africa_coast)[1] <- "lon"
@@ -188,12 +190,13 @@ limits <- c(12,28) # for colour bar
 # Define plotting parameters
 sa_lats <- c(-37, -27); sa_lons <- c(14, 25)
 
+
 site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) + 
    geom_polygon(aes(group = group),fill = "grey", colour = "grey", size = 0.1, show.legend = FALSE) +
-  stat_contour(data = sa_bathy, aes(x = lon, y = lat, z = depth, alpha = ..level..), 
+  stat_contour(data = sa_bathy, aes(x = lon, y = lat, z = depth), 
                colour = "black", size = 0.2, binwidth = 200, na.rm = TRUE, show_guide = FALSE)+
   geom_point(data = site_list_sub, aes(x = lon, y = lat), alpha = 0.8, size = 2) +
-  geom_point(data = site_pixels, aes(x = lon, y = lat), colour = "black", shape = 0, alpha = 0.8, size = 2.1) +
+  geom_point(data = site_pixels, aes(x = lon, y = lat), colour = "red", shape = 0, alpha = 0.8, size = 2.1) +
   geom_label_repel(data =site_list_sub, aes(x = lon, y = lat, label = site),
                      size = 4, box.padding = 2, nudge_x = 0.7, nudge_y = 0.2,
                      segment.alpha = 0.4, force = 0.1, font = "Palatino") +
@@ -204,14 +207,7 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
   scale_y_continuous(breaks = seq(-34, -28, by = 2),
                      labels  = c("34°S","32°S","30°S","28°S")) +
   scale_x_continuous(breaks = seq(16, 20, by = 2),
-                      labels = c("16°E", "18°E", "20°E"))+
-  scale_fill_gradient(low = "steelblue4", high = "steelblue1", na.value = "steelblue4", 
-                      breaks = c(-1000, -2000, -3000, -4000, -5000),
-                      guide_legend(title = "depth (m)")) +
-#   scale_x_continuous(expand = c(0, 0),
-#                        labels = scales::unit_format(unit = "°E", sep = "")) +
-#     scale_y_continuous(expand = c(0, 0),
-#                        labels = scales::unit_format(unit = "°S", sep = "")) +
+                      labels = c("16°E", "18°E", "20°E")) +
  coord_fixed(ratio = 1, xlim = c(15.4, 20), ylim = c(-34.4,-27),
     expand = TRUE) +
   theme(axis.text = element_text(size = rel(1.2), colour = "black", family = "Palatino"),
