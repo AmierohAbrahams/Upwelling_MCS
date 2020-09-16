@@ -130,10 +130,10 @@ summary(aov(duration ~ site, data = final[final$product == "G1SST", ]))
 summary(aov(duration ~ site, data = final[final$product == "MUR", ]))
 summary(aov(duration ~ site, data = final[final$product == "SACTN", ]))
 
-ggplot(data = final, aes(x = site, y = duration)) +
+plot1 <- ggplot(data = final, aes(x = product, y = duration)) +
   geom_boxplot() +
-  facet_wrap(vars(product), ncol = 2) +
-  xlab("Site") + ylab("Duration (days)") +
+  facet_wrap(vars(site), ncol = 2) +
+  xlab("SST product") + ylab("Duration (days)") +
   theme_set(theme_grey()) +
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
@@ -142,10 +142,10 @@ ggplot(data = final, aes(x = site, y = duration)) +
     strip.text = element_text(size=14, family = "Palatino"),
     axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
     axis.ticks.length = unit(0.4, "cm"),
-    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
     plot.title = element_text(size = 18, hjust = 0),
     legend.title = element_text(size = 18),
-    legend.text = element_text(size = 16),
+    legend.text = element_text(size = 12),
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
 
@@ -155,10 +155,10 @@ summary(aov(intensity_mean ~ site, data = final[final$product == "G1SST", ]))
 summary(aov(intensity_mean ~ site, data = final[final$product == "MUR", ]))
 summary(aov(intensity_mean ~ site, data = final[final$product == "SACTN", ]))
 
-ggplot(data = final, aes(x = site, y = intensity_mean)) +
+plot2 <- ggplot(data = final, aes(x = product, y = intensity_mean)) +
   geom_boxplot() +
-  facet_wrap(vars(product), ncol = 2) +
-  xlab("Site") + ylab("Upwelling mean intensity (°C)") +
+  facet_wrap(vars(site), ncol = 2) +
+  xlab("SST product") + ylab("Upwelling mean intensity (°C)") +
   theme_set(theme_grey()) +
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
@@ -167,13 +167,14 @@ ggplot(data = final, aes(x = site, y = intensity_mean)) +
     strip.text = element_text(size=14, family = "Palatino"),
     axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
     axis.ticks.length = unit(0.4, "cm"),
-    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
     plot.title = element_text(size = 18, hjust = 0),
     legend.title = element_text(size = 18),
-    legend.text = element_text(size = 16),
+    legend.text = element_text(size = 1),
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
 
+(combined_plt1 <- ggarrange(plot1, plot2, plot3))
 
 summary(aov(intensity_cumulative ~ site, data = final[final$product == "OISST", ]))
 summary(aov(intensity_cumulative ~ site, data = final[final$product == "CMC", ]))
@@ -181,10 +182,10 @@ summary(aov(intensity_cumulative ~ site, data = final[final$product == "G1SST", 
 summary(aov(intensity_cumulative ~ site, data = final[final$product == "MUR", ]))
 summary(aov(intensity_cumulative ~ site, data = final[final$product == "SACTN", ]))
 
-ggplot(data = final, aes(x = site, y = intensity_cumulative)) +
+plot3 <- ggplot(data = final, aes(x = product, y = intensity_cumulative)) +
   geom_boxplot() +
-  facet_wrap(vars(product), ncol = 2) +
-  xlab("Site") + ylab("Upwelling cumulative intensity (°C.days)") +
+  facet_wrap(vars(site), ncol = 2) +
+  xlab("SST product") + ylab("Upwelling cumulative intensity (°C.days)") +
   theme_set(theme_grey()) +
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
@@ -193,7 +194,7 @@ ggplot(data = final, aes(x = site, y = intensity_cumulative)) +
     strip.text = element_text(size=14, family = "Palatino"),
     axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
     axis.ticks.length = unit(0.4, "cm"),
-    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
     plot.title = element_text(size = 18, hjust = 0),
     legend.title = element_text(size = 18),
     legend.text = element_text(size = 16),
@@ -218,10 +219,10 @@ metric_prods <- combined_products %>%
 summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
 # see MS Word doc for ANOVA table and figure...
 
-ggplot(data = metric_prods, aes(x = site, y = duration)) +
+plot4 <- ggplot(data = metric_prods, aes(x = product, y = duration)) +
   geom_boxplot() +
-  facet_wrap(vars(product), ncol = 2) +
-  xlab("Site") + ylab("Duration (days)") +
+  facet_wrap(vars(site), ncol = 2) +
+  xlab("SST product") + ylab("Duration (days)") +
   theme_set(theme_grey()) +
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
@@ -230,7 +231,7 @@ ggplot(data = metric_prods, aes(x = site, y = duration)) +
     strip.text = element_text(size=14, family = "Palatino"),
     axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
     axis.ticks.length = unit(0.4, "cm"),
-    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
     plot.title = element_text(size = 18, hjust = 0),
     legend.title = element_text(size = 18),
     legend.text = element_text(size = 16),
@@ -254,10 +255,10 @@ summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "G1SST"
 summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
 # see MS Word doc for ANOVA table and figure...
 
-ggplot(data = metric_prods, aes(x = site, y = intensity_mean)) +
+plot5 <- ggplot(data = metric_prods, aes(x = product, y = intensity_mean)) +
   geom_boxplot() +
-  facet_wrap(vars(product), ncol = 2) +
-  xlab("Site") + ylab("Mean intensity (°C)") +
+  facet_wrap(vars(site), ncol = 2) +
+  xlab("SST product") + ylab("Mean intensity (°C)") +
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
@@ -265,13 +266,14 @@ ggplot(data = metric_prods, aes(x = site, y = intensity_mean)) +
     strip.text = element_text(size=14, family = "Palatino"),
     axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
     axis.ticks.length = unit(0.4, "cm"),
-    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
     plot.title = element_text(size = 18, hjust = 0),
     legend.title = element_text(size = 18),
     legend.text = element_text(size = 16),
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
 
+(combined_plt2 <- ggarrange(plot4, plot5))
 
 # H0: For CMC, there is no significant effect caused by between-site differences:
 summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "CMC", ]))
@@ -336,6 +338,7 @@ metric_prods <- combined_products %>%
   filter(season == "Summer") 
 
 metric_prods <- metric_prods %>% 
+ # ungroup() %>% 
   mutate(distance = case_when(distance == "25000" ~ "25",
                               distance == "50000" ~ "50",
                               distance == "0" ~ "0",))
@@ -473,7 +476,7 @@ ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_cumulativ
 # H0: there are no differences in metrics between products and this does not interact with site
 summary(aov(duration ~ product + site/distance, data = metric_prods))
 
-ggplot(data = metric_prods, aes(x = product, y = duration)) +
+plot6 <- ggplot(data = metric_prods, aes(x = product, y = duration)) +
   geom_boxplot() +
   xlab("Data product") + ylab("Upwelling duration (days)")+
   theme_grey() +
@@ -493,7 +496,7 @@ ggplot(data = metric_prods, aes(x = product, y = duration)) +
 
 summary(aov(intensity_mean ~ product + site/distance, data = metric_prods))
 
-ggplot(data = metric_prods, aes(x = product, y = intensity_mean)) +
+plot7 <- ggplot(data = metric_prods, aes(x = product, y = intensity_mean)) +
   geom_boxplot() +
   xlab("Data product") + ylab("Upwelling mean intensity (°C)")+
   theme_grey() +
@@ -512,7 +515,7 @@ ggplot(data = metric_prods, aes(x = product, y = intensity_mean)) +
 
 summary(aov(intensity_cumulative ~ product + site/distance, data = metric_prods))
 
-ggplot(data = metric_prods, aes(x = product, y = intensity_cumulative)) +
+plot8 <- ggplot(data = metric_prods, aes(x = product, y = intensity_cumulative)) +
   geom_boxplot() +
   xlab("Data product") + ylab("Upwelling cumulative intensity (°C.days)")+
   theme_grey() +
@@ -528,6 +531,8 @@ ggplot(data = metric_prods, aes(x = product, y = intensity_cumulative)) +
     legend.text = element_text(size = 16),
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
+
+(final_combined <- ggarrange(plot6, plot7, plot8))
 
 ##### YOU NEED TO DO THIS FOR THE OTHER UPWELLING METRICS
 
