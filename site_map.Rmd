@@ -256,8 +256,8 @@ africa_map
 
 sa_4 <- site_map +
 annotation_custom(grob = ggplotGrob(africa_map),
-xmin = 20.9, xmax = 26.9,
-ymin = -30, ymax = -24)
+xmin = 17, xmax = 21.4,
+ymin = -28.8, ymax = -26.6)
 sa_4
 ```
 
