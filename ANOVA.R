@@ -85,7 +85,7 @@ lm_metrics_wide <- pivot_wider(lm_metrics,
 # summary(aov(intensity_cumulative ~ site * product * distance, data = metric_4years))
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------
 # ANOVA WITH SACTN
-
+# A) DIFFERENCES BETWEEN SITES, PER PRODUCT -------------------------------
 load("Data_coast_angle/OISST_upwell_base.RData")
 load("Data_coast_angle/CMC_upwell_base.RData")
 load("Data_coast_angle/SACTN_upwell_base.RData")
@@ -132,15 +132,15 @@ summary(aov(duration ~ site, data = final[final$product == "SACTN", ]))
 
 plot1 <- ggplot(data = final, aes(x = product, y = duration)) +
   geom_boxplot() +
-  facet_wrap(vars(site), ncol = 2) +
-  xlab("SST product") + ylab("Duration (days)") +
+  facet_wrap(vars(site), ncol = 4) +
+  xlab("") + ylab("Duration (days)") +
   theme_set(theme_grey()) +
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
     panel.grid.minor = element_line(colour = NA),
     strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.title = element_text(size = 15, face = "bold", family = "Palatino"),
     axis.ticks.length = unit(0.4, "cm"),
     axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
     plot.title = element_text(size = 18, hjust = 0),
@@ -157,15 +157,15 @@ summary(aov(intensity_mean ~ site, data = final[final$product == "SACTN", ]))
 
 plot2 <- ggplot(data = final, aes(x = product, y = intensity_mean)) +
   geom_boxplot() +
-  facet_wrap(vars(site), ncol = 2) +
-  xlab("SST product") + ylab("Upwelling mean intensity (°C)") +
+  facet_wrap(vars(site), ncol = 4) +
+  xlab("") + ylab("Mean intensity (°C)") +
   theme_set(theme_grey()) +
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
     panel.grid.minor = element_line(colour = NA),
     strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.title = element_text(size = 15, face = "bold", family = "Palatino"),
     axis.ticks.length = unit(0.4, "cm"),
     axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
     plot.title = element_text(size = 18, hjust = 0),
@@ -184,15 +184,16 @@ summary(aov(intensity_cumulative ~ site, data = final[final$product == "SACTN", 
 
 plot3 <- ggplot(data = final, aes(x = product, y = intensity_cumulative)) +
   geom_boxplot() +
-  facet_wrap(vars(site), ncol = 2) +
-  xlab("SST product") + ylab("Upwelling cumulative intensity (°C.days)") +
+  facet_wrap(vars(site), ncol = 4) +
+  xlab("") + ylab("Cumulative intensity
+  (°C.days)") +
   theme_set(theme_grey()) +
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
     panel.grid.minor = element_line(colour = NA),
     strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.title = element_text(size = 15, face = "bold", family = "Palatino"),
     axis.ticks.length = unit(0.4, "cm"),
     axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
     plot.title = element_text(size = 18, hjust = 0),
@@ -201,127 +202,127 @@ plot3 <- ggplot(data = final, aes(x = product, y = intensity_cumulative)) +
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
 
-
-# A) DIFFERENCES BETWEEN SITES, PER PRODUCT -------------------------------
-
-# First, we see, for each product, if there are differences between sites
-# We use the measurements taken at different distances from the shore as the replicates
-
-# names of sat products:
-# unique(metric_4years$product)
-# "OISST" "CMC"   "MUR"   "G1SST"
-
-metric_prods <- combined_products %>% 
-  filter(year(date_start) %in% 2011:2014) %>% 
-  filter(season == "Summer") 
-
-# H0: For OISST, there is no significant effect caused by between-site differences:
-summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
-# see MS Word doc for ANOVA table and figure...
-
-plot4 <- ggplot(data = metric_prods, aes(x = product, y = duration)) +
-  geom_boxplot() +
-  facet_wrap(vars(site), ncol = 2) +
-  xlab("SST product") + ylab("Duration (days)") +
-  theme_set(theme_grey()) +
-  theme_grey() +
-  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
-    panel.grid.major = element_line(size = 0.2, linetype = 2),
-    panel.grid.minor = element_line(colour = NA),
-    strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
-    axis.ticks.length = unit(0.4, "cm"),
-    axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
-    plot.title = element_text(size = 18, hjust = 0),
-    legend.title = element_text(size = 18),
-    legend.text = element_text(size = 16),
-    legend.key = element_rect(size = 0.8, colour = NA),
-    legend.background = element_blank())
-
-# H0: For CMC, there is no significant effect caused by between-site differences:
-summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "CMC", ]))
-# you need to make your own ANOVA table, but the figure made above covers this one too...
-
-# H0: For MUR, there is no significant effect caused by between-site differences:
-summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "MUR", ]))
-# you need to make your own ANOVA table, but the figure made above covers this one too...
-
-# H0: For G1SST, there is no significant effect caused by between-site differences:
-summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "G1SST", ]))
-# you need to make your own ANOVA table, but the figure made above covers this one too...
-
-##### YOU NEED TO DO THIS FOR THE OTHER UPWELLING METRICS
-
-summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
-# see MS Word doc for ANOVA table and figure...
-
-plot5 <- ggplot(data = metric_prods, aes(x = product, y = intensity_mean)) +
-  geom_boxplot() +
-  facet_wrap(vars(site), ncol = 2) +
-  xlab("SST product") + ylab("Mean intensity (°C)") +
-  theme_grey() +
-  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
-    panel.grid.major = element_line(size = 0.2, linetype = 2),
-    panel.grid.minor = element_line(colour = NA),
-    strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
-    axis.ticks.length = unit(0.4, "cm"),
-    axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
-    plot.title = element_text(size = 18, hjust = 0),
-    legend.title = element_text(size = 18),
-    legend.text = element_text(size = 16),
-    legend.key = element_rect(size = 0.8, colour = NA),
-    legend.background = element_blank())
-
-(combined_plt2 <- ggarrange(plot4, plot5))
-
-# H0: For CMC, there is no significant effect caused by between-site differences:
-summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "CMC", ]))
-# you need to make your own ANOVA table, but the figure made above covers this one too...
-
-# H0: For MUR, there is no significant effect caused by between-site differences:
-summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "MUR", ]))
-# you need to make your own ANOVA table, but the figure made above covers this one too...
-
-# H0: For G1SST, there is no significant effect caused by between-site differences:
-summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "G1SST", ]))
-# you need to make your own ANOVA table, but the figure made above covers this one too...
-
-# CUmulative intensity
-
-summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
-# see MS Word doc for ANOVA table and figure...
-
-ggplot(data = metric_prods, aes(x = site, y = intensity_cumulative)) +
-  geom_boxplot() +
-  facet_wrap(vars(product), ncol = 2) +
-  xlab("Site") + ylab("Cumulative intensity (°C.days)") +
-  theme_grey() +
-  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
-    panel.grid.major = element_line(size = 0.2, linetype = 2),
-    panel.grid.minor = element_line(colour = NA),
-    strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
-    axis.ticks.length = unit(0.4, "cm"),
-    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
-    plot.title = element_text(size = 18, hjust = 0),
-    legend.title = element_text(size = 18),
-    legend.text = element_text(size = 16),
-    legend.key = element_rect(size = 0.8, colour = NA),
-    legend.background = element_blank())
-
-
-# H0: For CMC, there is no significant effect caused by between-site differences:
-summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "CMC", ]))
-# you need to make your own ANOVA table, but the figure made above covers this one too...
-
-# H0: For MUR, there is no significant effect caused by between-site differences:
-summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "MUR", ]))
-# you need to make your own ANOVA table, but the figure made above covers this one too...
-
-# H0: For G1SST, there is no significant effect caused by between-site differences:
-summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "G1SST", ]))
-# you need to make your own ANOVA table, but the figure made above covers this one too...
+combined_plot1 <- ggarrange(plot1, plot2, plot3, nrow = 3, ncol = 1, labels = c("A.", "B.", "C."))
+# # A) DIFFERENCES BETWEEN SITES, PER PRODUCT -------------------------------
+# 
+# # First, we see, for each product, if there are differences between sites
+# # We use the measurements taken at different distances from the shore as the replicates
+# 
+# # names of sat products:
+# # unique(metric_4years$product)
+# # "OISST" "CMC"   "MUR"   "G1SST"
+# 
+# metric_prods <- combined_products %>% 
+#   filter(year(date_start) %in% 2011:2014) %>% 
+#   filter(season == "Summer") 
+# 
+# # H0: For OISST, there is no significant effect caused by between-site differences:
+# summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
+# # see MS Word doc for ANOVA table and figure...
+# 
+# plot4 <- ggplot(data = metric_prods, aes(x = product, y = duration)) +
+#   geom_boxplot() +
+#   facet_wrap(vars(site), ncol =4 ) +
+#   xlab("SST product") + ylab("Duration (days)") +
+#   theme_set(theme_grey()) +
+#   theme_grey() +
+#   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+#     panel.grid.major = element_line(size = 0.2, linetype = 2),
+#     panel.grid.minor = element_line(colour = NA),
+#     strip.text = element_text(size=14, family = "Palatino"),
+#     axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+#     axis.ticks.length = unit(0.4, "cm"),
+#     axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
+#     plot.title = element_text(size = 18, hjust = 0),
+#     legend.title = element_text(size = 18),
+#     legend.text = element_text(size = 16),
+#     legend.key = element_rect(size = 0.8, colour = NA),
+#     legend.background = element_blank())
+# 
+# # H0: For CMC, there is no significant effect caused by between-site differences:
+# summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "CMC", ]))
+# # you need to make your own ANOVA table, but the figure made above covers this one too...
+# 
+# # H0: For MUR, there is no significant effect caused by between-site differences:
+# summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "MUR", ]))
+# # you need to make your own ANOVA table, but the figure made above covers this one too...
+# 
+# # H0: For G1SST, there is no significant effect caused by between-site differences:
+# summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "G1SST", ]))
+# # you need to make your own ANOVA table, but the figure made above covers this one too...
+# 
+# ##### YOU NEED TO DO THIS FOR THE OTHER UPWELLING METRICS
+# 
+# summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
+# # see MS Word doc for ANOVA table and figure...
+# 
+# plot5 <- ggplot(data = metric_prods, aes(x = product, y = intensity_mean)) +
+#   geom_boxplot() +
+#   facet_wrap(vars(site), ncol = 2) +
+#   xlab("SST product") + ylab("Mean intensity (°C)") +
+#   theme_grey() +
+#   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+#     panel.grid.major = element_line(size = 0.2, linetype = 2),
+#     panel.grid.minor = element_line(colour = NA),
+#     strip.text = element_text(size=14, family = "Palatino"),
+#     axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+#     axis.ticks.length = unit(0.4, "cm"),
+#     axis.text = element_text(size = 10, colour = "black", family = "Palatino"),
+#     plot.title = element_text(size = 18, hjust = 0),
+#     legend.title = element_text(size = 18),
+#     legend.text = element_text(size = 16),
+#     legend.key = element_rect(size = 0.8, colour = NA),
+#     legend.background = element_blank())
+# 
+# (combined_plt2 <- ggarrange(plot4, plot5))
+# 
+# # H0: For CMC, there is no significant effect caused by between-site differences:
+# summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "CMC", ]))
+# # you need to make your own ANOVA table, but the figure made above covers this one too...
+# 
+# # H0: For MUR, there is no significant effect caused by between-site differences:
+# summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "MUR", ]))
+# # you need to make your own ANOVA table, but the figure made above covers this one too...
+# 
+# # H0: For G1SST, there is no significant effect caused by between-site differences:
+# summary(aov(intensity_mean ~ site, data = metric_prods[metric_prods$product == "G1SST", ]))
+# # you need to make your own ANOVA table, but the figure made above covers this one too...
+# 
+# # CUmulative intensity
+# 
+# summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
+# # see MS Word doc for ANOVA table and figure...
+# 
+# ggplot(data = metric_prods, aes(x = site, y = intensity_cumulative)) +
+#   geom_boxplot() +
+#   facet_wrap(vars(product), ncol = 2) +
+#   xlab("Site") + ylab("Cumulative intensity (°C.days)") +
+#   theme_grey() +
+#   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+#     panel.grid.major = element_line(size = 0.2, linetype = 2),
+#     panel.grid.minor = element_line(colour = NA),
+#     strip.text = element_text(size=14, family = "Palatino"),
+#     axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+#     axis.ticks.length = unit(0.4, "cm"),
+#     axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+#     plot.title = element_text(size = 18, hjust = 0),
+#     legend.title = element_text(size = 18),
+#     legend.text = element_text(size = 16),
+#     legend.key = element_rect(size = 0.8, colour = NA),
+#     legend.background = element_blank())
+# 
+# 
+# # H0: For CMC, there is no significant effect caused by between-site differences:
+# summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "CMC", ]))
+# # you need to make your own ANOVA table, but the figure made above covers this one too...
+# 
+# # H0: For MUR, there is no significant effect caused by between-site differences:
+# summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "MUR", ]))
+# # you need to make your own ANOVA table, but the figure made above covers this one too...
+# 
+# # H0: For G1SST, there is no significant effect caused by between-site differences:
+# summary(aov(intensity_cumulative ~ site, data = metric_prods[metric_prods$product == "G1SST", ]))
+# # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 
 # B) DIFFERENCES BETWEEN DISTANCES, PER PRODUCT ---------------------------
@@ -338,7 +339,7 @@ metric_prods <- combined_products %>%
   filter(season == "Summer") 
 
 metric_prods <- metric_prods %>% 
- # ungroup() %>% 
+ ungroup() %>% 
   mutate(distance = case_when(distance == "25000" ~ "25",
                               distance == "50000" ~ "50",
                               distance == "0" ~ "0",))
@@ -347,16 +348,16 @@ metric_prods <- metric_prods %>%
 summary(aov(duration ~ distance, data = metric_prods[metric_prods$product == "OISST", ]))
 # use above example and make your own ANOVA table, and include the figure below...
 
-ggplot(data = metric_prods, aes(x = as.factor(distance), y = duration)) +
+plotA <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = duration)) +
   geom_boxplot() +
-  facet_wrap(vars(product), ncol = 2) +
-  xlab("Distance from shore (m)") + ylab("Duration (days)") +
+  facet_wrap(vars(product), ncol = 4) +
+  xlab("") + ylab("Duration (days)") +
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
     panel.grid.minor = element_line(colour = NA),
     strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.title = element_text(size = 15, face = "bold", family = "Palatino"),
     axis.ticks.length = unit(0.4, "cm"),
     axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
     plot.title = element_text(size = 18, hjust = 0),
@@ -403,16 +404,16 @@ metric_prods <- metric_prods %>%
                               distance == "50000" ~ "50",
                               distance == "0" ~ "0",))
 
-ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_mean)) +
+plotB <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_mean)) +
   geom_boxplot() +
-  facet_wrap(vars(product), ncol = 2) +
-  xlab("Distance from shore (m)") + ylab("Mean intensity (°C)") +
+  facet_wrap(vars(product), ncol = 4) +
+  xlab("") + ylab("Mean intensity (°C)") +
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
     panel.grid.minor = element_line(colour = NA),
     strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.title = element_text(size = 15, face = "bold", family = "Palatino"),
     axis.ticks.length = unit(0.4, "cm"),
     axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
     plot.title = element_text(size = 18, hjust = 0),
@@ -446,16 +447,17 @@ final <- final %>%
                               distance == "0" ~ "0",))
   
 
-ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_cumulative)) +
+plotC <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_cumulative)) +
   geom_boxplot() +
-  facet_wrap(vars(product), ncol = 2) +
-  xlab("Distance from shore (m)") + ylab("Cumulative intensity (°C.days)") +
+  facet_wrap(vars(product), ncol = 4) +
+  xlab("") + ylab("Cumulative intensity 
+(°C.days)") +
   theme_grey() +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
     panel.grid.minor = element_line(colour = NA),
     strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.title = element_text(size = 15, face = "bold", family = "Palatino"),
     axis.ticks.length = unit(0.4, "cm"),
     axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
     plot.title = element_text(size = 18, hjust = 0),
@@ -464,7 +466,7 @@ ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_cumulativ
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
 
-
+combined_dis <- ggarrange(plotA, plotB, plotC, nrow = 3, ncol = 1, labels = c("A.", "B.", "C."))
 # C) ARE THERE DIFFERENCES BETWEEN THE PRODUCTS? --------------------------
 
 # Third, we are interested in the differences between the satellites. The problem is we do

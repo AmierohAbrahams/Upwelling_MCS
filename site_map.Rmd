@@ -238,20 +238,21 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
 
 site_map 
 
-africa_map <- ggplot(africa_coast, aes(x = lon, y = lat)) + 
-  theme_bw() + 
-  coord_equal() + 
-  geom_polygon(aes(group = group), colour = "black", fill = "grey80") + 
-  geom_polygon(data = sa_provinces_new, (aes(group = group))) +
-  annotate("text", label = "Africa", x = 16.0, y = 15.0, size = 3) + 
-  theme(panel.border = element_rect(colour = "black", size = 0.4), 
-        plot.background = element_blank(), 
-        axis.ticks = element_blank(), 
-        axis.text = element_blank(), 
-        axis.title = element_blank(), 
-        panel.grid.major = element_blank(), 
+africa_map <- ggplot(africa_coast, aes(x = lon, y = lat)) +
+  theme_bw() +
+  coord_equal() +
+  geom_polygon(aes(group = group), colour = "black", fill = "grey80") +
+  #geom_polygon(data = sa_provinces_new, (aes(group = group))) +
+  geom_rect(data=africa_coast, aes(xmin=15.0, xmax=21.0, ymin=-35.0, ymax=-28.0),  colour = "red", fill = NA, size = 0.75) +
+  #annotate("text", label = "Africa", x = 16.0, y = 15.0, size = 3) +
+  theme(panel.border = element_rect(colour = "black", size = 0.4),
+        plot.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        axis.title = element_blank(),
+        panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
-  coord_map(xlim = c(-20, 53), ylim = c(-36, 38), projection = "mercator") 
+  coord_map(xlim = c(-20, 53), ylim = c(-36, 38), projection = "mercator")
 africa_map
 
 sa_4 <- site_map +

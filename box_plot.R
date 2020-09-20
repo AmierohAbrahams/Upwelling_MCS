@@ -180,7 +180,7 @@ ggplot(data = test1, aes(x = product, y = mean_signals, group = factor(Distance)
   scale_x_discrete(limits = Ordering) +
   scale_fill_grey(start = .1, end = .5, labels = c("0", "25", "50")) +
   scale_fill_discrete(labels = c("0", "25", "50")) +
-    labs(x ="SST product", y = "Average number of upwelling signals") +
+    labs(x ="", y = "Upwelling events (count)") +
   labs(fill = "Distance (km)") + 
   facet_wrap(~site) +
   theme_set(theme_grey()) +
