@@ -203,7 +203,7 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
   xlab("") + ylab("") +
     # annotate("text", label = "ATLANTIC\nOCEAN", x = 16.5, y = -31.5,
     #          size =5, angle = 0, colour = "black") +
-  annotate("text", label = "Cape Columbine", x = 15.5, y = -30.5,
+  annotate("text", label = "Cape Columbine", x = 16.0, y = -30.5,
              size =5, angle = 45, colour = "black")+
   annotate("text", label = "Cape Peninsula", x = 16.5, y = -33.9,
              size =5, angle = 45, colour = "black")+
@@ -246,8 +246,8 @@ africa_map <- ggplot(africa_coast, aes(x = lon, y = lat)) +
   theme_bw() +
   coord_equal() +
   geom_polygon(aes(group = group), colour = "black", fill = "grey80") +
-  #geom_polygon(data = sa_provinces_new, (aes(group = group))) +
-  geom_rect(data=africa_coast, aes(xmin=15.0, xmax=21.0, ymin=-35.0, ymax=-28.0),  colour = "red", fill = NA, size = 0.75) +
+  geom_rect(data=africa_coast, aes(xmin=15.0, xmax=21.0, ymin=-34.4, ymax=-29.5),  colour = "red", fill = NA, size = 0.35) +
+  geom_polygon(data = sa_provinces_new, (aes(group = group))) +
   #annotate("text", label = "Africa", x = 16.0, y = 15.0, size = 3) +
   theme(panel.border = element_rect(colour = "black", size = 0.4),
         plot.background = element_blank(),
@@ -261,7 +261,7 @@ africa_map
 
 sa_4 <- site_map +
 annotation_custom(grob = ggplotGrob(africa_map),
-xmin = 17, xmax = 21.4,
+xmin = 17, xmax = 21.5,
 ymin = -28.8, ymax = -26.6)
 sa_4
 ```

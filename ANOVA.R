@@ -130,9 +130,11 @@ summary(aov(duration ~ site, data = final[final$product == "G1SST", ]))
 summary(aov(duration ~ site, data = final[final$product == "MUR", ]))
 summary(aov(duration ~ site, data = final[final$product == "SACTN", ]))
 
+Ordering <- c("OISST", "CMC","G1SST", "MUR")
 plot1 <- ggplot(data = final, aes(x = product, y = duration)) +
-  geom_boxplot() +
+  geom_boxplot(notch=TRUE) +
   facet_wrap(vars(site), ncol = 4) +
+  scale_x_discrete(limits = Ordering) +
   xlab("") + ylab("Duration (days)") +
   theme_set(theme_grey()) +
   theme_grey() +
@@ -156,7 +158,8 @@ summary(aov(intensity_mean ~ site, data = final[final$product == "MUR", ]))
 summary(aov(intensity_mean ~ site, data = final[final$product == "SACTN", ]))
 
 plot2 <- ggplot(data = final, aes(x = product, y = intensity_mean)) +
-  geom_boxplot() +
+  geom_boxplot(notch=TRUE) +
+  scale_x_discrete(limits = Ordering) +
   facet_wrap(vars(site), ncol = 4) +
   xlab("") + ylab("Mean intensity (°C)") +
   theme_set(theme_grey()) +
@@ -183,8 +186,9 @@ summary(aov(intensity_cumulative ~ site, data = final[final$product == "MUR", ])
 summary(aov(intensity_cumulative ~ site, data = final[final$product == "SACTN", ]))
 
 plot3 <- ggplot(data = final, aes(x = product, y = intensity_cumulative)) +
-  geom_boxplot() +
+  geom_boxplot(notch=TRUE) +
   facet_wrap(vars(site), ncol = 4) +
+  scale_x_discrete(limits = Ordering) +
   xlab("") + ylab("Cumulative intensity
   (°C.days)") +
   theme_set(theme_grey()) +
@@ -349,7 +353,7 @@ summary(aov(duration ~ distance, data = metric_prods[metric_prods$product == "OI
 # use above example and make your own ANOVA table, and include the figure below...
 
 plotA <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = duration)) +
-  geom_boxplot() +
+  geom_boxplot(notch = TRUE) +
   facet_wrap(vars(product), ncol = 4) +
   xlab("") + ylab("Duration (days)") +
   theme_grey() +
@@ -405,7 +409,7 @@ metric_prods <- metric_prods %>%
                               distance == "0" ~ "0",))
 
 plotB <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_mean)) +
-  geom_boxplot() +
+  geom_boxplot(notch = TRUE) +
   facet_wrap(vars(product), ncol = 4) +
   xlab("") + ylab("Mean intensity (°C)") +
   theme_grey() +
@@ -448,7 +452,7 @@ final <- final %>%
   
 
 plotC <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_cumulative)) +
-  geom_boxplot() +
+  geom_boxplot(notch = TRUE) +
   facet_wrap(vars(product), ncol = 4) +
   xlab("") + ylab("Cumulative intensity 
 (°C.days)") +
