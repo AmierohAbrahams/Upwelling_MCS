@@ -550,10 +550,6 @@ plot8 <- ggplot(data = metric_prods, aes(x = product, y = intensity_cumulative))
 # ggplot(data = metric_4years, aes(x = product, y = duration, colour = as.factor(distance))) +
 #   geom_boxplot(aes(colour = as.factor(distance)))
 
-
-
-
-
 # AJ suggested ANOVA
 # Here we only compare the 4 satellite analyses as the 5th data product is the SACTN data. The SACTN data does not have the distance variable
 
@@ -599,5 +595,4 @@ metric_ANOVA <- combined_products %>%
 summary(aov(count ~ site, data = metric_ANOVA))
 summary(aov(count ~ product + distance/site, data = metric_ANOVA))
 summary(aov(count ~ distance, data = metric_ANOVA))
-
 
