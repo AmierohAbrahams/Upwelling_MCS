@@ -214,7 +214,7 @@ combined_plot1 <- ggarrange(plot1, plot2, plot3, nrow = 3, ncol = 1, labels = c(
 # 
 # # names of sat products:
 # # unique(metric_4years$product)
-# # "OISST" "CMC"   "MUR"   "G1SST"
+# # "OISST" "CMC"   "MUR"   "G1SST"   
 # 
 # metric_prods <- combined_products %>% 
 #   filter(year(date_start) %in% 2011:2014) %>% 
