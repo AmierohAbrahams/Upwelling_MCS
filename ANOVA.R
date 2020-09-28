@@ -215,7 +215,7 @@ combined_plot1 <- ggarrange(plot1, plot2, plot3, nrow = 3, ncol = 1, labels = c(
 # # names of sat products:
 # # unique(metric_4years$product)
 # # "OISST" "CMC"   "MUR"   "G1SST"   
-# 
+
 # metric_prods <- combined_products %>% 
 #   filter(year(date_start) %in% 2011:2014) %>% 
 #   filter(season == "Summer") 
@@ -223,7 +223,7 @@ combined_plot1 <- ggarrange(plot1, plot2, plot3, nrow = 3, ncol = 1, labels = c(
 # # H0: For OISST, there is no significant effect caused by between-site differences:
 # summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "OISST", ]))
 # # see MS Word doc for ANOVA table and figure...
-# 
+
 # plot4 <- ggplot(data = metric_prods, aes(x = product, y = duration)) +
 #   geom_boxplot() +
 #   facet_wrap(vars(site), ncol =4 ) +
@@ -242,7 +242,7 @@ combined_plot1 <- ggarrange(plot1, plot2, plot3, nrow = 3, ncol = 1, labels = c(
 #     legend.text = element_text(size = 16),
 #     legend.key = element_rect(size = 0.8, colour = NA),
 #     legend.background = element_blank())
-# 
+S
 # # H0: For CMC, there is no significant effect caused by between-site differences:
 # summary(aov(duration ~ site, data = metric_prods[metric_prods$product == "CMC", ]))
 # # you need to make your own ANOVA table, but the figure made above covers this one too...
