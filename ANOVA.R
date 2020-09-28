@@ -329,7 +329,7 @@ S
 # # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 
-# B) DIFFERENCES BETWEEN DISTANCES, PER PRODUCT ---------------------------
+# B) DIFFERENCES BETWEEN DISTANCES, PER PRODUCT ------------------------------------------------------------------------------------------------------------------
 
 # Second, we see, for each product, of there are differences between distances
 # We use the measurements taken at different sites as the replicates
@@ -370,7 +370,7 @@ plotA <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = duration))
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
 
-  # H0: For CMC, there is no significant effect caused by between-distance differences:
+# H0: For CMC, there is no significant effect caused by between-distance differences:
 summary(aov(duration ~ distance, data = metric_prods[metric_prods$product == "CMC", ]))
 # use above example and make your own ANOVA table, and include the figure above...
 
@@ -383,13 +383,10 @@ summary(aov(duration ~ distance, data = metric_prods[metric_prods$product == "G1
 # use above example and make your own ANOVA table, and include the figure above...
 
 ##### YOU NEED TO DO THIS FOR THE OTHER UPWELLING METRICS
-
-
 # H0: For OISST, there is no significant effect caused by between-distance differences:
 summary(aov(intensity_mean ~ distance, data = metric_prods[metric_prods$product == "OISST", ]))
 
 # use above example and make your own ANOVA table, and include the figure below...
-
 
 # H0: For CMC, there is no significant effect caused by between-distance differences:
 summary(aov(intensity_mean ~ distance, data = metric_prods[metric_prods$product == "CMC", ]))
@@ -426,7 +423,7 @@ plotB <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
 
-###################3
+###################
 
 # H0: For OISST, there is no significant effect caused by between-distance differences:
 summary(aov(intensity_cumulative ~ distance, data = metric_prods[metric_prods$product == "OISST", ]))
@@ -471,7 +468,7 @@ plotC <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_
     legend.background = element_blank())
 
 combined_dis <- ggarrange(plotA, plotB, plotC, nrow = 3, ncol = 1, labels = c("A.", "B.", "C."))
-# C) ARE THERE DIFFERENCES BETWEEN THE PRODUCTS? --------------------------
+# C) ARE THERE DIFFERENCES BETWEEN THE PRODUCTS? -------------------------------------------------------------------------------------------------------------------
 
 # Third, we are interested in the differences between the satellites. The problem is we do
 # not have replicates for satellite, so we have to use the spatial structure as the replicates.
@@ -498,7 +495,6 @@ plot6 <- ggplot(data = metric_prods, aes(x = product, y = duration)) +
     legend.text = element_text(size = 16),
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
-
 
 summary(aov(intensity_mean ~ product + site/distance, data = metric_prods))
 
@@ -541,7 +537,6 @@ plot8 <- ggplot(data = metric_prods, aes(x = product, y = intensity_cumulative))
 (final_combined <- ggarrange(plot6, plot7, plot8))
 
 ##### YOU NEED TO DO THIS FOR THE OTHER UPWELLING METRICS
-
 # # This one isn't necessary...
 # # i) site distance within distance
 # # H0: there are no differences in metrics between products and this does not interact with site
