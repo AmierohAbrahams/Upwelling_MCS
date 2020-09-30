@@ -11,7 +11,11 @@
   load("Data_coast_angle/SACTN_upwell_base.RData")
   load("Data_coast_angle/MUR_upwell_base.RData")
   load("Data_coast_angle/G1SST_upwell_base.RData")
-
+  load("Data_coast_angle/CMC_2015_upwell_base.RData")
+  load("Data_coast_angle/OISST_2015_upwell_base.RData")
+  
+  CMC_upwell_base <- rbind(CMC_2015_upwell_base, CMC_upwell_base)
+  OISST_upwell_base <- rbind(OISST_2015_upwell_base, OISST_upwell_base)
 # # Removing the distance of 20 and 40kms
 # library(dplyr)
 # removing_distance_func <- function(df){
@@ -34,7 +38,7 @@
 combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base,G1SST_upwell_base)
 
 metric_4years <- combined_products %>% 
-  filter(year(date_start) %in% 2011:2014) # only for the years 2011-2014 so 4 year period
+  filter(year(date_start) %in% 2011:2016) # only for the years 2011-2014 so 4 year period
 
 
 metrics <- metric_4years %>% 
@@ -111,15 +115,16 @@ combined_products <- seasons_func(combined_products)
 SACTN <- seasons_func(df = SACTN_upwell_base)
 
 metric_prods <- combined_products %>% 
-  filter(year(date_start) %in% 2011:2014) %>% 
+  filter(year(date_start) %in% 2011:2016) %>% 
   filter(season == "Summer") %>% 
   ungroup() %>% 
   dplyr::select(-heading,-distance)
 metric_prods <- as.data.frame(metric_prods)
 
 metric_SACTN <- SACTN %>% 
-  filter(year(date_start) %in% 2011:2014) %>% 
-  mutate(product = "SACTN") 
+  filter(year(date_start) %in% 2011:2016) %>% 
+  mutate(product = "SACTN") %>% 
+  filter(season == "Summer")
 metric_SACTN <- as.data.frame(metric_SACTN)
 
 final <- rbind(metric_SACTN,metric_prods)
@@ -130,7 +135,7 @@ summary(aov(duration ~ site, data = final[final$product == "G1SST", ]))
 summary(aov(duration ~ site, data = final[final$product == "MUR", ]))
 summary(aov(duration ~ site, data = final[final$product == "SACTN", ]))
 
-Ordering <- c("OISST", "CMC","G1SST", "MUR")
+Ordering <- c("SACTN" ,"OISST", "CMC","G1SST", "MUR")
 plot1 <- ggplot(data = final, aes(x = product, y = duration)) +
   geom_boxplot(notch=TRUE) +
   facet_wrap(vars(site), ncol = 4) +
@@ -329,7 +334,7 @@ S
 # # you need to make your own ANOVA table, but the figure made above covers this one too...
 
 
-# B) DIFFERENCES BETWEEN DISTANCES, PER PRODUCT ------------------------------------------------------------------------------------------------------------------
+# B) DIFFERENCES BETWEEN DISTANCES, PER PRODUCT --------------------------------------------------------------------------------------------------------------------
 
 # Second, we see, for each product, of there are differences between distances
 # We use the measurements taken at different sites as the replicates
@@ -339,7 +344,7 @@ S
 # "OISST" "CMC"   "MUR"   "G1SST"
 
 metric_prods <- combined_products %>% 
-  filter(year(date_start) %in% 2011:2014) %>% 
+  filter(year(date_start) %in% 2011:2016) %>% 
   filter(season == "Summer") 
 
 metric_prods <- metric_prods %>% 
@@ -347,7 +352,10 @@ metric_prods <- metric_prods %>%
   mutate(distance = case_when(distance == "25000" ~ "25",
                               distance == "50000" ~ "50",
                               distance == "0" ~ "0",))
-
+metric_prods$product <- as.factor(metric_prods$product)
+metric_prods$product <- relevel(metric_prods$product,     # Reordering group factor levels
+                          "OISST", "CMC", "G1SST", "OISST")
+metric_prods$product <- factor(metric_prods$product,levels=c( "OISST", "CMC", "G1SST", "OISST"))
 # H0: For OISST, there is no significant effect caused by between-distance differences:
 summary(aov(duration ~ distance, data = metric_prods[metric_prods$product == "OISST", ]))
 # use above example and make your own ANOVA table, and include the figure below...
