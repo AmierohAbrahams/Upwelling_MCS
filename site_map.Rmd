@@ -166,6 +166,7 @@ load("Data/africa_coast.RData")
 load("Data/sa_provinces_new.RData")
 load("Data/site_list_sub.Rdata")
 load("Data_coast_angle/site_pixels.RData")
+load("~/Documents/HONOURSPROJECT-master/data/africa_coast.RData")
 site_pixels <- read_csv("site_pixels.csv")
 
 load("~/Documents/Upwelling_MCS/Data/sa_bathy.RData")
@@ -196,7 +197,7 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
   stat_contour(data = sa_bathy, aes(x = lon, y = lat, z = depth), 
                colour = "black", size = 0.2, binwidth = 200, na.rm = TRUE, show_guide = FALSE)+
   geom_point(data = site_list_sub, aes(x = lon, y = lat), alpha = 0.8, size = 2) +
-  geom_point(data = site_pixels, aes(x = lon, y = lat), colour = "red", shape = 0, alpha = 0.8, size = 2.1) +
+  geom_point(data = site_pixels, aes(x = lon, y = lat, fill = "red"), colour = "red", shape = 15, alpha = 0.8, size = 2.1) +
   geom_label_repel(data =site_list_sub, aes(x = lon, y = lat, label = site),
                      size = 4, box.padding = 2, nudge_x = 0.7, nudge_y = 0.2,
                      segment.alpha = 0.4, force = 0.1, font = "Palatino") +

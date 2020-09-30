@@ -169,7 +169,7 @@ with(wind_match,
 Matching the OISST Data and CMC data to match the SACTN dataset
 
 ```{r}
-unique_pixel <- OISST %>%
+unique_pixel <- BC2015_2016 %>%
   select(lon, lat) %>%
   unique()
 
@@ -183,7 +183,7 @@ pixel_match <- unique_pixel[match_index,] %>%
   unite(col = combi, lon, lat, sep = "/", remove = F) %>% 
   mutate(site = site_list_sub$site)
 
-combined_OISST_match <- OISST %>%
+combined_OISST_match <- BC2015_2016 %>%
   unite(col = combi, lon, lat, sep = "/", remove = F) %>%
   filter(combi %in% pixel_match$combi)
 rm(combined_OISST)
@@ -194,8 +194,10 @@ combined_OISST_sites <- combined_OISST_match %>%
 OISST_final <- combined_OISST_sites %>% 
   select(site, date, temp, lat, lon)
 
+OISST_final2015_2016 <- combined_OISST_sites %>% 
+  select(site, date, temp, lat, lon)
 ############
-unique_pixel <- CMC %>%
+unique_pixel <- CMC_2015_2016 %>%
   select(lon, lat) %>%
   unique()
 
@@ -209,7 +211,7 @@ pixel_match <- unique_pixel[match_index,] %>%
   unite(col = combi, lon, lat, sep = "/", remove = F) %>% 
   mutate(site = site_list_sub$site)
 
-combined_CMC_match <- CMC %>%
+combined_CMC_match <- CMC_2015_2016 %>%
   unite(col = combi, lon, lat, sep = "/", remove = F) %>%
   filter(combi %in% pixel_match$combi)
 # rm(combined_OISST)
