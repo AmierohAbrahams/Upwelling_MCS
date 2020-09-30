@@ -272,9 +272,6 @@ save(site_pixels, file = "Data_coast_angle/site_pixels.RData")
 
 # 5: Extracting OISST dataset ----------------------------------------------------
 
-
-
-
 # bbox <- data.frame(BC = c(-35, -25, 15, 20), # Benguela Current
 #                    CC = c(25, 35, 340, 355), # Canary Current
 #                    CalC = c(35, 45, 225, 240), # California Current
