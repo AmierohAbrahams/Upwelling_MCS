@@ -37,10 +37,12 @@ load("Data_coast_angle/site_pixels.RData")
 # ### The temperature products
 # load("~/Documents/Upwelling_MCS/Data/Final_G1SST.RData") #G1SST
 
-OISST_prod <- OISST %>%
+OISST_prod <- BC2015_2016 %>%
   dplyr::select(lon, lat) %>%
   unique() %>%
   mutate(product = "OISST")
+
+CMC_all_yrs <- rbind(CMC, CMC_2015_2016)
 
 CMC_prod <- CMC %>%
   dplyr::select(lon, lat) %>%
@@ -57,7 +59,7 @@ G1SST_prod <- G1SST %>%
   unique() %>%
   mutate(product = "G1SST")
 
-sat_data <- rbind(MUR_prod, OISST_prod) %>% 
+sat_data <- rbind(CMC_prod, OISST_prod) %>% 
   dplyr::select(product, lon, lat)
 
 sat_pixels <- sat_data %>%
@@ -70,29 +72,33 @@ match_func <- function(df){
   OISST_index <- OISST_prod[as.vector(knnx.index(as.matrix(OISST_prod[,c("lon", "lat")]),
                                                  as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>%
     cbind(., df)
-  MUR_index <- MUR_prod[as.vector(knnx.index(as.matrix(MUR_prod[,c("lon", "lat")]),
+  CMC_index <- CMC_prod[as.vector(knnx.index(as.matrix(CMC_prod[,c("lon", "lat")]),
                                              as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>%
     cbind(., df)
-  res <- rbind(OISST_index, MUR_index)
+  res <- rbind(OISST_index, CMC_index)
   return(res)
 }
+
 
 pixel_match <- site_pixels %>%
   group_by(site) %>%
   group_modify(~match_func(.x))
 
 
-OISST_fill <- right_join(OISST, filter(pixel_match, product == "OISST"), by = c("lon", "lat"))
-MUR_fill <- right_join(MUR, filter(pixel_match, product == "MUR"), by = c("lon", "lat"))
+OISST_fill <- right_join(BC2015_2016, filter(pixel_match, product == "OISST"), by = c("lon", "lat"))
+CMC_fill <- right_join(CMC, filter(pixel_match, product == "CMC"), by = c("lon", "lat"))
 rm(OISST, MUR); gc()
 
 selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
 
-OISST_fill <- OISST_fill %>%
+OISST_fill_2015_2016 <- OISST_fill %>%
   filter(site %in% selected_sites)
 
-MUR_fill <- MUR_fill %>%
+CMC_fill_2015_2016 <- CMC_fill %>%
   filter(site %in% selected_sites)
+
+save(OISST_fill_2015_2016, file = "Data_coast_angle/OISST_fill_2015_2016.RData")
+save(CMC_fill_2015_2016, file = "Data_coast_angle/CMC_fill_2015_2016.RData")
 
 # save(OISST_fill, file = "Data_coast_angle/OISST_fill.RData")
 # save(CMC_fill, file = "Data_coast_angle/CMC_fill.RData")
@@ -113,7 +119,7 @@ detect_event_custom <- function(df){
 }
 
 ts2clm_custom <- function(df){
-  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1982-01-01", "2017-12-31")) #Length of MUR time series: Chnage according to length os SST product
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1991-09-01", " 2016-12-31")) #Length of MUR time series: Chnage according to length os SST product
   return(res)
 }
 
@@ -143,6 +149,13 @@ CMC_upwell_base <- upwelling_detect_event(df = CMC_fill)
 #save(CMC_upwell_base, file = "Data_coast_angle/CMC_upwell_base.RData")
 MUR_upwell_base <- upwelling_detect_event(df = MUR_fill)
 #save(MUR_upwell_base, file = "Data_coast_angle/MUR_upwell_base.RData")
+
+# 2015 - 2016
+OISST_2015_upwell_base <- upwelling_detect_event(df = OISST_fill_2015_2016)
+# save(OISST_2015_upwell_base, file = "Data_coast_angle/OISST_2015_upwell_base.RData")
+CMC_2015_upwell_base <- upwelling_detect_event(df = CMC_fill_2015_2016)
+# save(CMC_2015_upwell_base, file = "Data_coast_angle/CMC_2015_upwell_base.RData")
+
 
 # Here we remove the site Hout Bay so that we have a long time series. The length of Hout Bay time series ends in 200. Many sites change from here
 SACTN_US <- SACTN_US %>% 
