@@ -128,7 +128,7 @@ upwelling_detect_event <- function(df){
   upwell_base <- df %>%
     dplyr::rename(t = date) %>%
     group_by(site, product, heading, distance, lon, lat) %>%
-    group_modify(~ts2clm_custom(.x)) %>%
+    #group_modify(~ts2clm_custom(.x)) %>%
     left_join(upwelling, by = c("site", "t")) %>%
     filter(!is.na(exceedance)) %>%
     group_by(site, product, heading, distance, lon, lat) %>%
@@ -164,7 +164,7 @@ SACTN_US <- SACTN_US %>%
 load("Data/site_list_v4.2.RData")
 
 SACTN_upwell_base <- SACTN_US %>%
-  left_join(site_list[,c(4, 5, 6)], by = "index")%>%
+ left_join(site_list[,c(4, 5, 6)], by = "index")%>%
   dplyr::rename(t = date) %>%
   group_by(site, lon, lat) %>%
   group_modify(~ts2clm_custom(.x)) %>%
@@ -183,7 +183,7 @@ detect_event_custom <- function(df){
 }
 
 ts2clm_custom <- function(df){
-  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1982-01-01", "2017-12-31")) #Length of MUR time series: Chnage according to length os SST product
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1982-01-01", "2005-10-19 ")) #Length of MUR time series: Chnage according to length os SST product
   return(res)
 }
 
@@ -206,13 +206,30 @@ MUR_upwell_clims <- upwelling_detect_event(df = MUR_fill)
 MUR_upwell_clims$distance <- as.numeric(MUR_upwell_clims$distance)
 #save(MUR_upwell_clims, file = "Data_coast_angle/MUR_upwell_clims.RData")
 
-# More years
-CMC_all_yrs <- upwelling_detect_event(df = CMC_clims)
-OISST_all_yrs <- upwelling_detect_event(df = OISST_clims)
+#### With wind only as a filter
 
+ts2clm_custom <- function(df){
+  res <- ts2clm(df, pctile = 100, climatologyPeriod = c("2011-01-02", "2014-06-30")) #Length of MUR time series: Chnage according to length os SST product
+  return(res)
+}
 
+G1SST_without_temp <- upwelling_detect_event(df = G1SST_last)
+OISST_without_temp <- upwelling_detect_event(df = OISST_fill)
+MUR_without_temp <- upwelling_detect_event(df = MUR_fill)
+CMC_without_temp <- upwelling_detect_event(df = CMC_fill)
 
+OISST_without_temp2<- upwelling_detect_event(df = OISST_fill)
+# save(OISST_2015_upwell_base, file = "Data_coast_angle/OISST_2015_upwell_base.RData")
+CMC_2015_without_temp <- upwelling_detect_event(df = CMC_fill)
+# save(CMC_2015_upwell_base, file = "Data_coast_angle/CMC_2015_upwell_base.RData")
 
+OISST_wind_only <- rbind(OISST_without_temp,OISST_without_temp2)
+OISST_tot <- rbind(OISST_2015_upwell_base, OISST_upwell_base)
 
+Number_signals_withtemp <- SACTN_upwell_base %>% 
+  group_by(site) %>% 
+  summarise(y = n())
 
-
+Number_signals <- SACTN_upwell_base_WITHOUT %>% 
+  group_by(site) %>% 
+  summarise(y = n())

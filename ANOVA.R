@@ -599,3 +599,7 @@ summary(aov(count ~ site, data = metric_ANOVA))
 summary(aov(count ~ product + distance/site, data = metric_ANOVA))
 summary(aov(count ~ distance, data = metric_ANOVA))
 
+##
+# Plot the count of SST against temperature and see if changes occured
+
+
