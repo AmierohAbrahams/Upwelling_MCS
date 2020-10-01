@@ -187,6 +187,10 @@ ts2clm_custom <- function(df){
   return(res)
 }
 
+CMC_clims <- rbind(CMC_fill,CMC_fill_2015_2016)
+OISST_clims <- rbind(OISST_fill,OISST_fill_2015_2016)
+
+
 G1SST_last <- G1SST_last %>% 
   arrange(date)
 
@@ -202,11 +206,9 @@ MUR_upwell_clims <- upwelling_detect_event(df = MUR_fill)
 MUR_upwell_clims$distance <- as.numeric(MUR_upwell_clims$distance)
 #save(MUR_upwell_clims, file = "Data_coast_angle/MUR_upwell_clims.RData")
 
-
-
-
-
-
+# More years
+CMC_all_yrs <- upwelling_detect_event(df = CMC_clims)
+OISST_all_yrs <- upwelling_detect_event(df = OISST_clims)
 
 
 

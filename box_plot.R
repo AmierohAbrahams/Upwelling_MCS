@@ -113,7 +113,7 @@ load("Data_coast_angle/G1SST_upwell_clims.RData")
 
 SST_clims <- rbind(OISST_upwell_clims,G1SST_upwell_clims,CMC_upwell_clims,MUR_upwell_clims)
 
-# Determining the anomaly temperature for SST products and SACTN
+# Determining the anomaly temperature for  SST products and SACTN
 SST_anom <- SST_clims %>% 
   group_by(site, product, distance) %>% 
   mutate(anom = temp - seas) %>% 
@@ -207,7 +207,8 @@ load("Data/metric_ANOVA.RData") # Created in the ANOVA.R script
 
 Ordering <- c("OISST", "CMC","G1SST", "MUR")
 ggplot(data = metric_ANOVA, aes(x = product, y = count, group = factor(distance), fill = factor(distance))) +
-  geom_bar(stat = "identity",position = position_dodge2(width =0.5), width = 0.5) +
+  #geom_bar(stat = "identity",position = position_dodge2(width =0.5), width = 0.5) +
+  geom_boxplot()+
   scale_y_continuous(breaks = c(50,100,150,200,250,300,350,400))+
   scale_x_discrete(limits = Ordering) +
   scale_fill_grey(start = .1, end = .5, labels = c("0", "25", "50")) +
@@ -229,6 +230,24 @@ ggplot(data = metric_ANOVA, aes(x = product, y = count, group = factor(distance)
     plot.title = element_text(size = 18, hjust = 0),
     legend.title = element_text(size = 18, family = "Palatino"),
     legend.text = element_text(size = 16, family = "Palatino"),
+    legend.key = element_rect(size = 0.8, colour = NA),
+    legend.background = element_blank())
+
+plot8 <- ggplot(data = metric_ANOVA, aes(x = product, y = count)) +
+  geom_boxplot() +
+  facet_wrap(vars(site), ncol = 4) +
+    xlab("Data product") + ylab("Number of upwelling signals ")+
+  theme_grey() +
+  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+    panel.grid.major = element_line(size = 0.2, linetype = 2),
+    panel.grid.minor = element_line(colour = NA),
+    strip.text = element_text(size=14, family = "Palatino"),
+    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    axis.ticks.length = unit(0.4, "cm"),
+    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    plot.title = element_text(size = 18, hjust = 0),
+    legend.title = element_text(size = 18),
+    legend.text = element_text(size = 16),
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
 
