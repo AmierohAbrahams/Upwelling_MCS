@@ -33,6 +33,7 @@ rm(BC_avhrr_only_v2_Document_Document ); gc()
 load("Data/CMC.RData") # 1decimal places
 load("Data_coast_angle/MUR.RData")
 load("Data_coast_angle/site_pixels.RData")
+load("~/Documents/Upwelling_MCS/Data/BC2015_2016.RData")
 
 # ### The temperature products
 # load("~/Documents/Upwelling_MCS/Data/Final_G1SST.RData") #G1SST
@@ -49,7 +50,7 @@ CMC_prod <- CMC %>%
   unique() %>%
   mutate(product = "CMC")
 
-MUR_prod <- MUR %>%
+MUR_prod <- MUR_dat %>%
   dplyr::select(lon, lat) %>%
   unique() %>%
   mutate(product = "MUR")
@@ -59,7 +60,7 @@ G1SST_prod <- G1SST %>%
   unique() %>%
   mutate(product = "G1SST")
 
-sat_data <- rbind(CMC_prod, OISST_prod) %>% 
+sat_data <- rbind(MUR_prod, OISST_prod) %>% 
   dplyr::select(product, lon, lat)
 
 sat_pixels <- sat_data %>%
@@ -72,10 +73,10 @@ match_func <- function(df){
   OISST_index <- OISST_prod[as.vector(knnx.index(as.matrix(OISST_prod[,c("lon", "lat")]),
                                                  as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>%
     cbind(., df)
-  CMC_index <- CMC_prod[as.vector(knnx.index(as.matrix(CMC_prod[,c("lon", "lat")]),
+  MUR_index <- MUR_prod[as.vector(knnx.index(as.matrix(MUR_prod[,c("lon", "lat")]),
                                              as.matrix(df[,c("lon_site", "lat_site")]), k = 1)),] %>%
     cbind(., df)
-  res <- rbind(OISST_index, CMC_index)
+  res <- rbind(OISST_index, MUR_index)
   return(res)
 }
 
@@ -86,7 +87,17 @@ pixel_match <- site_pixels %>%
 
 
 OISST_fill <- right_join(BC2015_2016, filter(pixel_match, product == "OISST"), by = c("lon", "lat"))
-CMC_fill <- right_join(CMC, filter(pixel_match, product == "CMC"), by = c("lon", "lat"))
+MUR_fill_2 <- right_join(MUR_dat, filter(pixel_match, product == "MUR"), by = c("lon", "lat"))
+load("~/Documents/Upwelling_MCS/Data_coast_angle/MUR_fill_1.RData")
+MUR_fill_1 <- rbind(MUR_fill_1, MUR_fill_2)
+save(MUR_fill_1, file = "Data_coast_angle/MUR_fill_1.RData")
+
+MUR_data_arr <- MUR_fill_1 %>% 
+  arrange(Month_Yr) %>% 
+  rename(date = Month_Yr)
+
+MUR_data_arr$date <- as.Date(date)
+
 rm(OISST, MUR); gc()
 
 selected_sites <- c("Port Nolloth", "Lamberts Bay", "Sea Point", "Saldanha Bay")
@@ -108,6 +119,16 @@ save(CMC_fill_2015_2016, file = "Data_coast_angle/CMC_fill_2015_2016.RData")
 # load("Data/UI_angle.RData")
 load("Data_coast_angle/UI_angle.RData") # Created in script 'upwell_IDX.Rmd'
 load("Data_coast_angle/G1SST_last.RData") # Created in Extracting folder : extract_tidync.R script"
+
+CMC_yrs_complete <- rbind(CMC_fill,CMC_fill_2015_2016)
+CMC_yrs_complete <- CMC_yrs_complete %>% 
+  mutate(date =as.Date(date)) %>% 
+  arrange(date)
+
+OISST_yrs_complete <- rbind(OISST_fill, OISST_fill_2015_2016)
+OISST_yrs_complete <- OISST_yrs_complete %>% 
+  mutate(date =as.Date(date)) %>% 
+  arrange(date)
 
 upwelling <- UI_angle %>% 
   mutate(exceedance = ifelse(ui.saws >= 1, TRUE, FALSE),
