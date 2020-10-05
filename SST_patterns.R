@@ -7,7 +7,7 @@
 # 4: Loading final data products
 # 5: Climatology
 
-# 1: Setup environment ----------------------------------------------------
+# 1: Setup environment -------------------------------------------------------------------------------------------------------------------------------------
 #update.packages() 
 library(tidyverse)
 library(lubridate)
@@ -22,7 +22,7 @@ library(fasttime)
 library(data.table)
 library(heatwaveR)
 
-# 2: Loading data ----------------------------------------------------
+# 2: Loading data -------------------------------------------------------------------------------------------------------------------------------------------
 
 # load("Data/site_list_sub.Rdata")
 load("Data/SACTN_US.RData")
@@ -94,7 +94,8 @@ save(MUR_fill_1, file = "Data_coast_angle/MUR_fill_1.RData")
 
 MUR_data_arr <- MUR_fill_1 %>% 
   arrange(Month_Yr) %>% 
-  rename(date = Month_Yr)
+  rename(date = Month_Yr) %>% 
+  mutate(date = as.Date(date))
 
 MUR_data_arr$date <- as.Date(date)
 
@@ -115,13 +116,21 @@ save(CMC_fill_2015_2016, file = "Data_coast_angle/CMC_fill_2015_2016.RData")
 # save(CMC_fill, file = "Data_coast_angle/CMC_fill.RData")
 # save(MUR_fill, file = "Data_coast_angle/MUR_fill.RData")
 # save(G1SST_fill, file = "Data_coast_angle/G1SST_fill.RData")
+# -----------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Loading the data
 # load("Data/UI_angle.RData")
 load("Data_coast_angle/UI_angle.RData") # Created in script 'upwell_IDX.Rmd'
-load("Data_coast_angle/G1SST_last.RData") # Created in Extracting folder : extract_tidync.R script"
+# load("Data_coast_angle/G1SST_last.RData") # Created in Extracting folder : extract_tidync.R script"
+# load("Data_coast_angle/CMC_fill_2015_2016.RData")
+load("Data_coast_angle/MUR_fill.RData")
+load("Data_coast_angle/OISST_fill_2015_2016.RData")
+# load("Data_coast_angle/MUR_fill_1.RData")
+# load("Data_coast_angle/CMC_fill.RData")
+load("Data_coast_angle/OISST_fill.RData")
+load("Data_coast_angle/updated_MUR.RData")
 
-CMC_yrs_complete <- rbind(CMC_fill,CMC_fill_2015_2016)
-CMC_yrs_complete <- CMC_yrs_complete %>% 
+MUR_yrs_complete <- rbind(MUR_fill, updated_MUR) %>% 
   mutate(date =as.Date(date)) %>% 
   arrange(date)
 
@@ -140,7 +149,7 @@ detect_event_custom <- function(df){
 }
 
 ts2clm_custom <- function(df){
-  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1991-09-01", " 2016-12-31")) #Length of MUR time series: Chnage according to length os SST product
+    res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2002-06-02", "2016-12-31")) #Length of MUR time series: Chnage according to length os SST product
   return(res)
 }
 
@@ -149,26 +158,28 @@ upwelling_detect_event <- function(df){
   upwell_base <- df %>%
     dplyr::rename(t = date) %>%
     group_by(site, product, heading, distance, lon, lat) %>%
-    #group_modify(~ts2clm_custom(.x)) %>%
+    group_modify(~ts2clm_custom(.x)) %>%
     left_join(upwelling, by = c("site", "t")) %>%
     filter(!is.na(exceedance)) %>%
     group_by(site, product, heading, distance, lon, lat) %>%
     group_modify(~detect_event_custom(.x))
 }
 
-# G1SST_finally <- G1SST_finally %>% 
-#   arrange(date)
+OISST_upwell_base <- upwelling_detect_event(df = OISST_yrs_complete)
+MUR_upwell_base <- upwelling_detect_event(df = MUR_yrs_complete)
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 G1SST_last <- G1SST_last %>% 
   arrange(date)
 
 G1SST_upwell_base <- upwelling_detect_event(df = G1SST_last)
 #save(G1SST_upwell_base, file = "Data_coast_angle/G1SST_upwell_base.RData")
-OISST_upwell_base <- upwelling_detect_event(df = OISST_fill)
+OISST_upwell_base <- upwelling_detect_event(df = OISST_yrs_complete)
 #save(OISST_upwell_base, file = "Data_coast_angle/OISST_upwell_base.RData")
 CMC_upwell_base <- upwelling_detect_event(df = CMC_fill)
 #save(CMC_upwell_base, file = "Data_coast_angle/CMC_upwell_base.RData")
-MUR_upwell_base <- upwelling_detect_event(df = MUR_fill)
+MUR_upwell_base <- upwelling_detect_event(df = MUR_all_yrs)
 #save(MUR_upwell_base, file = "Data_coast_angle/MUR_upwell_base.RData")
 
 # 2015 - 2016
@@ -196,7 +207,7 @@ SACTN_upwell_base <- SACTN_US %>%
 
 save(SACTN_upwell_base, file = "Data/SACTN_upwell_base.RData")
 
-# 5: Calculating the climatology ----------------------------------------------------
+# 5: Calculating the climatology ---------------------------------------------------------------------------------------------------------------------
 
 detect_event_custom <- function(df){
   res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 1, coldSpells = T)$climatology 
