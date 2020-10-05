@@ -128,9 +128,9 @@ load("Data_coast_angle/OISST_fill_2015_2016.RData")
 # load("Data_coast_angle/MUR_fill_1.RData")
 # load("Data_coast_angle/CMC_fill.RData")
 load("Data_coast_angle/OISST_fill.RData")
-load("Data_coast_angle/updated_MUR.RData")
+load("Data_coast_angle/MUR_updated.RData")
 
-MUR_yrs_complete <- rbind(MUR_fill, updated_MUR) %>% 
+MUR_yrs_complete <- rbind(MUR_fill, MUR_updated) %>% 
   mutate(date =as.Date(date)) %>% 
   arrange(date)
 
