@@ -17,7 +17,7 @@ library(FNN)
 library(circular)
 library(fossil)
 library(broom)
-library(doMC); doMC::registerDoMC(cores = 4)
+library(doParallel); registerDoParallel(cores = 4) # RWS: Better to use this package as your parallel backend
 library(fasttime)
 library(data.table)
 library(heatwaveR)
@@ -131,8 +131,14 @@ load("Data_coast_angle/OISST_fill.RData")
 load("Data_coast_angle/MUR_updated.RData")
 
 MUR_yrs_complete <- rbind(MUR_fill, MUR_updated) %>% 
-  mutate(date =as.Date(date)) %>% 
+  mutate(date = as.Date(date)) %>% 
   arrange(date)
+
+# Check what the earliest start date is for each pixel
+MUR_yrs_check <- MUR_yrs_complete %>% 
+  group_by(site, product, heading, distance, lon, lat) %>% 
+  summarise(date = min(date))
+# RWS: Here is the issue. Only some of the pixels have been extended.
 
 OISST_yrs_complete <- rbind(OISST_fill, OISST_fill_2015_2016)
 OISST_yrs_complete <- OISST_yrs_complete %>% 
@@ -149,7 +155,7 @@ detect_event_custom <- function(df){
 }
 
 ts2clm_custom <- function(df){
-    res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2002-06-02", "2016-12-31")) #Length of MUR time series: Chnage according to length os SST product
+    res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2003-01-01", "2016-12-31")) #Length of MUR time series: Change according to length of SST product # RWS: NO. The climatology period must be the same across all products.
   return(res)
 }
 
