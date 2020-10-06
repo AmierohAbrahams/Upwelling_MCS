@@ -13,9 +13,10 @@
   load("Data_coast_angle/G1SST_upwell_base.RData")
   load("Data_coast_angle/CMC_2015_upwell_base.RData")
   load("Data_coast_angle/OISST_2015_upwell_base.RData")
-  
+  load("Data_coast_angle/MUR_upwell_base_2015.RData")
   CMC_upwell_base <- rbind(CMC_2015_upwell_base, CMC_upwell_base)
   OISST_upwell_base <- rbind(OISST_2015_upwell_base, OISST_upwell_base)
+  MUR_upwell_base <- rbind(MUR_upwell_base, MUR_upwell_base_2015)
 # # Removing the distance of 20 and 40kms
 # library(dplyr)
 # removing_distance_func <- function(df){
@@ -122,45 +123,6 @@ metrics <- combined_products %>%
             mean_dur = mean(duration),
             mean_cumIn = mean(intensity_cumulative)) %>% 
   rename(count = y)
-
-OISST_temp_match <- OISST_temp %>% 
-  mutate(year = year(date)) %>% 
-  group_by(year, site) %>% 
-  summarise(mean_temp = mean(temp))
-  
-
-match_func <- function(df){
-  match <- OISST_temp_match  %>% 
-    left_join(df, by = c("site", "year")) %>% 
-    na.trim()
-  return(match)
-}
-
-temp <- match_func(df = metrics)
-temp <- temp %>% 
-  filter(year %in% 2011:2016)
-
-ggplot(data = temp, aes(x = year, y = mean_temp)) +
-  geom_line() + 
-  #geom_smooth(aes(colour = product), method = "lm") +
-  facet_wrap(~site) +
-  labs(x = "Year", y = "Upwelling cumulative intensity")+
-  theme_set(theme_grey()) +
-  theme_grey() +
-  theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
-    # panel.grid.major = element_line(size = 0.2, linetype = 2),
-    # panel.grid.minor = element_line(colour = NA),
-    strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
-    axis.ticks.length = unit(0.4, "cm"),
-    panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
-    panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
-    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
-    plot.title = element_text(size = 18, hjust = 0),
-    legend.title = element_text(size = 18, family = "Palatino"),
-    legend.text = element_text(size = 16, family = "Palatino"),
-    legend.key = element_rect(size = 0.8, colour = NA),
-    legend.background = element_blank())
 
 metric_prods <- combined_products %>% 
   filter(year(date_start) %in% 2011:2016) %>% 
@@ -650,4 +612,42 @@ summary(aov(count ~ distance, data = metric_ANOVA))
 ##
 # Plot the count of SST against temperature and see if changes occured
 
+# OISST_temp_match <- OISST_temp %>% 
+#   mutate(year = year(date)) %>% 
+#   group_by(year, site) %>% 
+#   summarise(mean_temp = mean(temp))
+#   
+# 
+# match_func <- function(df){
+#   match <- OISST_temp_match  %>% 
+#     left_join(df, by = c("site", "year")) %>% 
+#     na.trim()
+#   return(match)
+# }
+# 
+# temp <- match_func(df = metrics)
+# temp <- temp %>% 
+#   filter(year %in% 2011:2016)
+# 
+# ggplot(data = temp, aes(x = year, y = mean_temp)) +
+#   geom_line() + 
+#   #geom_smooth(aes(colour = product), method = "lm") +
+#   facet_wrap(~site) +
+#   labs(x = "Year", y = "Upwelling cumulative intensity")+
+#   theme_set(theme_grey()) +
+#   theme_grey() +
+#   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
+#     # panel.grid.major = element_line(size = 0.2, linetype = 2),
+#     # panel.grid.minor = element_line(colour = NA),
+#     strip.text = element_text(size=14, family = "Palatino"),
+#     axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+#     axis.ticks.length = unit(0.4, "cm"),
+#     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
+#     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
+#     axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+#     plot.title = element_text(size = 18, hjust = 0),
+#     legend.title = element_text(size = 18, family = "Palatino"),
+#     legend.text = element_text(size = 16, family = "Palatino"),
+#     legend.key = element_rect(size = 0.8, colour = NA),
+#     legend.background = element_blank())
 

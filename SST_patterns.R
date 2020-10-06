@@ -130,12 +130,42 @@ load("Data_coast_angle/OISST_fill_2015_2016.RData")
 load("Data_coast_angle/OISST_fill.RData")
 load("Data_coast_angle/MUR_updated.RData")
 
+MUR_2014 <- MUR_updated %>% 
+  filter(year(date) %in% seq(2014))
+
+MUR_2015 <- MUR_updated %>% 
+  filter(year(date) %in% seq(2015, 2016, 1)) %>% 
+  mutate(temp = temp - 273.15)
+
+MUR_updated <- rbind(MUR_2015,MUR_2014)
+
 MUR_yrs_complete <- rbind(MUR_fill, MUR_updated) %>% 
   mutate(date = as.Date(date)) %>% 
   arrange(date)
 
+MUR_fill <- MUR_fill %>% 
+  mutate(date = as.Date(date)) %>% 
+  arrange(date) %>% 
+  #filter(year(date) %in% seq(2002, 2013, 1)) %>% 
+  select(-temp,-product, -product, heading, distance)
+
+MUR_fill$distance <- as.numeric(MUR_fill$distance)
+MUR_updated <- MUR_updated %>% 
+  select(-lat,-lon,-lon_site,-lat_site,-heading)
+
+MUR_fill_sub <- MUR_fill %>% 
+  filter(year(date) %in% 2014)
+
+MUR_updated <- rbind(MUR_fill_sub, MUR_updated)
+
+MUR_test<- MUR_fill %>% 
+  left_join(MUR_updated, by = c("site", "distance")) %>% 
+  # filter(year(date.y) %in% 2014, 2016) %>% 
+  select(-date.x) %>% 
+  rename(date = date.y) 
+
 # Check what the earliest start date is for each pixel
-MUR_yrs_check <- MUR_yrs_complete %>% 
+MUR_yrs_check <- MUR_test %>% 
   group_by(site, product, heading, distance, lon, lat) %>% 
   summarise(date = min(date))
 # RWS: Here is the issue. Only some of the pixels have been extended.
@@ -155,7 +185,7 @@ detect_event_custom <- function(df){
 }
 
 ts2clm_custom <- function(df){
-    res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2003-01-01", "2016-12-31")) #Length of MUR time series: Change according to length of SST product # RWS: NO. The climatology period must be the same across all products.
+    res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2014-01-01", "2016-12-31")) #Length of MUR time series: Change according to length of SST product # RWS: NO. The climatology period must be the same across all products.
   return(res)
 }
 
@@ -163,7 +193,7 @@ ts2clm_custom <- function(df){
 upwelling_detect_event <- function(df){
   upwell_base <- df %>%
     dplyr::rename(t = date) %>%
-    group_by(site, product, heading, distance, lon, lat) %>%
+    group_by(site, product, heading, distance) %>%
     group_modify(~ts2clm_custom(.x)) %>%
     left_join(upwelling, by = c("site", "t")) %>%
     filter(!is.na(exceedance)) %>%
@@ -172,8 +202,8 @@ upwelling_detect_event <- function(df){
 }
 
 OISST_upwell_base <- upwelling_detect_event(df = OISST_yrs_complete)
-MUR_upwell_base <- upwelling_detect_event(df = MUR_yrs_complete)
-
+MUR_upwell_base_2015 <- upwelling_detect_event(df = MUR_test)
+save(MUR_upwell_base_2015, file = "Data_coast_angle/MUR_upwell_base_2015.RData")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 G1SST_last <- G1SST_last %>% 
@@ -247,7 +277,7 @@ MUR_upwell_clims$distance <- as.numeric(MUR_upwell_clims$distance)
 #### With wind only as a filter
 
 ts2clm_custom <- function(df){
-  res <- ts2clm(df, pctile = 100, climatologyPeriod = c("2011-01-02", "2014-06-30")) #Length of MUR time series: Chnage according to length os SST product
+  res <- ts2clm(df, pctile = 100, climatologyPeriod = c("2002-06-01 ", "2013-12-31")) #Length of MUR time series: Chnage according to length os SST product
   return(res)
 }
 
@@ -260,14 +290,18 @@ OISST_without_temp2<- upwelling_detect_event(df = OISST_fill)
 # save(OISST_2015_upwell_base, file = "Data_coast_angle/OISST_2015_upwell_base.RData")
 CMC_2015_without_temp <- upwelling_detect_event(df = CMC_fill)
 # save(CMC_2015_upwell_base, file = "Data_coast_angle/CMC_2015_upwell_base.RData")
+MUR_2015_without_temp <- upwelling_detect_event(df = hope)
+
 
 OISST_wind_only <- rbind(OISST_without_temp,OISST_without_temp2)
 OISST_tot <- rbind(OISST_2015_upwell_base, OISST_upwell_base)
 
-Number_signals_withtemp <- SACTN_upwell_base %>% 
+Number_signals_withtemp <- MUR_upwell_base %>% 
+  filter(year(date_start) %in% seq(2002, 2013, 1)) %>% 
   group_by(site) %>% 
   summarise(y = n())
 
-Number_signals <- SACTN_upwell_base_WITHOUT %>% 
+Number_signals <- MUR_without_temp %>% 
+  filter(year(date_start) %in% seq(2002, 2013, 1)) %>% 
   group_by(site) %>% 
   summarise(y = n())
