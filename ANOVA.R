@@ -17,6 +17,10 @@
   CMC_upwell_base <- rbind(CMC_2015_upwell_base, CMC_upwell_base)
   OISST_upwell_base <- rbind(OISST_2015_upwell_base, OISST_upwell_base)
   MUR_upwell_base <- rbind(MUR_upwell_base, MUR_upwell_base_2015)
+  
+  MUR_upwell_base <-  MUR_upwell_base %>% 
+    filter(duration < 40)
+  
 # # Removing the distance of 20 and 40kms
 # library(dplyr)
 # removing_distance_func <- function(df){
@@ -650,4 +654,7 @@ summary(aov(count ~ distance, data = metric_ANOVA))
 #     legend.text = element_text(size = 16, family = "Palatino"),
 #     legend.key = element_rect(size = 0.8, colour = NA),
 #     legend.background = element_blank())
+
+
+
 

@@ -125,19 +125,25 @@ load("Data_coast_angle/UI_angle.RData") # Created in script 'upwell_IDX.Rmd'
 # load("Data_coast_angle/CMC_fill_2015_2016.RData")
 load("Data_coast_angle/MUR_fill.RData")
 load("Data_coast_angle/OISST_fill_2015_2016.RData")
-# load("Data_coast_angle/MUR_fill_1.RData")
+load("Data_coast_angle/MUR_fill_1.RData")
 # load("Data_coast_angle/CMC_fill.RData")
 load("Data_coast_angle/OISST_fill.RData")
 load("Data_coast_angle/MUR_updated.RData")
 
-MUR_2014 <- MUR_updated %>% 
-  filter(year(date) %in% seq(2014))
+MUR_updated <- MUR_updated %>% 
+  arrange(temp) 
 
-MUR_2015 <- MUR_updated %>% 
-  filter(year(date) %in% seq(2015, 2016, 1)) %>% 
+MUR_1 <- MUR_updated %>% 
+  slice(1:2315)
+
+updated <- MUR_updated %>% 
+  slice(2316:4185) %>% 
   mutate(temp = temp - 273.15)
 
-MUR_updated <- rbind(MUR_2015,MUR_2014)
+MUR_na <- MUR_updated %>% 
+  slice(4186:4355)
+
+MUR_combi <- rbind(MUR_1,MUR_na, updated)
 
 MUR_yrs_complete <- rbind(MUR_fill, MUR_updated) %>% 
   mutate(date = as.Date(date)) %>% 
@@ -150,24 +156,30 @@ MUR_fill <- MUR_fill %>%
   select(-temp,-product, -product, heading, distance)
 
 MUR_fill$distance <- as.numeric(MUR_fill$distance)
-MUR_updated <- MUR_updated %>% 
-  select(-lat,-lon,-lon_site,-lat_site,-heading)
 
 MUR_fill_sub <- MUR_fill %>% 
   filter(year(date) %in% 2014)
 
-MUR_updated <- rbind(MUR_fill_sub, MUR_updated)
+MUR_updated <- rbind(MUR_fill_sub, MUR_combi)
 
-MUR_test<- MUR_fill %>% 
+MUR_updated <- MUR_updated %>% 
+  select(-lat,-lon,-lon_site,-lat_site,-heading, -product)
+
+MUR_test<- MUR_fill_sub %>% 
+  select(-temp) %>% 
   left_join(MUR_updated, by = c("site", "distance")) %>% 
-  # filter(year(date.y) %in% 2014, 2016) %>% 
+  filter(year(date.y) %in% seq(2014, 2016,1)) %>% 
   select(-date.x) %>% 
   rename(date = date.y) 
 
+  MUR_test_fin <-MUR_test %>% 
+  select(-temp.x) %>% 
+  rename(temp = temp.y)
+
 # Check what the earliest start date is for each pixel
-MUR_yrs_check <- MUR_test %>% 
+MUR_yrs_check <- MUR_test%>% 
   group_by(site, product, heading, distance, lon, lat) %>% 
-  summarise(date = min(date))
+  summarise(date = max(date))
 # RWS: Here is the issue. Only some of the pixels have been extended.
 
 OISST_yrs_complete <- rbind(OISST_fill, OISST_fill_2015_2016)
@@ -197,7 +209,7 @@ upwelling_detect_event <- function(df){
     group_modify(~ts2clm_custom(.x)) %>%
     left_join(upwelling, by = c("site", "t")) %>%
     filter(!is.na(exceedance)) %>%
-    group_by(site, product, heading, distance, lon, lat) %>%
+    #group_by(site, product, heading, distance, lon, lat) %>%
     group_modify(~detect_event_custom(.x))
 }
 
@@ -305,3 +317,4 @@ Number_signals <- MUR_without_temp %>%
   filter(year(date_start) %in% seq(2002, 2013, 1)) %>% 
   group_by(site) %>% 
   summarise(y = n())
+
