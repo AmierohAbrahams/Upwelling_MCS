@@ -161,7 +161,7 @@ no_upwelling_sigs <- read_csv("Data_coast_angle/number_upwelling_sigs.csv")
 test <- combined_products %>% 
   mutate(year = year(date_start)) %>% 
   #filter(year(date_start) %in% 2011:2014)
-  filter(year %in% 2011:2014) %>% 
+  filter(year %in% 2011:2016) %>% 
   group_by(year, distance, site, product) %>% 
   summarise(y = n())%>% 
   rename(count = y)
@@ -206,7 +206,7 @@ ggplot(data = test1, aes(x = product, y = mean_signals, group = factor(Distance)
 load("Data/metric_ANOVA.RData") # Created in the ANOVA.R script
 
 Ordering <- c("OISST", "CMC","G1SST", "MUR")
-ggplot(data = metric_ANOVA, aes(x = product, y = count, group = factor(distance), fill = factor(distance))) +
+ggplot(data = metrics, aes(x = product, y = count, group = factor(distance), fill = factor(distance))) +
   #geom_bar(stat = "identity",position = position_dodge2(width =0.5), width = 0.5) +
   geom_boxplot()+
   scale_y_continuous(breaks = c(50,100,150,200,250,300,350,400))+
@@ -217,7 +217,7 @@ ggplot(data = metric_ANOVA, aes(x = product, y = count, group = factor(distance)
   facet_wrap(~site)+
   theme_set(theme_grey()) +
   theme_grey() +
-  scale_fill_manual(values = c("grey79", "grey57", "grey40"))+
+  #scale_fill_manual(values = c("grey79", "grey57", "grey40"))+
   theme(
     #panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
@@ -360,3 +360,4 @@ ggplot(data = final_combined, aes(x = product,y = intensity_cumulative)) +
     legend.text = element_text(size = 16),
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
+

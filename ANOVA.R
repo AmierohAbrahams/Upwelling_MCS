@@ -48,12 +48,18 @@ metric_4years <- combined_products %>%
 
 metrics <- metric_4years %>% 
   # mutate(year = year(date_start)) %>% # Why is this here? It is removed in the summarise step.
-  group_by(product, distance) %>% 
+  group_by(product, distance, site) %>% 
   summarise(y = n(),
             mean_intensity = mean(intensity_mean),
             mean_dur = mean(duration),
             mean_cumIn = mean(intensity_cumulative)) %>% 
-  rename(count = y)
+  rename(count = y) 
+
+metrics <- metrics%>% 
+  ungroup(distance) %>% 
+  mutate(distance = case_when(distance == "25000" ~ "25",
+                              distance == "50000" ~ "50",
+                              distance == "0" ~ "0",))
 
 # Function for extracting slope from linear model
 lm_coeff <- function(df){
@@ -654,7 +660,3 @@ summary(aov(count ~ distance, data = metric_ANOVA))
 #     legend.text = element_text(size = 16, family = "Palatino"),
 #     legend.key = element_rect(size = 0.8, colour = NA),
 #     legend.background = element_blank())
-
-
-
-
