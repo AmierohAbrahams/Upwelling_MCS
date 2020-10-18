@@ -197,7 +197,7 @@ detect_event_custom <- function(df){
 }
 
 ts2clm_custom <- function(df){
-    res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2014-01-01", "2016-12-31")) #Length of MUR time series: Change according to length of SST product # RWS: NO. The climatology period must be the same across all products.
+    res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2010-01-01", "2016-12-31")) #Length of MUR time series: Change according to length of SST product # RWS: NO. The climatology period must be the same across all products.
   return(res)
 }
 
@@ -252,6 +252,13 @@ SACTN_upwell_base <- SACTN_US %>%
   filter(!is.na(exceedance)) %>%
   group_by(site, lon, lat) %>%
   group_modify(~detect_event_custom(.x))
+
+metrics <- SACTN_upwell_base %>% 
+  mutate(year = year(date_start)) %>% 
+  group_by(site) %>% 
+  summarise(y = n())%>% 
+  rename(count = y)
+
 
 save(SACTN_upwell_base, file = "Data/SACTN_upwell_base.RData")
 
