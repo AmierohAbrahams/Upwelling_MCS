@@ -252,13 +252,12 @@ SACTN_upwell_base <- SACTN_US %>%
   filter(!is.na(exceedance)) %>%
   group_by(site, lon, lat) %>%
   group_modify(~detect_event_custom(.x))
-
+  
 metrics <- SACTN_upwell_base %>% 
   mutate(year = year(date_start)) %>% 
   group_by(site) %>% 
   summarise(y = n())%>% 
   rename(count = y)
-
 
 save(SACTN_upwell_base, file = "Data/SACTN_upwell_base.RData")
 
