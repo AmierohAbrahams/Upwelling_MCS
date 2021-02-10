@@ -360,6 +360,3 @@ ggplot(data = final_combined, aes(x = product,y = intensity_cumulative)) +
     legend.text = element_text(size = 16),
     legend.key = element_rect(size = 0.8, colour = NA),
     legend.background = element_blank())
-
-
-
