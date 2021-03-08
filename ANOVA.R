@@ -156,14 +156,15 @@ summary(aov(duration ~ site, data = final[final$product == "MUR", ]))
 summary(aov(duration ~ site, data = final[final$product == "SACTN", ]))
 
 Ordering <- c("SACTN" ,"OISST", "CMC","G1SST", "MUR")
-plot1 <- ggplot(data = final, aes(x = product, y = duration)) +
+plot1 <- ggplot(data = final, aes(x = site, y = duration)) +
   geom_boxplot(notch=TRUE) +
-  facet_wrap(vars(site), ncol = 4) +
-  scale_x_discrete(limits = Ordering) +
+  facet_wrap(vars(product), ncol = 5) +
+  #scale_x_discrete(limits = Ordering) +
   xlab("") + ylab("Duration (days)") +
   theme_minimal() +
   theme(
     strip.text = element_text(size = 7, family = "Palatino"),
+    axis.text.x = element_text(angle = 45),
     strip.placement = "outside",
     axis.text = element_text(size = 6, colour = "black", family = "Palatino"),
     axis.title = element_text(size = 8, face = "bold", family = "Palatino"),
@@ -197,14 +198,15 @@ summary(aov(intensity_mean ~ site, data = final[final$product == "G1SST", ]))
 summary(aov(intensity_mean ~ site, data = final[final$product == "MUR", ]))
 summary(aov(intensity_mean ~ site, data = final[final$product == "SACTN", ]))
 
-plot2 <- ggplot(data = final, aes(x = product, y = intensity_mean)) +
+plot2 <- ggplot(data = final, aes(x = site, y = intensity_mean)) +
   geom_boxplot(notch=TRUE) +
-  scale_x_discrete(limits = Ordering) +
-  facet_wrap(vars(site), ncol = 4) +
+  #scale_x_discrete(limits = Ordering) +
+  facet_wrap(vars(product), ncol = 5) +
   xlab("") + ylab("Mean intensity (°C)") +
   theme_minimal() +
   theme(
     strip.text = element_text(size = 7, family = "Palatino"),
+    axis.text.x = element_text(angle = 45),
     strip.placement = "outside",
     axis.text = element_text(size = 6, colour = "black", family = "Palatino"),
     axis.title = element_text(size = 8, face = "bold", family = "Palatino"),
@@ -240,15 +242,16 @@ summary(aov(intensity_cumulative ~ site, data = final[final$product == "G1SST", 
 summary(aov(intensity_cumulative ~ site, data = final[final$product == "MUR", ]))
 summary(aov(intensity_cumulative ~ site, data = final[final$product == "SACTN", ]))
 
-plot3 <- ggplot(data = final, aes(x = product, y = intensity_cumulative)) +
+    plot3 <- ggplot(data = final, aes(x = site, y = intensity_cumulative)) +
   geom_boxplot(notch=TRUE) +
-  facet_wrap(vars(site), ncol = 4) +
-  scale_x_discrete(limits = Ordering) +
+  facet_wrap(vars(product), ncol = 5) +
+  #scale_x_discrete(limits = Ordering) +
   xlab("") + ylab("Cumulative intensity
   (°C.days)") +
   theme_minimal() +
   theme(
     strip.text = element_text(size = 7, family = "Palatino"),
+    axis.text.x = element_text(angle = 45),
     strip.placement = "outside",
     axis.text = element_text(size = 6, colour = "black", family = "Palatino"),
     axis.title = element_text(size = 8, face = "bold", family = "Palatino"),
