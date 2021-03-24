@@ -163,18 +163,18 @@ plot1 <- ggplot(data = final, aes(x = site, y = duration)) +
   xlab("") + ylab("Duration (days)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Palatino"),
+    strip.text = element_text(size = 7, family = "Arial"),
     axis.text.x = element_text(angle = 45),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Palatino"),
-    axis.title = element_text(size = 8, face = "bold", family = "Palatino"),
+    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
     plot.title = element_text(size = 18, hjust = 0),
-    legend.title = element_text(size = 8, family = "Palatino"),
+    legend.title = element_text(size = 8, family = "Arial"),
     legend.position = "right",
-    legend.text = element_text(size = 7, family = "Palatino"),
+    legend.text = element_text(size = 7, family = "Arial"),
     legend.key.size = unit(0.2, "cm"),
     legend.background = element_blank())
   # theme_set(theme_grey()) +
@@ -205,18 +205,18 @@ plot2 <- ggplot(data = final, aes(x = site, y = intensity_mean)) +
   xlab("") + ylab("Mean intensity (°C)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Palatino"),
+    strip.text = element_text(size = 7, family = "Arial"),
     axis.text.x = element_text(angle = 45),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Palatino"),
-    axis.title = element_text(size = 8, face = "bold", family = "Palatino"),
+    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
     plot.title = element_text(size = 18, hjust = 0),
-    legend.title = element_text(size = 8, family = "Palatino"),
+    legend.title = element_text(size = 8, family = "Arial"),
     legend.position = "right",
-    legend.text = element_text(size = 7, family = "Palatino"),
+    legend.text = element_text(size = 7, family = "Arial"),
     legend.key.size = unit(0.2, "cm"),
     legend.background = element_blank())
   # theme_set(theme_grey()) +
@@ -250,18 +250,18 @@ summary(aov(intensity_cumulative ~ site, data = final[final$product == "SACTN", 
   (°C.days)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Palatino"),
-    axis.text.x = element_text(angle = 45),
+    strip.text = element_text(size = 7, family = "Arial"),
+    axis.text.x = element_text(angle = 90),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Palatino"),
-    axis.title = element_text(size = 8, face = "bold", family = "Palatino"),
+    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
     plot.title = element_text(size = 18, hjust = 0),
-    legend.title = element_text(size = 8, family = "Palatino"),
+    legend.title = element_text(size = 8, family = "Arial"),
     legend.position = "right",
-    legend.text = element_text(size = 7, family = "Palatino"),
+    legend.text = element_text(size = 7, family = "Arial"),
     legend.key.size = unit(0.2, "cm"),
     legend.background = element_blank())
   # theme_set(theme_grey()) +
@@ -281,6 +281,7 @@ summary(aov(intensity_cumulative ~ site, data = final[final$product == "SACTN", 
 
 combined_plot1 <- ggarrange(plot1, plot2, plot3, nrow = 3, ncol = 1, labels = c("A.", "B.", "C."))
 ggsave(filename = "combined_plot1.jpg", plot = combined_plot1, width=180, height = 200, units = "mm",dpi = 300,  path = "figures/")
+ggsave("combined_plot1.tiff", units="cm", width=19.05, height=22.23, dpi=300)
 
 # # A) DIFFERENCES BETWEEN SITES, PER PRODUCT -------------------------------
 # 
@@ -436,17 +437,17 @@ plotA <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = duration))
   xlab("") + ylab("Duration (days)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Palatino"),
+    strip.text = element_text(size = 7, family = "Arial"),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Palatino"),
-    axis.title = element_text(size = 8, face = "bold", family = "Palatino"),
+    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
     plot.title = element_text(size = 18, hjust = 0),
-    legend.title = element_text(size = 8, family = "Palatino"),
+    legend.title = element_text(size = 8, family = "Arial"),
     legend.position = "right",
-    legend.text = element_text(size = 7, family = "Palatino"),
+    legend.text = element_text(size = 7, family = "Arial"),
     legend.key.size = unit(0.2, "cm"),
     legend.background = element_blank())
   # theme_grey() +
@@ -504,17 +505,17 @@ plotB <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_
   xlab("") + ylab("Mean intensity (°C)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Palatino"),
+    strip.text = element_text(size = 7, family = "Arial"),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Palatino"),
-    axis.title = element_text(size = 8, face = "bold", family = "Palatino"),
+    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
     plot.title = element_text(size = 18, hjust = 0),
-    legend.title = element_text(size = 8, family = "Palatino"),
+    legend.title = element_text(size = 8, family = "Arial"),
     legend.position = "right",
-    legend.text = element_text(size = 7, family = "Palatino"),
+    legend.text = element_text(size = 7, family = "Arial"),
     legend.key.size = unit(0.2, "cm"),
     legend.background = element_blank())
   # theme_grey() +
@@ -563,17 +564,17 @@ plotC <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_
 (°C.days)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Palatino"),
+    strip.text = element_text(size = 7, family = "Arial"),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Palatino"),
-    axis.title = element_text(size = 8, face = "bold", family = "Palatino"),
+    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
     plot.title = element_text(size = 18, hjust = 0),
-    legend.title = element_text(size = 8, family = "Palatino"),
+    legend.title = element_text(size = 8, family = "Arial"),
     legend.position = "right",
-    legend.text = element_text(size = 7, family = "Palatino"),
+    legend.text = element_text(size = 7, family = "Arial"),
     legend.key.size = unit(0.2, "cm"),
     legend.background = element_blank())
   # theme_grey() +
@@ -592,8 +593,9 @@ plotC <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_
 
 combined_dis <- ggarrange(plotA, plotB, plotC, nrow = 3, ncol = 1, labels = c("A.", "B.", "C."))
 ggsave(filename = "combined_dis.jpg", plot = combined_dis, width=180, height = 200, units = "mm",dpi = 300,  path = "figures/")
+ggsave("combined_dis.tiff", units="cm", width=19.05, height=22.23, dpi=300)
 
-# C) ARE THERE DIFFERENCES BETWEEN THE PRODUCTS? -------------------------------------------------------------------------------------------------------------------
+  # C) ARE THERE DIFFERENCES BETWEEN THE PRODUCTS? -------------------------------------------------------------------------------------------------------------------
 
 # Third, we are interested in the differences between the satellites. The problem is we do
 # not have replicates for satellite, so we have to use the spatial structure as the replicates.
@@ -611,10 +613,10 @@ plot6 <- ggplot(data = metric_prods, aes(x = product, y = duration)) +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
     panel.grid.minor = element_line(colour = NA),
-    strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    strip.text = element_text(size=14, family = "Arial"),
+    axis.title = element_text(size = 18, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.4, "cm"),
-    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    axis.text = element_text(size = 18, colour = "black", family = "Arial"),
     plot.title = element_text(size = 18, hjust = 0),
     legend.title = element_text(size = 18),
     legend.text = element_text(size = 16),
@@ -630,10 +632,10 @@ plot7 <- ggplot(data = metric_prods, aes(x = product, y = intensity_mean)) +
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
     panel.grid.minor = element_line(colour = NA),
-    strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    strip.text = element_text(size=14, family = "Arial"),
+    axis.title = element_text(size = 18, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.4, "cm"),
-    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    axis.text = element_text(size = 18, colour = "black", family = "Arial"),
     plot.title = element_text(size = 18, hjust = 0),
     legend.title = element_text(size = 18),
     legend.text = element_text(size = 16),
@@ -649,10 +651,10 @@ plot8 <- ggplot(data = metric_prods, aes(x = product, y = intensity_cumulative))
   theme(#panel.border = element_rect(colour = "black", fill = NA, size = 1.0),
     panel.grid.major = element_line(size = 0.2, linetype = 2),
     panel.grid.minor = element_line(colour = NA),
-    strip.text = element_text(size=14, family = "Palatino"),
-    axis.title = element_text(size = 18, face = "bold", family = "Palatino"),
+    strip.text = element_text(size=14, family = "Arial"),
+    axis.title = element_text(size = 18, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.4, "cm"),
-    axis.text = element_text(size = 18, colour = "black", family = "Palatino"),
+    axis.text = element_text(size = 18, colour = "black", family = "Arial"),
     plot.title = element_text(size = 18, hjust = 0),
     legend.title = element_text(size = 18),
     legend.text = element_text(size = 16),
