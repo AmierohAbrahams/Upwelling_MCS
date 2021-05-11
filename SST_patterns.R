@@ -121,30 +121,25 @@ save(CMC_fill_2015_2016, file = "Data_coast_angle/CMC_fill_2015_2016.RData")
 # Loading the data
 # load("Data/UI_angle.RData")
 load("Data_coast_angle/UI_angle.RData") # Created in script 'upwell_IDX.Rmd'
-# load("Data_coast_angle/G1SST_last.RData") # Created in Extracting folder : extract_tidync.R script"
-# load("Data_coast_angle/CMC_fill_2015_2016.RData")
+load("Data_coast_angle/G1SST_last.RData") # Created in Extracting folder : extract_tidync.R script"
+load("Data_coast_angle/CMC_fill_2015_2016.RData")
 load("Data_coast_angle/MUR_fill.RData")
 load("Data_coast_angle/OISST_fill_2015_2016.RData")
 load("Data_coast_angle/MUR_fill_1.RData")
-# load("Data_coast_angle/CMC_fill.RData")
+load("Data_coast_angle/CMC_fill.RData")
 load("Data_coast_angle/OISST_fill.RData")
 load("Data_coast_angle/MUR_updated.RData")
 
-MUR_updated <- MUR_updated %>% 
-  arrange(temp) 
+MUR <- MUR_fill %>% 
+  filter(year(date) %in% seq(2011, 2016, 1))
 
-MUR_1 <- MUR_updated %>% 
-  slice(1:2315)
+MUR_1 <- MUR_fill_1 %>%
+  mutate(temp = temp - 273.15) %>% 
+  rename(date =Month_Yr)
 
-updated <- MUR_updated %>% 
-  slice(2316:4185) %>% 
-  mutate(temp = temp - 273.15)
-
-MUR_na <- MUR_updated %>% 
-  slice(4186:4355)
-
-MUR_combi <- rbind(MUR_1,MUR_na, updated)
-
+MUR_test <- rbind(MUR,MUR_1) %>% 
+  arrange(date)
+  
 MUR_yrs_complete <- rbind(MUR_fill, MUR_updated) %>% 
   mutate(date = as.Date(date)) %>% 
   arrange(date)
@@ -191,13 +186,29 @@ upwelling <- UI_angle %>%
   mutate(exceedance = ifelse(ui.saws >= 1, TRUE, FALSE),
          t = as.Date(t))
 
+# Subsetting data from 2011-01-01 to 2016-12-31
+OISST <- OISST_fill %>% 
+  filter(year(date) %in% seq(2011, 2016, 1))
+
+CMC <- CMC_fill %>% 
+  filter(year(date) %in% seq(2011, 2016, 1))
+
+MUR <- MUR_fill %>% 
+  filter(year(date) %in% seq(2011, 2016, 1))
+
+MUR_fill_1 <- MUR_fill_1 %>% 
+  mutate(temp = temp - 273.15) %>% 
+  rename(date = Month_Yr)
+
+MUR <- rbind(MUR, MUR_fill_1)
+
 detect_event_custom <- function(df){
   res <- detect_event(df, threshClim2 = df$exceedance, minDuration = 1, coldSpells = T)$event 
   return(res)
 }
 
 ts2clm_custom <- function(df){
-    res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2010-01-01", "2016-12-31")) #Length of MUR time series: Change according to length of SST product # RWS: NO. The climatology period must be the same across all products.
+    res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2011-01-01", " 2016-12-31")) #Length of MUR time series: Change according to length of SST product # RWS: NO. The climatology period must be the same across all products.
   return(res)
 }
 
@@ -213,16 +224,19 @@ upwelling_detect_event <- function(df){
     group_modify(~detect_event_custom(.x))
 }
 
-OISST_upwell_base <- upwelling_detect_event(df = OISST_yrs_complete)
-MUR_upwell_base_2015 <- upwelling_detect_event(df = MUR_test)
-save(MUR_upwell_base_2015, file = "Data_coast_angle/MUR_upwell_base_2015.RData")
+OISST_upwell_base <- upwelling_detect_event(df = OISST)
+save(OISST_upwell_base, file = "OISST_upwell_base.RData")
+CMC_upwell_base <- upwelling_detect_event(df = CMC)
+save(CMC_upwell_base, file = "CMC_upwell_base.RData")
+MUR_upwell_base_2015 <- upwelling_detect_event(df = MUR)
+save(MUR_upwell_base_2015, file = "MUR_upwell_base_2015.RData")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 G1SST_last <- G1SST_last %>% 
   arrange(date)
 
 G1SST_upwell_base <- upwelling_detect_event(df = G1SST_last)
-#save(G1SST_upwell_base, file = "Data_coast_angle/G1SST_upwell_base.RData")
+# save(G1SST_upwell_base, file = "G1SST_upwell_base.RData")
 OISST_upwell_base <- upwelling_detect_event(df = OISST_yrs_complete)
 #save(OISST_upwell_base, file = "Data_coast_angle/OISST_upwell_base.RData")
 CMC_upwell_base <- upwelling_detect_event(df = CMC_fill)
@@ -269,7 +283,7 @@ detect_event_custom <- function(df){
 }
 
 ts2clm_custom <- function(df){
-  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("1982-01-01", "2005-10-19 ")) #Length of MUR time series: Chnage according to length os SST product
+  res <- ts2clm(df, pctile = 25, climatologyPeriod = c("2010-06-23", "2014-08-15")) #Length of MUR time series: Chnage according to length os SST product
   return(res)
 }
 
@@ -283,14 +297,18 @@ G1SST_last <- G1SST_last %>%
 G1SST_upwell_clims <- upwelling_detect_event(df = G1SST_last)
 G1SST_upwell_clims$distance <- as.numeric(G1SST_upwell_clims$distance)
 #save(G1SST_upwell_clims, file = "Data_coast_angle/G1SST_upwell_clims.RData")
-OISST_upwell_clims <- upwelling_detect_event(df = OISST_fill)
+#save(G1SST_upwell_clims, file = "G1SST_upwell_clims.RData")
+OISST_upwell_clims <- upwelling_detect_event(df = OISST)
 #save(OISST_upwell_clims, file = "Data_coast_angle/OISST_upwell_clims.RData")
-CMC_upwell_clims <- upwelling_detect_event(df = CMC_fill)
+#save(OISST_upwell_clims, file = "OISST_upwell_clims.RData")
+CMC_upwell_clims <- upwelling_detect_event(df = CMC)
 # save(CMC_upwell_clims, file = "Data_coast_angle/CMC_upwell_clims.RData")
+#save(CMC_upwell_clims, file = "CMC_upwell_clims.RData")
 MUR_fill$distance <- as.numeric(MUR_fill$distance)
-MUR_upwell_clims <- upwelling_detect_event(df = MUR_fill)
+MUR_upwell_clims <- upwelling_detect_event(df = MUR_test)
 MUR_upwell_clims$distance <- as.numeric(MUR_upwell_clims$distance)
 #save(MUR_upwell_clims, file = "Data_coast_angle/MUR_upwell_clims.RData")
+# save(MUR_upwell_clims, file = "MUR_upwell_clims.RData")
 
 #### With wind only as a filter
 
@@ -300,8 +318,8 @@ ts2clm_custom <- function(df){
 }
 
 G1SST_without_temp <- upwelling_detect_event(df = G1SST_last)
-OISST_without_temp <- upwelling_detect_event(df = OISST_fill)
-MUR_without_temp <- upwelling_detect_event(df = MUR_fill)
+OISST_without_temp <- upwelling_detect_event(df = OISST)
+MUR_without_temp <- upwelling_detect_event(df = MUR_test)
 CMC_without_temp <- upwelling_detect_event(df = CMC_fill)
 
 OISST_without_temp2<- upwelling_detect_event(df = OISST_fill)

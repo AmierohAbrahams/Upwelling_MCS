@@ -121,8 +121,9 @@ UI_angle <- wind_daily %>%
   drop_na() %>% 
   mutate(ui.saws = mean_speed * (cos(deg_rad(dir - 160)))) %>% # This is the orientation of the coastal angle for the west coast
   dplyr::rename(t = date) %>% # renaming date to t
-  drop_na()
-#save(UI_angle, file = "Data_coast_angle/UI_angle.RData")
+  drop_na() %>% 
+  filter(mean_speed >5)
+save(UI_angle, file = "UI_angle.RData")
 # save(UI_angle, file = "Data/UI_angle.RData")
 ```
 
@@ -139,7 +140,7 @@ SACTN_upwell <- UI_angle %>%
   group_by(site) %>%
   mutate(t = as.Date(t)) %>% 
   nest() %>% 
-  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1973-01-01", "2016-12-31")), 
+  mutate(clim = purrr::map(data, ts2clm, climatologyPeriod = c("1992-07-10", "2016-12-31")), 
          exceed = purrr::map(clim, exceedance, minDuration = 1, threshold = 1)) %>%  
   select(-data, -clim) %>% 
   unnest(cols = exceed) %>%

@@ -18,14 +18,11 @@
   OISST_upwell_base <- rbind(OISST_2015_upwell_base, OISST_upwell_base)
   MUR_upwell_base <- rbind(MUR_upwell_base, MUR_upwell_base_2015)
   
-  MUR_upwell_base <-  MUR_upwell_base %>% 
-    filter(duration < 40)
-  
 # # Removing the distance of 20 and 40kms
 # library(dplyr)
 # removing_distance_func <- function(df){
 #   removing_dist_func<- df %>% 
-#     filter(!distance %in% c(20000,40000))
+#     filter(!distance %in% c(20000,40000))gc
 # }
 # 
 # OISST_final <- removing_distance_func(df = OISST_upwell_base)
@@ -40,7 +37,7 @@
 # load("Data/MUR_final.RData")  
 # load("Data/CMC_final.RData")
 
-combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base,G1SST_upwell_base)
+combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base_2015,G1SST_upwell_base)
 
 metric_4years <- combined_products %>% 
   filter(year(date_start) %in% 2011:2016) # only for the years 2011-2014 so 4 year period
@@ -107,9 +104,18 @@ load("Data_coast_angle/SACTN_upwell_base.RData")
 load("Data_coast_angle/MUR_upwell_base.RData")
 load("Data_coast_angle/G1SST_upwell_base.RData")
 
-combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base, G1SST_upwell_base)
-# save(combined_products, file = "Data_coast_angle/combined_products.RData")
+MUR_upwell_base <- MUR_upwell_base_2015 %>% 
+  mutate(distance = as.numeric(as.character(distance)))
 
+G1SST_upwell_base_test <- G1SST_upwell_base %>% 
+  mutate(distance = as.numeric(as.character(distance))) %>% 
+  arrange(desc(duration))
+
+G1SST_upwell_base_test = G1SST_upwell_base_test[-1,] #press 3 times
+G1SST_upwell_base <- G1SST_upwell_base_test
+
+combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base,G1SST_upwell_base)
+# save(combined_products, file = "Data_coast_angle/combined_products.RData")
 # 2: Preparing box plot data ---------------------------------------------------------------------------------------------------------------------------------
 
 seasons_func <- function(df){
@@ -123,7 +129,8 @@ seasons_func <- function(df){
 }
 
 combined_products <- seasons_func(combined_products)
-SACTN <- seasons_func(df = SACTN_upwell_base)
+load("~/Documents/Upwelling_MCS/Data_coast_angle/SACTN_upwell_events.RData")
+SACTN <- seasons_func(df = SACTN_upwell_events)
 
 metrics <- combined_products %>% 
   # mutate(year = year(date_start)) %>% # Why is this here? It is removed in the summarise step.
@@ -135,14 +142,14 @@ metrics <- combined_products %>%
   rename(count = y)
 
 metric_prods <- combined_products %>% 
-  filter(year(date_start) %in% 2011:2016) %>% 
+  #filter(year(date_start) %in% 2011:2016) %>% 
   filter(season == "Summer") %>% 
   ungroup() %>% 
   dplyr::select(-heading,-distance)
 metric_prods <- as.data.frame(metric_prods)
 
 metric_SACTN <- SACTN %>% 
-  filter(year(date_start) %in% 2011:2016) %>% 
+  #filter(year(date_start) %in% 2011:2016) %>% 
   mutate(product = "SACTN") %>% 
   filter(season == "Summer")
 metric_SACTN <- as.data.frame(metric_SACTN)
@@ -155,11 +162,11 @@ summary(aov(duration ~ site, data = final[final$product == "G1SST", ]))
 summary(aov(duration ~ site, data = final[final$product == "MUR", ]))
 summary(aov(duration ~ site, data = final[final$product == "SACTN", ]))
 
-Ordering <- c("SACTN" ,"OISST", "CMC","G1SST", "MUR")
+final$product = factor(final$product, levels = c("SACTN", "OISST", "CMC", "MUR","G1SST"))
 plot1 <- ggplot(data = final, aes(x = site, y = duration)) +
   geom_boxplot(notch=TRUE) +
   facet_wrap(vars(product), ncol = 5) +
-  #scale_x_discrete(limits = Ordering) +
+ # scale_x_discrete(limits = Ordering) +
   xlab("") + ylab("Duration (days)") +
   theme_minimal() +
   theme(
@@ -251,7 +258,7 @@ summary(aov(intensity_cumulative ~ site, data = final[final$product == "SACTN", 
   theme_minimal() +
   theme(
     strip.text = element_text(size = 7, family = "Arial"),
-    axis.text.x = element_text(angle = 90),
+    axis.text.x = element_text(angle = 45),
     strip.placement = "outside",
     axis.text = element_text(size = 6, colour = "black", family = "Arial"),
     axis.title = element_text(size = 8, face = "bold", family = "Arial"),
@@ -415,18 +422,18 @@ S
 # "OISST" "CMC"   "MUR"   "G1SST"
 
 metric_prods <- combined_products %>% 
-  filter(year(date_start) %in% 2011:2016) %>% 
+ # filter(year(date_start) %in% 2011:2016) %>% 
   filter(season == "Summer") 
 
 metric_prods <- metric_prods %>% 
- ungroup() %>% 
   mutate(distance = case_when(distance == "25000" ~ "25",
                               distance == "50000" ~ "50",
-                              distance == "0" ~ "0",))
+                              distance == "0" ~ "0"))
 metric_prods$product <- as.factor(metric_prods$product)
-metric_prods$product <- relevel(metric_prods$product,     # Reordering group factor levels
-                          "OISST", "CMC", "G1SST", "OISST")
-metric_prods$product <- factor(metric_prods$product,levels=c( "OISST", "CMC", "G1SST", "OISST"))
+
+metric_prods$product = factor(metric_prods$product, levels = c("OISST", "CMC", "MUR", "G1SST")) #Re ordering
+
+# metric_prods$product <- factor(metric_prods$product,levels=c( "OISST", "CMC", "G1SST", "OISST"))
 # H0: For OISST, there is no significant effect caused by between-distance differences:
 summary(aov(duration ~ distance, data = metric_prods[metric_prods$product == "OISST", ]))
 # use above example and make your own ANOVA table, and include the figure below...
@@ -494,11 +501,6 @@ summary(aov(intensity_mean ~ distance, data = metric_prods[metric_prods$product 
 summary(aov(intensity_mean ~ distance, data = metric_prods[metric_prods$product == "G1SST", ]))
 # use above example and make your own ANOVA table, and include the figure above...
 
-metric_prods <- metric_prods %>% 
-  mutate(distance = case_when(distance == "25000" ~ "25",
-                              distance == "50000" ~ "50",
-                              distance == "0" ~ "0",))
-
 plotB <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_mean)) +
   geom_boxplot(notch = TRUE) +
   facet_wrap(vars(product), ncol = 4) +
@@ -550,12 +552,6 @@ summary(aov(intensity_cumulative ~ distance, data = metric_prods[metric_prods$pr
 # use above example and make your own ANOVA table, and include the figure above..
 
 # use above example and make your own ANOVA table, and include the figure below...
-
-final <- final %>% 
-  mutate(distance = case_when(distance == "25000" ~ "25",
-                              distance == "50000" ~ "50",
-                              distance == "0" ~ "0",))
-  
 
 plotC <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_cumulative)) +
   geom_boxplot(notch = TRUE) +

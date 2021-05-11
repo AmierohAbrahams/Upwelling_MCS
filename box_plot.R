@@ -117,7 +117,7 @@ SST_clims <- rbind(OISST_upwell_clims,G1SST_upwell_clims,CMC_upwell_clims,MUR_up
 SST_anom <- SST_clims %>% 
   group_by(site, product, distance) %>% 
   mutate(anom = temp - seas) %>% 
-  filter(year(t) %in% 2011:2014) %>% 
+  #filter(year(t) %in% 2011:2014) %>% 
   filter(event_no > 0) %>% # Activate this line to only use dates during an upwelling event
   dplyr::select(site, t, distance, temp, anom, product) %>% 
   na.omit() %>% 
@@ -169,7 +169,7 @@ test <- combined_products %>%
 test1 <- test %>% 
  group_by(site,product,distance) %>% 
   summarise(mean_signals = mean(count),
-            sd_signals = sd(count)) %>% 
+              sd_signals = sd(count)) %>% 
   mutate(Distance = case_when(distance == "25000" ~ "25",
                             distance == "50000" ~ "50",
                             distance == "0" ~ "0",))
