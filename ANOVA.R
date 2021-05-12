@@ -698,7 +698,7 @@ summary(aov(intensity_cumulative ~ site + product + distance, data = lm_metrics_
 
 ### ANOVA suggested by AJ to compare the differences in number of signals detected between sites
 metric_ANOVA <- combined_products %>% 
-  filter(year(date_start) %in% 2011:2014) %>%  # only for the years 2011-2014 so 4 year period
+ # filter(year(date_start) %in% 2011:2014) %>%  # only for the years 2011-2014 so 4 year period
   ungroup() %>%
   group_by(product, site, distance) %>% 
   summarise(y = n()) %>% 
@@ -712,7 +712,7 @@ metric_ANOVA <- combined_products %>%
 
 summary(aov(count ~ site, data = metric_ANOVA))
 summary(aov(count ~ product + distance/site, data = metric_ANOVA))
-summary(aov(count ~ distance, data = metric_ANOVA))
+  summary(aov(count ~ distance, data = metric_ANOVA))
 
 ##
 # Plot the count of SST against temperature and see if changes occured
