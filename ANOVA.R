@@ -116,6 +116,10 @@ G1SST_upwell_base <- G1SST_upwell_base_test
 
 combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base,G1SST_upwell_base)
 # save(combined_products, file = "Data_coast_angle/combined_products.RData")
+# Calculating the number of upwelling signals at the different sites for the different products
+
+number_products <- SACTN_upwell_events %>% 
+  filter(site == "Saldanha Bay")
 # 2: Preparing box plot data ---------------------------------------------------------------------------------------------------------------------------------
 
 seasons_func <- function(df){
@@ -129,7 +133,7 @@ seasons_func <- function(df){
 }
 
 combined_products <- seasons_func(combined_products)
-load("~/Documents/Upwelling_MCS/Data_coast_angle/SACTN_upwell_events.RData")
+load("~/Documents/Upwelling_MCS/SACTN_upwell_events.RData")
 SACTN <- seasons_func(df = SACTN_upwell_events)
 
 metrics <- combined_products %>% 
@@ -150,8 +154,8 @@ metric_prods <- as.data.frame(metric_prods)
 
 metric_SACTN <- SACTN %>% 
   #filter(year(date_start) %in% 2011:2016) %>% 
-  mutate(product = "SACTN") %>% 
-  filter(season == "Summer")
+  mutate(product = "SACTN")
+  #filter(season == "Summer")
 metric_SACTN <- as.data.frame(metric_SACTN)
 
 final <- rbind(metric_SACTN,metric_prods)

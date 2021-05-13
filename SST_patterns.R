@@ -313,20 +313,23 @@ MUR_upwell_clims$distance <- as.numeric(MUR_upwell_clims$distance)
 #### With wind only as a filter
 
 ts2clm_custom <- function(df){
-  res <- ts2clm(df, pctile = 100, climatologyPeriod = c("2002-06-01 ", "2013-12-31")) #Length of MUR time series: Chnage according to length os SST product
+  res <- ts2clm(df, pctile = 100, climatologyPeriod = c("2010-06-23", "2014-08-15")) #Length of MUR time series: Chnage according to length os SST product
   return(res)
 }
 
 G1SST_without_temp <- upwelling_detect_event(df = G1SST_last)
 OISST_without_temp <- upwelling_detect_event(df = OISST)
 MUR_without_temp <- upwelling_detect_event(df = MUR_test)
-CMC_without_temp <- upwelling_detect_event(df = CMC_fill)
+CMC_without_temp <- upwelling_detect_event(df = CMC)
 
 OISST_without_temp2<- upwelling_detect_event(df = OISST_fill)
 # save(OISST_2015_upwell_base, file = "Data_coast_angle/OISST_2015_upwell_base.RData")
 CMC_2015_without_temp <- upwelling_detect_event(df = CMC_fill)
 # save(CMC_2015_upwell_base, file = "Data_coast_angle/CMC_2015_upwell_base.RData")
 MUR_2015_without_temp <- upwelling_detect_event(df = hope)
+
+number_products <- G1SST_without_temp %>% 
+  filter(site == "Saldanha Bay")
 
 
 OISST_wind_only <- rbind(OISST_without_temp,OISST_without_temp2)
