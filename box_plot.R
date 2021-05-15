@@ -111,6 +111,9 @@ load("Data_coast_angle/CMC_upwell_clims.RData")
 load("Data_coast_angle/MUR_upwell_clims.RData")
 load("Data_coast_angle/G1SST_upwell_clims.RData")
 
+MUR_upwell_clims <- MUR_upwell_clims %>% 
+  mutate(distance = as.numeric(as.character(distance)))
+
 SST_clims <- rbind(OISST_upwell_clims,G1SST_upwell_clims,CMC_upwell_clims,MUR_upwell_clims)
 
 # Determining the anomaly temperature for  SST products and SACTN
@@ -126,14 +129,18 @@ SST_anom <- SST_clims %>%
 # Create wide anomaly data.frame
 sst_anom_wide <- SST_anom %>% 
   pivot_wider(id_cols = c(site, product, t), names_from = distance, values_from = c(temp, anom))
+sst_anom_wide <- as.data.frame(sst_anom_wide)
+write_csv(sst_anom_wide, path = "sst_anom_wide.csv")
 
 # Doing the correlation using the easystat correlation package
 # https://rdrr.io/github/easystats/correlation/man/   correlation.html
 SST_corr <- sst_anom_wide %>% 
   group_by(site, product) %>% 
   correlation(method = "pearson") #%>% 
-  # summary()
 
+
+  # summary()
+save(sst_anom_wide, file = "sst_anom_wide.RData")
 # anom_spread<- SST_anom %>%
 #   spread(key = distance, value = temp)
 
@@ -141,18 +148,23 @@ SST_anom_spread <- pivot_wider(SST_anom, names_prefix = "dist_",
                                names_from = distance, values_from = temp)
 
 slope_calc <- function(df){
+  cor(df[5:6,], method="pearson")
+}
+
+slope_calc <- function(df){
   df %>% 
     do(mod1 = cor(.$dist_0, .$dist_25000, method = "pearson", use = "complete.obs"),
        mod2 = cor(.$dist_0, .$dist_50000, method = "pearson", use = "complete.obs")) %>%
     mutate(dist_0_vs_25_r = mod1[1],
-           dist_0_vs_50_r = mod2[1]) %>% 
-    dplyr::select(-mod1, -mod2) %>% 
+           dist_0_vs_50_r = mod2[1]) %>%
+    dplyr::select(-mod1, -mod2) %>%
     mutate_if(is.numeric, round, 2)
 }
 
 distance_corr <- SST_anom_spread %>% 
   group_by(site, product) %>% 
   slope_calc()
+  
 
 ## Bar graph plot
 Ordering <- c("OISST", "CMC","G1SST", "MUR")
