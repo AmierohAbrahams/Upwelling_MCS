@@ -172,11 +172,14 @@ detect_event_custom <- function(df){
   return(res)
 }
 # Calculate the upwelling event metrics
+SACTN_US <- SACTN_US %>% 
+  filter(year(date) %in% seq(2011, 2016, 1))
+
 SACTN_upwell_base <- SACTN_US %>% 
   dplyr::rename(t = date) %>% 
   group_by(site) %>% 
   nest() %>% 
-  mutate(clim = purrr::map(data, ts2clm, pctile = 25, climatologyPeriod = c("1993-01-01", "2005-10-19"))) %>%
+  mutate(clim = purrr::map(data, ts2clm, pctile = 100, climatologyPeriod = c("2011-01-01", "2016-12-31"))) %>%
   dplyr::select(-data) %>% 
   unnest(cols = clim) %>%
   left_join(SACTN_upwell, by = c("site", "t")) %>%
@@ -190,7 +193,11 @@ SACTN_upwell_events <- SACTN_upwell_base %>%
   unnest() %>%
   filter(row_number() %% 2 == 0) %>%
   unnest()
-save(SACTN_upwell_events, file = "Data_coast_angle/SACTN_upwell_events.RData")
+
+number_SACTN <-  SACTN_upwell_events%>% 
+  filter(site == "Saldanha Bay")
+
+save(SACTN_upwell_events, file = "SACTN_upwell_events.RData")
 # save(SACTN_upwell_events, file = "Data_coast_angle/SACTN_upwell_events.RData")
 
 SACTN_upwell_clims <- SACTN_upwell_base %>% 
