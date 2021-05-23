@@ -37,6 +37,10 @@
 # load("Data/MUR_final.RData")  
 # load("Data/CMC_final.RData")
 
+  
+G1SST_upwell_base$distance <- as.numeric(G1SST_upwell_base$distance)
+MUR_upwell_base_2015$distance <- as.numeric(MUR_upwell_base_2015$distance)
+
 combined_products <- rbind(OISST_upwell_base,CMC_upwell_base,MUR_upwell_base_2015,G1SST_upwell_base)
 
 metric_4years <- combined_products %>% 
@@ -174,11 +178,11 @@ plot1 <- ggplot(data = final, aes(x = site, y = duration)) +
   xlab("") + ylab("Duration (days)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Arial"),
-    axis.text.x = element_text(angle = 45),
+    strip.text = element_text(size = 10, family = "Arial"),
+    axis.text.x = element_text(angle = 90),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
-    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
+    axis.text = element_text(size = 9, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 10, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
@@ -216,11 +220,11 @@ plot2 <- ggplot(data = final, aes(x = site, y = intensity_mean)) +
   xlab("") + ylab("Mean intensity (°C)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Arial"),
-    axis.text.x = element_text(angle = 45),
+    strip.text = element_text(size = 10, family = "Arial"),
+    axis.text.x = element_text(angle = 90),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
-    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
+    axis.text = element_text(size = 9, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 10, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
@@ -261,11 +265,11 @@ summary(aov(intensity_cumulative ~ site, data = final[final$product == "SACTN", 
   (°C.days)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Arial"),
-    axis.text.x = element_text(angle = 45),
+    strip.text = element_text(size = 10, family = "Arial"),
+    axis.text.x = element_text(angle = 90),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
-    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
+    axis.text = element_text(size = 9, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 10, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
@@ -290,9 +294,9 @@ summary(aov(intensity_cumulative ~ site, data = final[final$product == "SACTN", 
   #   legend.key = element_rect(size = 0.8, colour = NA),
   #   legend.background = element_blank())
 
-combined_plot1 <- ggarrange(plot1, plot2, plot3, nrow = 3, ncol = 1, labels = c("A.", "B.", "C."))
+Fig2 <- ggarrange(plot1, plot2, plot3, nrow = 3, ncol = 1, labels = c("A.", "B.", "C."))
 ggsave(filename = "combined_plot1.jpg", plot = combined_plot1, width=180, height = 200, units = "mm",dpi = 300,  path = "figures/")
-ggsave("combined_plot1.tiff", units="cm", width=19.05, height=22.23, dpi=300)
+ggsave("Fig2.tiff", units="cm", width=19.05, height=22.23, dpi=600)
 
 # # A) DIFFERENCES BETWEEN SITES, PER PRODUCT -------------------------------
 # 
@@ -448,10 +452,10 @@ plotA <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = duration))
   xlab("") + ylab("Duration (days)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Arial"),
+    strip.text = element_text(size = 10, family = "Arial"),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
-    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
+    axis.text = element_text(size = 9, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 10, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
@@ -511,10 +515,10 @@ plotB <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_
   xlab("") + ylab("Mean intensity (°C)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Arial"),
+    strip.text = element_text(size = 10, family = "Arial"),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
-    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
+    axis.text = element_text(size = 9, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 10, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
@@ -564,10 +568,10 @@ plotC <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_
 (°C.days)") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 7, family = "Arial"),
+    strip.text = element_text(size = 10, family = "Arial"),
     strip.placement = "outside",
-    axis.text = element_text(size = 6, colour = "black", family = "Arial"),
-    axis.title = element_text(size = 8, face = "bold", family = "Arial"),
+    axis.text = element_text(size = 9, colour = "black", family = "Arial"),
+    axis.title = element_text(size = 10, face = "bold", family = "Arial"),
     axis.ticks.length = unit(0.2, "cm"),
     panel.grid.major = element_line("grey70", linetype = "dashed", size = 0.2),
     panel.grid.minor = element_line("grey70", linetype = "dashed", size = 0.2),
@@ -591,9 +595,10 @@ plotC <- ggplot(data = metric_prods, aes(x = as.factor(distance), y = intensity_
   #   legend.key = element_rect(size = 0.8, colour = NA),
   #   legend.background = element_blank())
 
-combined_dis <- ggarrange(plotA, plotB, plotC, nrow = 3, ncol = 1, labels = c("A.", "B.", "C."))
+Fig3 <- ggarrange(plotA, plotB, plotC, nrow = 3, ncol = 1, labels = c("A.", "B.", "C."))
 ggsave(filename = "combined_dis.jpg", plot = combined_dis, width=180, height = 200, units = "mm",dpi = 300,  path = "figures/")
-ggsave("combined_dis.tiff", units="cm", width=19.05, height=22.23, dpi=300)
+ggsave("Fig3.tiff", units="cm", width=19.05, height=22.23, dpi=600)
+
 
   # C) ARE THERE DIFFERENCES BETWEEN THE PRODUCTS? -------------------------------------------------------------------------------------------------------------------
 
@@ -718,7 +723,6 @@ summary(aov(count ~ site, data = metric_ANOVA))
 summary(aov(count ~ product + distance/site, data = metric_ANOVA))
   summary(aov(count ~ distance, data = metric_ANOVA))
 
-##
 # Plot the count of SST against temperature and see if changes occured
 
 # OISST_temp_match <- OISST_temp %>% 
