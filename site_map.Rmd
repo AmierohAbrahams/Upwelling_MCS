@@ -167,7 +167,7 @@ load("Data/sa_provinces_new.RData")
 load("Data/site_list_sub.Rdata")
 load("Data_coast_angle/site_pixels.RData")
 load("~/Documents/HONOURSPROJECT-master/data/africa_coast.RData")
-site_pixels <- read_csv("site_pixels.csv")
+#site_pixels <- read_csv("site_pixels.csv")
 
 load("~/Documents/Upwelling_MCS/Data/sa_bathy.RData")
 
@@ -204,9 +204,9 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
     # annotate("text", label = "ATLANTIC\nOCEAN", x = 16.5, y = -31.5,
     #          size =5, angle = 0, colour = "black") +
   annotate("text", label = "Cape Columbine", x = 16.0, y = -30.5,
-             size =5, angle = 45, colour = "black")+
+           family = "Arial", size =5, angle = 45, colour = "black")+
   annotate("text", label = "Cape Peninsula", x = 16.5, y = -33.9,
-             size =5, angle = 45, colour = "black")+
+             family = "Arial", size =5, angle = 45, colour = "black")+
   guides(fill = guide_colourbar()) +
   scale_y_continuous(breaks = seq(-34, -28, by = 2),
                      labels  = c("34°S","32°S","30°S","28°S")) +
@@ -215,8 +215,8 @@ site_map <- ggplot(data = south_africa_coast, aes(x = lon, y = lat)) +
  coord_fixed(ratio = 1, xlim = c(15.4, 20), ylim = c(-34.4,-27),
     expand = TRUE) +
   theme(axis.text = element_text(size = rel(1.2), colour = "black", family = "Arial"),
-        axis.text.x = element_text(vjust = 1, family = "Arial", size = 22),
-        axis.text.y = element_text(hjust = 1, family = "Arial", size = 22),
+        axis.text.x = element_text(vjust = 1, family = "Arial", size = 12),
+        axis.text.y = element_text(hjust = 1, family = "Arial", size = 12),
         axis.title.x = element_text(vjust = 0, family = "Arial"),
         axis.title.y = element_text(angle = 90, vjust = 0.3, family = "Arial"),
         axis.ticks = element_line(colour = "black"),
@@ -265,7 +265,7 @@ xmin = 17, xmax = 21.5,
 ymin = -28.8, ymax = -26.6)
 sa_4
 
-ggsave("sa_4.tiff", units="cm", width=19.05, height=22.23, dpi=300)
+ggsave("Fig1.tiff", units="cm", width=19.05, height=22.23, dpi=600)
 ```
 
 # SIte map 2
